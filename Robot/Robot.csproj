@@ -53,9 +53,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IJoystick.cs" />
     <Compile Include="EposRobot.cs" />
     <Compile Include="AbstractJoystick.cs" />
     <Compile Include="IRobot.cs" />
+    <Compile Include="JoystickBridge.cs" />
     <Compile Include="MathLibrary.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="MainWindow.cs">

@@ -90,7 +90,7 @@ namespace Robot
             stateNow = gamepad.GetCurrentState();
             bool[] buttons = stateNow.GetButtons();
 
-            if (state.x != stateNow.X || state.y != stateNow.Y)
+            if ((state.x != stateNow.X || state.y != stateNow.Y) && stickObserver != null)
             {
                 state.x = stateNow.X;
                 state.y = stateNow.Y;
@@ -104,30 +104,30 @@ namespace Robot
                 stickObserver(x, y);
             }
 
-            if (state.moveDown != buttons[0]) {
+            if (state.moveDown != buttons[0] && buttonMoveDownObserver != null) {
                 buttonMoveDownObserver(buttons[0]);
                 state.moveDown = buttons[0];
             }
 
-            if (state.moveUp != buttons[3])
+            if (state.moveUp != buttons[3] && buttonMoveUpObserver != null)
             {
                 buttonMoveUpObserver(buttons[3]);
                 state.moveUp = buttons[3];
             }
 
-            if (state.narrow != buttons[2])
+            if (state.narrow != buttons[2] && buttonNarrowObserver != null)
             {
                 buttonNarrowObserver(buttons[2]);
                 state.narrow = buttons[2];
             }
 
-            if (state.widen != buttons[1])
+            if (state.widen != buttons[1] && buttonWidenObserver != null)
             {
                 buttonWidenObserver(buttons[1]);
                 state.widen = buttons[1];
             }
 
-            if (state.defaultPosition != buttons[7])
+            if (state.defaultPosition != buttons[7] && buttonDefaultPositionObserver != null)
             {
                 buttonDefaultPositionObserver(buttons[7]);
                 state.defaultPosition = buttons[7];

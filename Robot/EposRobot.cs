@@ -42,7 +42,7 @@ namespace Robot
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         public void move(int direction, int speed)
         {
-            Console.WriteLine("Move to direction: "+direction+" with speedd: "+speed);
+            Console.WriteLine("Move to direction: "+direction+" with speed: "+speed);
         }
 
         /// <summary>

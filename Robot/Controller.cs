@@ -13,21 +13,19 @@ namespace Robot
     {
         private MainWindow mainWindow; // hlavní okno apklikace
         private IRobot robot; // instance představující robota
-        private AbstractJoystick joystick; // instance představující HW joystick
+        private IJoystick joystick; // instance představující joystick
 
         //timery obstarávající periodické spouštění při držění tlačítka
-        private System.Timers.Timer moveUpPeriodHandler; 
+        private System.Timers.Timer moveUpPeriodHandler;
         private System.Timers.Timer moveDownPeriodHandler;
         private System.Timers.Timer widenPeriodHandler;
         private System.Timers.Timer narrowPeriodHandler;
         private System.Timers.Timer defaultPositionPeriodHandler;
 
-
         /// <param name="mainWindow">hlavní okno aplikace</param>
         public Controller(MainWindow mainWindow)
         {
             this.robot = new EposRobot();
-            this.joystick = new Gamepad();
             this.mainWindow = mainWindow;
             mainWindow.subscribeWindowShownObserver(inicialize);
         }
@@ -43,26 +41,24 @@ namespace Robot
             {
                 mainWindow.showMotorsError(errorMessageMotor);
             }
-            string errorMessageControll = joystick.inicialize();
-            if (errorMessageControll.Length > 0)
+
+            JoystickBridge joystickBridge = new JoystickBridge();
+            joystick = joystickBridge.getJoystick();
+            if (joystickBridge.errorMessage.Length > 0)
             {
-                mainWindow.showControlError(errorMessageControll);
-                mainWindow.subscribeJoystickObserver(softwareJoystickMoved);
+                mainWindow.showControlError(joystickBridge.errorMessage);
             }
-            else
-            {
-                joystick.subscribeStickObserver(hardwareJoystickChanged);
-                joystick.subscribeButtonMoveUpObserver(hardwareJoystickButtonMoveUpChanged);
-                joystick.subscribeButtonMoveDownObserver(hardwareJoystickButtonMoveDownChanged);
-                joystick.subscribeButtonNarrowObserver(hardwareJoystickButtonNarrowChanged);
-                joystick.subscribeButtonWidenObserver(hardwareJoystickButtonWidenChanged);
-                joystick.subscribeButtonDefaultPositionObserver(hardwareJoystickButtonDefaultPositionChanged);
-                moveUpPeriodHandler = getPeriodHandler();
-                moveDownPeriodHandler = getPeriodHandler();
-                widenPeriodHandler = getPeriodHandler();
-                narrowPeriodHandler = getPeriodHandler();
-                defaultPositionPeriodHandler = getPeriodHandler();
-            }
+            joystick.subscribeStickObserver(joystickChanged);
+            joystick.subscribeButtonMoveUpObserver(joystickButtonMoveUpChanged);
+            joystick.subscribeButtonMoveDownObserver(joystickButtonMoveDownChanged);
+            joystick.subscribeButtonNarrowObserver(joystickButtonNarrowChanged);
+            joystick.subscribeButtonWidenObserver(joystickButtonWidenChanged);
+            joystick.subscribeButtonDefaultPositionObserver(joystickButtonDefaultPositionChanged);
+            moveUpPeriodHandler = getPeriodHandler();
+            moveDownPeriodHandler = getPeriodHandler();
+            widenPeriodHandler = getPeriodHandler();
+            narrowPeriodHandler = getPeriodHandler();
+            defaultPositionPeriodHandler = getPeriodHandler();
         }
 
         /// <summary>
@@ -70,18 +66,22 @@ namespace Robot
         /// </summary>
         /// <param name="x">x souřadnice joysticku od -100 do 100</param>
         /// <param name="y">y souřadnice joysticku od -100 do 100</param>
-        private void hardwareJoystickChanged(int x, int y)
+        private void joystickChanged(int x, int y)
         {
             Point corectedPoint = MathLibrary.convertPointToCircle(x, y, 0, 0, 101);
             moveRobot(corectedPoint.X, corectedPoint.Y);
-            mainWindow.moveJoystick(corectedPoint.X, corectedPoint.Y);
+            if (!(joystick is MainWindow))
+            {
+                mainWindow.moveJoystick(corectedPoint.X, corectedPoint.Y);
+            }
         }
 
         /// <summary>
         /// Vytvoří timer, který bude periodicky spouštět akci robota.
         /// </summary>
         /// <returns>timer</returns>
-        private System.Timers.Timer getPeriodHandler() {
+        private System.Timers.Timer getPeriodHandler()
+        {
             System.Timers.Timer aTimer = new System.Timers.Timer();
             aTimer.Elapsed += new ElapsedEventHandler(periodiclyAction);
             aTimer.Interval = 500;
@@ -94,8 +94,10 @@ namespace Robot
         /// </summary>
         /// <param name="sender">timer, který se stará o periodu</param>
         /// <param name="arg">argumenty</param>
-        private void periodiclyAction(object sender, ElapsedEventArgs arg) {
-            if (sender == moveUpPeriodHandler) {
+        private void periodiclyAction(object sender, ElapsedEventArgs arg)
+        {
+            if (sender == moveUpPeriodHandler)
+            {
                 robot.moveUp();
             }
             if (sender == moveDownPeriodHandler)
@@ -120,7 +122,7 @@ namespace Robot
         /// Callback pro změnu stavu tlačítka pro pohyb nahoru 
         /// </summary>
         /// <param name="pressed">stisknuté tlačítko pro pohyb robota nahoru</param>
-        private void hardwareJoystickButtonMoveUpChanged(bool pressed)
+        private void joystickButtonMoveUpChanged(bool pressed)
         {
             if (pressed)
             {
@@ -138,7 +140,7 @@ namespace Robot
         /// Callback pro změnu stavu tlačítka pro pohyb dolu
         /// </summary>
         /// <param name="pressed">stisknuté tlačítko pro pohyb robota dolu</param>
-        private void hardwareJoystickButtonMoveDownChanged(bool pressed)
+        private void joystickButtonMoveDownChanged(bool pressed)
         {
             if (pressed)
             {
@@ -156,7 +158,7 @@ namespace Robot
         /// Callback pro změnu stavu tlačítka pro rozšíření
         /// </summary>
         /// <param name="pressed">stisknuté tlačítko pro rozšíření robota</param>
-        private void hardwareJoystickButtonWidenChanged(bool pressed)
+        private void joystickButtonWidenChanged(bool pressed)
         {
             if (pressed)
             {
@@ -174,7 +176,7 @@ namespace Robot
         /// Callback pro změnu stavu tlačítka pro zůžení
         /// </summary>
         /// <param name="pressed">stisknuté tlačítko pro zůžení robota</param>
-        private void hardwareJoystickButtonNarrowChanged(bool pressed)
+        private void joystickButtonNarrowChanged(bool pressed)
         {
             if (pressed)
             {
@@ -192,7 +194,7 @@ namespace Robot
         /// Callback pro změnu stavu tlačítka pro defaultní pozici
         /// </summary>
         /// <param name="pressed">stisknuté tlačítko pro návrat do původní polohy</param>
-        private void hardwareJoystickButtonDefaultPositionChanged(bool pressed)
+        private void joystickButtonDefaultPositionChanged(bool pressed)
         {
             if (pressed)
             {
@@ -204,16 +206,6 @@ namespace Robot
                 defaultPositionPeriodHandler.Stop();
             }
             mainWindow.buttonDefaultPositionPressed(pressed);
-        }
-
-        /// <summary>
-        /// Callback pro změnu stavu sfotwarového joysticku
-        /// </summary>
-        /// <param name="x">x souřadnice od -100 do 100</param>
-        /// <param name="y">y souřadnice od -100 do 100</param>
-        private void softwareJoystickMoved(int x, int y)
-        {
-            moveRobot(x, y);
         }
 
         /// <summary>

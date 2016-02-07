@@ -12,17 +12,28 @@ using System.Timers;
 
 namespace Robot
 {
-    public partial class MainWindow : Form
+    public partial class MainWindow : Form, IJoystick
     {
+        private static MainWindow instance = new MainWindow(); //jediná instance této třídy
         private const int joystickR = 70; //poloměr kružnice joysticku
         private Point stickLocation = new Point(joystickR, joystickR); //pozice páčky joysticku
         private Action inicializeObserver; //callback pro dokončení view
-        private Action<int, int> joystickObserver; //callback pro pohyb joysticku (int x, int y)
+        protected Action<int, int> stickObserver; //callback pro změnu stavu páčky (int x souřadnice páčky, int y souřadnice páčky)
+        protected Action<bool> buttonMoveUpObserver; //callback pro změnu stavu tlačítka pro pohyb nahoru (bool pohyb nahoru)
+        protected Action<bool> buttonMoveDownObserver; //callback pro změnu stavu tlačítka pro pohyb dolu (bool pohyb dolu)
+        protected Action<bool> buttonNarrowObserver; //callback pro změnu stavu tlačítka pro zůžení (bool zůžit)
+        protected Action<bool> buttonWidenObserver; //callback pro změnu stavu tlačítka pro rozšíření (bool rozšířit)
+        protected Action<bool> buttonDefaultPositionObserver; //callback pro změnu stavu tlačítka pro defaultní pozici (bool defaultní pozice)
 
-        public MainWindow()
+        private MainWindow()
         {
             InitializeComponent();
             createSoftwareJoystick();
+        }
+
+        public static MainWindow getInstance()
+        {
+            return instance;
         }
         
         /// <summary>
@@ -35,15 +46,78 @@ namespace Robot
         }
 
         /// <summary>
-        /// Přiřazení posluchače pro pohyb joysticku
+        /// Inicializace joysticku
         /// </summary>
-        /// <param name="observer">metoda vykonaná při eventu (int x, int y)</param>
-        public void subscribeJoystickObserver(Action<int, int> observer)
+        /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
+        public string inicialize(){
+            return "";
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu joysticku
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (int x souřadnice páčky, int y souřadnice páčky)</param>
+        public void subscribeStickObserver(Action<int, int> observer)
         {
-            joystickObserver = observer;
+            stickObserver = observer;
             panelForJoystick.MouseMove += new MouseEventHandler(panelForJoystick_MouseMove);
             panelForJoystick.MouseDown += new MouseEventHandler(panelForJoystick_MouseDown);
             panelForJoystick.MouseUp += new MouseEventHandler(panelForJoystick_MouseUp);
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro pohyb nahoru
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool pohyb nahoru)</param>
+        public void subscribeButtonMoveUpObserver(Action<bool> observer)
+        {
+            buttonMoveUpObserver = observer;
+            buttonMoveUp.MouseDown += new MouseEventHandler(buttonMoveUp_MouseDown);
+            buttonMoveUp.MouseUp += new MouseEventHandler(buttonMoveUp_MouseUp);
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro pohyb dolu
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool pohyb dolu)</param>
+        public void subscribeButtonMoveDownObserver(Action<bool> observer)
+        {
+            buttonMoveDownObserver = observer;
+            buttonMoveDown.MouseDown += new MouseEventHandler(buttonMoveDown_MouseDown);
+            buttonMoveDown.MouseUp += new MouseEventHandler(buttonMoveDown_MouseUp);
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro zůžení
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool zůžit)</param>
+        public void subscribeButtonNarrowObserver(Action<bool> observer)
+        {
+            buttonNarrowObserver = observer;
+            buttonNarrow.MouseDown += new MouseEventHandler(buttonNarrow_MouseDown);
+            buttonNarrow.MouseUp += new MouseEventHandler(buttonNarrow_MouseUp);
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro rozšíření
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool rozšířit)</param>
+        public void subscribeButtonWidenObserver(Action<bool> observer)
+        {
+            buttonWidenObserver = observer;
+            buttonWiden.MouseDown += new MouseEventHandler(buttonWiden_MouseDown);
+            buttonWiden.MouseUp += new MouseEventHandler(buttonWiden_MouseUp);
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro defaultní pozici
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool defaultní pozice)</param>
+        public void subscribeButtonDefaultPositionObserver(Action<bool> observer)
+        {
+            buttonDefaultPositionObserver = observer;
+            buttonDefaultPosition.MouseDown += new MouseEventHandler(buttonDefaultPosition_MouseDown);
+            buttonDefaultPosition.MouseUp += new MouseEventHandler(buttonDefaultPosition_MouseUp);
         }
 
         /// <summary>
@@ -204,7 +278,10 @@ namespace Robot
         {
             stickLocation = new Point(joystickR, joystickR);
             panelForJoystick.Invalidate();
+            stickObserver(0, 0);
         }
+
+        //event listenery ================================================================
 
         private void MainWindow_Shown(object sender, EventArgs e)
         {
@@ -222,7 +299,7 @@ namespace Robot
                 {
                     stickLocation = e.Location;
                     panelForJoystick.Invalidate();
-                    joystickObserver((int)Math.Floor((e.X - joystickR) / ((double)joystickR / 100)), (int)Math.Floor((e.Y - joystickR) / ((double)joystickR / 100)));
+                    stickObserver((int)Math.Floor((e.X - joystickR) / ((double)joystickR / 100)), (int)Math.Floor((e.Y - joystickR) / ((double)joystickR / 100)));
                 }
                 else {
                     Cursor.Position = panelForJoystick.PointToScreen(MathLibrary.convertPointToCircle(e.X, e.Y,joystickR, joystickR, joystickR-2));
@@ -240,7 +317,7 @@ namespace Robot
                     Cursor.Clip = new Rectangle(tableLayoutPanel2.PointToScreen(panelForJoystick.Location), panelForJoystick.Size);
                     stickLocation = e.Location;
                     panelForJoystick.Invalidate();
-                    joystickObserver((int)Math.Floor((e.X - joystickR) / ((double)joystickR / 100)), (int)Math.Floor((e.Y - joystickR) / ((double)joystickR / 100)));
+                    stickObserver((int)Math.Floor((e.X - joystickR) / ((double)joystickR / 100)), (int)Math.Floor((e.Y - joystickR) / ((double)joystickR / 100)));
                 }
             }
         }
@@ -250,6 +327,56 @@ namespace Robot
             Cursor.Show();
             Cursor.Clip = Rectangle.Empty;
             cursorBackToMid();
+        }
+
+        private void buttonDefaultPosition_MouseUp(object sender, MouseEventArgs e)
+        {
+            buttonDefaultPositionObserver(false);
+        }
+
+        private void buttonDefaultPosition_MouseDown(object sender, MouseEventArgs e)
+        {
+            buttonDefaultPositionObserver(true);
+        }
+
+        private void buttonWiden_MouseUp(object sender, MouseEventArgs e)
+        {
+            buttonWidenObserver(false);
+        }
+
+        private void buttonWiden_MouseDown(object sender, MouseEventArgs e)
+        {
+            buttonWidenObserver(true);
+        }
+
+        private void buttonNarrow_MouseUp(object sender, MouseEventArgs e)
+        {
+            buttonNarrowObserver(false);
+        }
+
+        private void buttonNarrow_MouseDown(object sender, MouseEventArgs e)
+        {
+            buttonNarrowObserver(true);
+        }
+
+        private void buttonMoveDown_MouseUp(object sender, MouseEventArgs e)
+        {
+            buttonMoveDownObserver(false);
+        }
+
+        private void buttonMoveDown_MouseDown(object sender, MouseEventArgs e)
+        {
+            buttonMoveDownObserver(true);
+        }
+
+        private void buttonMoveUp_MouseUp(object sender, MouseEventArgs e)
+        {
+            buttonMoveUpObserver(false);
+        }
+
+        private void buttonMoveUp_MouseDown(object sender, MouseEventArgs e)
+        {
+            buttonMoveUpObserver(true);
         }
     }
 }

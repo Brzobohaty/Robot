@@ -16,7 +16,7 @@ namespace Robot
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            MainWindow mainWindow = new MainWindow();
+            MainWindow mainWindow = MainWindow.getInstance();
             Controller controller = new Controller(mainWindow);
             Application.Run(mainWindow);
             
