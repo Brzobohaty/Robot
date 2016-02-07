@@ -53,41 +53,41 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ControllView.cs">
+    <Compile Include="Views\ControllView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ControllView.Designer.cs">
+    <Compile Include="Views\ControllView.Designer.cs">
       <DependentUpon>ControllView.cs</DependentUpon>
     </Compile>
-    <Compile Include="DiagnosticView.cs">
+    <Compile Include="Views\DiagnosticView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="DiagnosticView.Designer.cs">
+    <Compile Include="Views\DiagnosticView.Designer.cs">
       <DependentUpon>DiagnosticView.cs</DependentUpon>
     </Compile>
-    <Compile Include="IJoystick.cs" />
-    <Compile Include="EposRobot.cs" />
-    <Compile Include="AbstractJoystick.cs" />
-    <Compile Include="IRobot.cs" />
-    <Compile Include="JoystickBridge.cs" />
+    <Compile Include="Joystick\IJoystick.cs" />
+    <Compile Include="Robot\EposRobot.cs" />
+    <Compile Include="Joystick\AbstractJoystick.cs" />
+    <Compile Include="Robot\IRobot.cs" />
+    <Compile Include="Joystick\JoystickBridge.cs" />
     <Compile Include="MathLibrary.cs" />
     <Compile Include="Controller.cs" />
-    <Compile Include="MainWindow.cs">
+    <Compile Include="Views\MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainWindow.Designer.cs">
+    <Compile Include="Views\MainWindow.Designer.cs">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Gamepad.cs" />
-    <EmbeddedResource Include="ControllView.resx">
+    <Compile Include="Joystick\Implementations\Gamepad.cs" />
+    <EmbeddedResource Include="Views\ControllView.resx">
       <DependentUpon>ControllView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DiagnosticView.resx">
+    <EmbeddedResource Include="Views\DiagnosticView.resx">
       <DependentUpon>DiagnosticView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainWindow.resx">
+    <EmbeddedResource Include="Views\MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -111,6 +111,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Robot\Implementations\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
