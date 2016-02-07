@@ -28,7 +28,6 @@ namespace Robot
         public Controller(MainWindow mainWindow)
         {
             this.mainWindow = mainWindow;
-            robot = new EposRobot();
             controllView = ControllView.getInstance();
             diagnosticView = DiagnosticView.getInstance();
             mainWindow.subscribeWindowShownObserver(inicialize);
@@ -39,6 +38,8 @@ namespace Robot
         /// </summary>
         private void inicialize()
         {
+            RobotBridge robotBridge = new RobotBridge();
+            robot = robotBridge.getRobot();
             string errorMessageMotor = robot.inicialize();
             if (errorMessageMotor.Length > 0)
             {

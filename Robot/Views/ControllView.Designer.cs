@@ -52,9 +52,9 @@
             this.errorLabelControl.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.errorLabelControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.errorLabelControl.ForeColor = System.Drawing.Color.Red;
-            this.errorLabelControl.Location = new System.Drawing.Point(0, 407);
+            this.errorLabelControl.Location = new System.Drawing.Point(0, 567);
             this.errorLabelControl.Name = "errorLabelControl";
-            this.errorLabelControl.Size = new System.Drawing.Size(463, 55);
+            this.errorLabelControl.Size = new System.Drawing.Size(468, 55);
             this.errorLabelControl.TabIndex = 14;
             this.errorLabelControl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -63,7 +63,7 @@
             this.tableLayoutPanel1.ColumnCount = 3;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 75F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 281F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 308F));
             this.tableLayoutPanel1.Controls.Add(this.buttonWiden, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.buttonDefaultPosition, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.buttonNarrow, 1, 1);
@@ -76,7 +76,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(463, 150);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(468, 150);
             this.tableLayoutPanel1.TabIndex = 13;
             // 
             // buttonWiden
@@ -151,7 +151,7 @@
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(0, 20, 0, 0);
-            this.panel1.Size = new System.Drawing.Size(463, 220);
+            this.panel1.Size = new System.Drawing.Size(468, 220);
             this.panel1.TabIndex = 12;
             // 
             // tableLayoutPanel2
@@ -168,14 +168,14 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(463, 200);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(468, 200);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
             // panelForJoystick
             // 
             this.panelForJoystick.Cursor = System.Windows.Forms.Cursors.Cross;
             this.panelForJoystick.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelForJoystick.Location = new System.Drawing.Point(131, 0);
+            this.panelForJoystick.Location = new System.Drawing.Point(134, 0);
             this.panelForJoystick.Margin = new System.Windows.Forms.Padding(0);
             this.panelForJoystick.Name = "panelForJoystick";
             this.panelForJoystick.Size = new System.Drawing.Size(200, 200);
@@ -189,7 +189,7 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(463, 55);
+            this.label1.Size = new System.Drawing.Size(468, 55);
             this.label1.TabIndex = 11;
             this.label1.Text = "Ovládání";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -203,7 +203,7 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label1);
             this.Name = "ControllView";
-            this.Size = new System.Drawing.Size(463, 462);
+            this.Size = new System.Drawing.Size(468, 622);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.panel1.ResumeLayout(false);

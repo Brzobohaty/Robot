@@ -53,6 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Robot\Implementations\TestRobot.cs" />
+    <Compile Include="Robot\AbstractRobot.cs" />
+    <Compile Include="Robot\RobotBridge.cs" />
     <Compile Include="Views\ControllView.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -66,7 +69,7 @@
       <DependentUpon>DiagnosticView.cs</DependentUpon>
     </Compile>
     <Compile Include="Joystick\IJoystick.cs" />
-    <Compile Include="Robot\EposRobot.cs" />
+    <Compile Include="Robot\Implementations\EposRobot.cs" />
     <Compile Include="Joystick\AbstractJoystick.cs" />
     <Compile Include="Robot\IRobot.cs" />
     <Compile Include="Joystick\JoystickBridge.cs" />
@@ -112,9 +115,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Robot\Implementations\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

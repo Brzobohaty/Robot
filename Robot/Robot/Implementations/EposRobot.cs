@@ -10,7 +10,7 @@ namespace Robot
     /// <summary>
     /// Objekt představující abstrakci samotného robota
     /// </summary>
-    class EposRobot : IRobot
+    class EposRobot : AbstractRobot
     {
         private DeviceManager connector; // handler pro přopojení motorů
 
@@ -18,7 +18,7 @@ namespace Robot
         /// Inicializace připojení k motorům
         /// </summary>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public string inicialize()
+        public override string inicialize()
         {
             try
             {
@@ -40,7 +40,7 @@ namespace Robot
         /// </summary>
         /// <param name="direction">směr pohybu v úhlech -180 až 180</param>
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
-        public void move(int direction, int speed)
+        public override void move(int direction, int speed)
         {
             Console.WriteLine("Move to direction: "+direction+" with speed: "+speed);
         }
@@ -48,7 +48,7 @@ namespace Robot
         /// <summary>
         /// Sníží robota
         /// </summary>
-        public void moveDown()
+        public override void moveDown()
         {
             Console.WriteLine("Move down");
         }
@@ -56,7 +56,7 @@ namespace Robot
         /// <summary>
         /// Zvýší robota
         /// </summary>
-        public void moveUp()
+        public override void moveUp()
         {
             Console.WriteLine("Move up");
         }
@@ -64,7 +64,7 @@ namespace Robot
         /// <summary>
         /// Rozšíří robota
         /// </summary>
-        public void widen()
+        public override void widen()
         {
             Console.WriteLine("Rozšířit");
         }
@@ -72,7 +72,7 @@ namespace Robot
         /// <summary>
         /// Zůží robota
         /// </summary>
-        public void narrow()
+        public override void narrow()
         {
             Console.WriteLine("Zůžit");
         }
@@ -80,7 +80,7 @@ namespace Robot
         /// <summary>
         /// Nastaví robota do defaultní pozice
         /// </summary>
-        public void setDefaultPosition()
+        public override void setDefaultPosition()
         {
             Console.WriteLine("Default position");
         }
