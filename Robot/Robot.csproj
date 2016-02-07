@@ -53,6 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Robot\IMotor.cs" />
+    <Compile Include="Robot\Implementations\EposMotor.cs" />
+    <Compile Include="Robot\Implementations\TestMotor.cs" />
     <Compile Include="Robot\Implementations\TestRobot.cs" />
     <Compile Include="Robot\AbstractRobot.cs" />
     <Compile Include="Robot\RobotBridge.cs" />

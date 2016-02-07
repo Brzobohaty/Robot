@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using EposCmd.Net;
 
-namespace Robot
+namespace Robot.Robot.Implementations
 {
     /// <summary>
     /// Objekt představující testovací softwarovou simulaci robota
     /// </summary>
     class TestRobot : AbstractRobot
     {
-        private DeviceManager connector; // handler pro přopojení motorů
+        private IMotor frontLeftWheel;
 
         /// <summary>
         /// Inicializace připojení k motorům
@@ -20,19 +20,8 @@ namespace Robot
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
         public override string inicialize()
         {
-            try
-            {
-                connector = new DeviceManager("EPOS2", "MAXON SERIAL V2", "USB", "USB0");
-                return "";
-            }
-            catch (DeviceException e)
-            {
-                return String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode);
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
+            return "";
+            frontLeftWheel = new TestMotor();
         }
 
         /// <summary>
