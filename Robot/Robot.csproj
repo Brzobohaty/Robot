@@ -53,6 +53,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ControllView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControllView.Designer.cs">
+      <DependentUpon>ControllView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DiagnosticView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DiagnosticView.Designer.cs">
+      <DependentUpon>DiagnosticView.cs</DependentUpon>
+    </Compile>
     <Compile Include="IJoystick.cs" />
     <Compile Include="EposRobot.cs" />
     <Compile Include="AbstractJoystick.cs" />
@@ -69,6 +81,12 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Gamepad.cs" />
+    <EmbeddedResource Include="ControllView.resx">
+      <DependentUpon>ControllView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DiagnosticView.resx">
+      <DependentUpon>DiagnosticView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>

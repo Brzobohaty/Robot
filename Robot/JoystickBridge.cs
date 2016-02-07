@@ -23,7 +23,7 @@ namespace Robot
             errorMessage = joystick.inicialize();
             if (errorMessage.Length > 0)
             {
-                joystick = MainWindow.getInstance();
+                joystick = ControllView.getInstance();
             }
             return joystick;
         }

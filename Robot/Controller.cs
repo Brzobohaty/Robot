@@ -12,6 +12,8 @@ namespace Robot
     class Controller
     {
         private MainWindow mainWindow; // hlavní okno apklikace
+        private ControllView controllView; // view s ovládáním robota
+        private DiagnosticView diagnosticView; // view s diagnstikou robota
         private IRobot robot; // instance představující robota
         private IJoystick joystick; // instance představující joystick
 
@@ -25,8 +27,10 @@ namespace Robot
         /// <param name="mainWindow">hlavní okno aplikace</param>
         public Controller(MainWindow mainWindow)
         {
-            this.robot = new EposRobot();
             this.mainWindow = mainWindow;
+            robot = new EposRobot();
+            controllView = ControllView.getInstance();
+            diagnosticView = DiagnosticView.getInstance();
             mainWindow.subscribeWindowShownObserver(inicialize);
         }
 
@@ -35,18 +39,17 @@ namespace Robot
         /// </summary>
         private void inicialize()
         {
-            mainWindow.clearErrorText();
             string errorMessageMotor = robot.inicialize();
             if (errorMessageMotor.Length > 0)
             {
-                mainWindow.showMotorsError(errorMessageMotor);
+                diagnosticView.showMotorsError(errorMessageMotor);
             }
 
             JoystickBridge joystickBridge = new JoystickBridge();
             joystick = joystickBridge.getJoystick();
             if (joystickBridge.errorMessage.Length > 0)
             {
-                mainWindow.showControlError(joystickBridge.errorMessage);
+                controllView.showControlError(joystickBridge.errorMessage);
             }
             joystick.subscribeStickObserver(joystickChanged);
             joystick.subscribeButtonMoveUpObserver(joystickButtonMoveUpChanged);
@@ -72,7 +75,7 @@ namespace Robot
             moveRobot(corectedPoint.X, corectedPoint.Y);
             if (!(joystick is MainWindow))
             {
-                mainWindow.moveJoystick(corectedPoint.X, corectedPoint.Y);
+                controllView.moveJoystick(corectedPoint.X, corectedPoint.Y);
             }
         }
 
@@ -133,7 +136,7 @@ namespace Robot
             {
                 moveUpPeriodHandler.Stop();
             }
-            mainWindow.buttonMoveUpPressed(pressed);
+            controllView.buttonMoveUpPressed(pressed);
         }
 
         /// <summary>
@@ -151,7 +154,7 @@ namespace Robot
             {
                 moveDownPeriodHandler.Stop();
             }
-            mainWindow.buttonMoveDownPressed(pressed);
+            controllView.buttonMoveDownPressed(pressed);
         }
 
         /// <summary>
@@ -169,7 +172,7 @@ namespace Robot
             {
                 widenPeriodHandler.Stop();
             }
-            mainWindow.buttonWidenPressed(pressed);
+            controllView.buttonWidenPressed(pressed);
         }
 
         /// <summary>
@@ -187,7 +190,7 @@ namespace Robot
             {
                 narrowPeriodHandler.Stop();
             }
-            mainWindow.buttonNarrowPressed(pressed);
+            controllView.buttonNarrowPressed(pressed);
         }
 
         /// <summary>
@@ -205,7 +208,7 @@ namespace Robot
             {
                 defaultPositionPeriodHandler.Stop();
             }
-            mainWindow.buttonDefaultPositionPressed(pressed);
+            controllView.buttonDefaultPositionPressed(pressed);
         }
 
         /// <summary>
