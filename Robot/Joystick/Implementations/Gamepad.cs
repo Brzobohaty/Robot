@@ -75,7 +75,7 @@ namespace Robot
         {
             Timer aTimer = new Timer();
             aTimer.Elapsed += new ElapsedEventHandler(gamepadHandle);
-            aTimer.Interval = 40;
+            aTimer.Interval = 200;
             aTimer.Enabled = true;
         }
 
@@ -90,13 +90,13 @@ namespace Robot
             stateNow = gamepad.GetCurrentState();
             bool[] buttons = stateNow.GetButtons();
 
-            if ((state.x != stateNow.X || state.y != stateNow.Y) && stickObserver != null)
+            if ((Math.Abs(state.x - stateNow.X) > 10 || Math.Abs(state.y - stateNow.Y) > 10) && stickObserver != null)
             {
                 state.x = stateNow.X;
                 state.y = stateNow.Y;
                 int x = state.x;
                 int y = state.y;
-                if (Math.Abs(x) < 3 && Math.Abs(y) < 3)
+                if (Math.Abs(x) < 10 && Math.Abs(y) < 10)
                 {
                     x = 0;
                     y = 0;

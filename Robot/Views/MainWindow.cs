@@ -16,6 +16,7 @@ namespace Robot
     {
         private static MainWindow instance = new MainWindow(); //jediná instance této třídy
         private Action inicializeObserver; //callback pro dokončení view
+        private Action closeObserver; //callback pro ukončení aplikace
 
         private MainWindow()
         {
@@ -44,6 +45,15 @@ namespace Robot
             inicializeObserver = observer;
         }
 
+        /// <summary>
+        /// Přiřazení posluchače pro ukončení aplikace
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu</param>
+        public void subscribeWindowCloseObserver(Action observer)
+        {
+            closeObserver = observer;
+        }
+
         //event listenery ================================================================
 
         private void MainWindow_Shown(object sender, EventArgs e)
@@ -51,6 +61,11 @@ namespace Robot
             Application.DoEvents();
             inicializeObserver();
             splitContainer1.Select();
+        }
+
+        private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            closeObserver();
         }
     }
 }

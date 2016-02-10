@@ -17,8 +17,9 @@ namespace Robot.Robot.Implementations
         /// <summary>
         /// Inicializace připojení k motorům
         /// </summary>
+        /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public override string inicialize()
+        public override string inicialize(Action<string, string, string> motorStateObserver)
         {
             return "";
             frontLeftWheel = new TestMotor();
@@ -72,6 +73,13 @@ namespace Robot.Robot.Implementations
         public override void setDefaultPosition()
         {
             Console.WriteLine("Default position");
+        }
+
+        /// <summary>
+        /// Vypne motor
+        /// </summary>
+        public override void disable()
+        {
         }
     }
 }

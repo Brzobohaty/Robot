@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Robot.Robot.Implementations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,11 +17,12 @@ namespace Robot
         /// <summary>
         /// Vrátí instanci ovládající fyzického robota nebo v případě chyby vrátí softwarovou simulaci robota
         /// </summary>
+        /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <returns>instanci představujícíc robota</returns>
-        public IRobot getRobot()
+        public IRobot getRobot(Action<string, string, string> motorStateObserver)
         {
             IRobot robot = new EposRobot();
-            errorMessage = robot.inicialize();
+            errorMessage = robot.inicialize(motorStateObserver);
             if (errorMessage.Length > 0)
             {
                 robot = new TestRobot();

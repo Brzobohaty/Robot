@@ -14,8 +14,9 @@ namespace Robot
         /// <summary>
         /// Inicializace připojení k motorům
         /// </summary>
+        /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        string inicialize();
+        string inicialize(Action<string, string, string> motorStateObserver);
 
         /// <summary>
         /// Pohne s robotem v daném směru a danou rychlostí
@@ -48,5 +49,10 @@ namespace Robot
         /// Nastaví robota do defaultní pozice
         /// </summary>
         void setDefaultPosition();
+
+        /// <summary>
+        /// Vypne robota
+        /// </summary>
+        void disable();
     }
 }

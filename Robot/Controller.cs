@@ -31,6 +31,7 @@ namespace Robot
             controllView = ControllView.getInstance();
             diagnosticView = DiagnosticView.getInstance();
             mainWindow.subscribeWindowShownObserver(inicialize);
+            mainWindow.subscribeWindowCloseObserver(closeApplication);
         }
 
         /// <summary>
@@ -39,11 +40,10 @@ namespace Robot
         private void inicialize()
         {
             RobotBridge robotBridge = new RobotBridge();
-            robot = robotBridge.getRobot();
-            string errorMessageMotor = robot.inicialize();
-            if (errorMessageMotor.Length > 0)
+            robot = robotBridge.getRobot(diagnosticView.showMotorState);
+            if (robotBridge.errorMessage.Length > 0)
             {
-                diagnosticView.showMotorsError(errorMessageMotor);
+                diagnosticView.showBusError(robotBridge.errorMessage);
             }
 
             JoystickBridge joystickBridge = new JoystickBridge();
@@ -225,6 +225,13 @@ namespace Robot
                 angle = -angle;
             }
             robot.move(angle, (int)MathLibrary.getPointsDistance(0, 0, x, y));
+        }
+
+        /// <summary>
+        /// Callback při zavření celé aplikace
+        /// </summary>
+        private void closeApplication() {
+            robot.disable();
         }
     }
 }
