@@ -13,10 +13,27 @@ namespace Robot
     public partial class DiagnosticView : UserControl
     {
         private static DiagnosticView instance = new DiagnosticView();
+        private Dictionary<MotorId, Label> motorViews = new Dictionary<MotorId, Label>(); //mapa view motorů
 
         public DiagnosticView()
         {
             InitializeComponent();
+            motorViews.Add(MotorId.LP_P, labelLP_P);
+            motorViews.Add(MotorId.PP_P, labelPP_P);
+            motorViews.Add(MotorId.LZ_P, labelLZ_P);
+            motorViews.Add(MotorId.PZ_P, labelPZ_P);
+            motorViews.Add(MotorId.PP_R, labelPP_R);
+            motorViews.Add(MotorId.LP_R, labelLP_R);
+            motorViews.Add(MotorId.LZ_R, labelLZ_R);
+            motorViews.Add(MotorId.PZ_R, labelPZ_R);
+            motorViews.Add(MotorId.PP_Z, labelPP_Z);
+            motorViews.Add(MotorId.LP_Z, labelLP_Z);
+            motorViews.Add(MotorId.LZ_Z, labelLZ_Z);
+            motorViews.Add(MotorId.PZ_Z, labelPZ_Z);
+            motorViews.Add(MotorId.PP_ZK, labelPP_ZK);
+            motorViews.Add(MotorId.LP_ZK, labelLP_ZK);
+            motorViews.Add(MotorId.LZ_ZK, labelLZ_ZK);
+            motorViews.Add(MotorId.PZ_ZK, labelPZ_ZK);
         }
 
         public static DiagnosticView getInstance()
@@ -37,28 +54,46 @@ namespace Robot
         /// <summary>
         /// Zobrazí stav konkrétního motoru
         /// </summary>
-        /// <param name="state">stav ["error", "enabled", "disabled", "running"]</param>
+        /// <param name="state">stav</param>
         /// <param name="message">zpráva ke stavu</param>
-        /// <param name="motorId">id motoru ["PP_P", "LP_P", "LZ_P", "PZ_P", "PP_R", "LP_R", "LZ_R", "PZ_R", "PP_Z", "LP_Z", "LZ_Z", "PZ_Z", "PP_ZK", "LP_ZK", "LZ_ZK", "PZ_ZK"]</param>
-        public void showMotorState(string state, string message, string motorId)
+        /// <param name="motorId">id motoru</param>
+        /// <param name="withoutUpdate">příznak, zda se nemá updatvat okamžitě view (musí se udělat, pokud se přistupuje z jiného vlákna)</param>
+        /// <param name="speed">aktuální rychlost motoru</param>
+        public void showMotorState(MotorState state, string message, MotorId motorId, bool withoutUpdate, int speed)
         {
-            switch (motorId) {
-                case "PP_P": break;
-                case "LP_P": break;
-                case "LZ_P": break;
-                case "PZ_P": break;
-                case "PP_R": break;
-                case "LP_R": break;
-                case "LZ_R": break;
-                case "PZ_R": break;
-                case "PP_Z": break;
-                case "LP_Z": break;
-                case "LZ_Z": break;
-                case "PZ_Z": break;
-                case "PP_ZK": break;
-                case "LP_ZK": break;
-                case "LZ_ZK": break;
-                case "PZ_ZK": break;
+            foreach (KeyValuePair<MotorId, Label> motorView in motorViews)
+            {
+                _showMotorState(motorView.Value, state, message, motorView.Key, withoutUpdate, speed);
+                
+            }
+        }
+
+        /// <summary>
+        /// Zobrazí stav konkrétního motoru
+        /// </summary>
+        /// <param name="motorView">vizualizace motoru</param>
+        /// <param name="state">stav</param>
+        /// <param name="message">zpráva ke stavu</param>
+        /// <param name="motorId">id motoru</param>
+        /// <param name="withoutUpdate">příznak, zda se nemá updatvat okamžitě view (musí se udělat, pokud se přistupuje z jiného vlákna)</param>
+        private void _showMotorState(Label motorView, MotorState state, String message, MotorId motorId, bool withoutUpdate, int speed) {
+            switch (state)
+            {
+                case MotorState.error:
+                    motorView.BackColor = Color.Red;
+                    break;
+                case MotorState.enabled:
+                    motorView.BackColor = Color.Green;
+                    break;
+                case MotorState.disabled:
+                    motorView.BackColor = Color.LightSlateGray;
+                    break;
+                case MotorState.running:
+                    motorView.BackColor = Color.Orange;
+                    break;
+            }
+            if (!withoutUpdate) {
+                motorView.Update();
             }
         }
     }

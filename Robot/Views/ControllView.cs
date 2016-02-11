@@ -20,6 +20,7 @@ namespace Robot
         protected Action<bool> buttonNarrowObserver; //callback pro změnu stavu tlačítka pro zůžení (bool zůžit)
         protected Action<bool> buttonWidenObserver; //callback pro změnu stavu tlačítka pro rozšíření (bool rozšířit)
         protected Action<bool> buttonDefaultPositionObserver; //callback pro změnu stavu tlačítka pro defaultní pozici (bool defaultní pozice)
+        protected Action buttonAbsolutePositioningObserver; //callback pro stisknutí tačítka pro absolutní pozicování robota
 
         private const int joystickR = 70; //poloměr kružnice joysticku
         private Point stickLocation = new Point(joystickR, joystickR); //pozice páčky joysticku
@@ -52,6 +53,15 @@ namespace Robot
         public string inicialize()
         {
             return "";
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro stisknutí tačítka pro absolutní pozicování robota
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu</param>
+        public void subscribeAbsolutePositioningObserver(Action observer)
+        {
+            buttonAbsolutePositioningObserver = observer;
         }
 
         /// <summary>
@@ -344,6 +354,11 @@ namespace Robot
         private void buttonMoveUp_MouseDown(object sender, MouseEventArgs e)
         {
             buttonMoveUpObserver(true);
+        }
+
+        private void buttonAbsolutPositioning_Click(object sender, EventArgs e)
+        {
+            buttonAbsolutePositioningObserver();
         }
     }
 }

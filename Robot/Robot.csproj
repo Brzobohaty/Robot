@@ -53,12 +53,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MotorStatesEnum.cs" />
+    <Compile Include="MotorsIdEnum.cs" />
     <Compile Include="Robot\IMotor.cs" />
     <Compile Include="Robot\Implementations\EposMotor.cs" />
     <Compile Include="Robot\Implementations\TestMotor.cs" />
     <Compile Include="Robot\Implementations\TestRobot.cs" />
     <Compile Include="Robot\AbstractRobot.cs" />
     <Compile Include="Robot\RobotBridge.cs" />
+    <Compile Include="Views\AbsoluteControllView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\AbsoluteControllView.Designer.cs">
+      <DependentUpon>AbsoluteControllView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\ControllView.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -87,6 +95,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Joystick\Implementations\Gamepad.cs" />
+    <EmbeddedResource Include="Views\AbsoluteControllView.resx">
+      <DependentUpon>AbsoluteControllView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\ControllView.resx">
       <DependentUpon>ControllView.cs</DependentUpon>
     </EmbeddedResource>

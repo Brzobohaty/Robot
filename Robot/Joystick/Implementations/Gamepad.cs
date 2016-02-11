@@ -15,7 +15,8 @@ namespace Robot
     {
         private Joystick gamepad; //připojený gamepad
         private GamePadeState state = new GamePadeState(); //stav gamepadu
-        
+        private const int sensitivity = 10; //citlivost joysticku 
+
         /// <summary>
         /// Inicializace gamepad
         /// </summary>
@@ -90,7 +91,7 @@ namespace Robot
             stateNow = gamepad.GetCurrentState();
             bool[] buttons = stateNow.GetButtons();
 
-            if ((Math.Abs(state.x - stateNow.X) > 10 || Math.Abs(state.y - stateNow.Y) > 10) && stickObserver != null)
+            if ((Math.Abs(state.x - stateNow.X) > sensitivity || Math.Abs(state.y - stateNow.Y) > sensitivity) && stickObserver != null)
             {
                 state.x = stateNow.X;
                 state.y = stateNow.Y;

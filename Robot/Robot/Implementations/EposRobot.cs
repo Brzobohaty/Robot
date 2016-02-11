@@ -7,6 +7,8 @@ using EposCmd.Net;
 using EposCmd.Net.DeviceCmdSet.Operation;
 using Robot.Robot;
 using Robot.Robot.Implementations;
+using System.Timers;
+using System.Collections.Generic;
 
 namespace Robot
 {
@@ -16,49 +18,49 @@ namespace Robot
     class EposRobot : AbstractRobot
     {
         private DeviceManager connector; // handler pro přopojení motorů
-        private IMotor movePP = new EposMotor(); //motor pravé přední koule pro pohyb
-        private IMotor moveLP = new EposMotor(); //motor levé přední koule pro pohyb
-        private IMotor moveLZ = new EposMotor(); //motor levé zadní koule pro pohyb
-        private IMotor movePZ = new EposMotor(); //motor pravé zadní koule pro pohyb
-        private IMotor rotatePP = new EposMotor(); //motor pro otáčení pravé přední nohy
-        private IMotor rotateLP = new EposMotor(); //motor pro otáčení levé přední nohy
-        private IMotor rotateLZ = new EposMotor(); //motor pro otáčení levé zadní nohy
-        private IMotor rotatePZ = new EposMotor(); //motor pro otáčení pravé zadní nohy
-        private IMotor liftPP = new EposMotor(); //motor pro zvedání pravé přední nohy
-        private IMotor liftLP = new EposMotor(); //motor pro zvedání levé přední nohy
-        private IMotor liftLZ = new EposMotor(); //motor pro zvedání levé zadní nohy
-        private IMotor liftPZ = new EposMotor(); //motor pro zvedání pravé zadní nohy
-        private IMotor rotateWheelPP = new EposMotor(); //motor pro otáčení kola pravé přední nohy
-        private IMotor rotateWheelLP = new EposMotor(); //motor pro otáčení kola levé přední nohy
-        private IMotor rotateWheelLZ = new EposMotor(); //motor pro otáčení kola levé zadní nohy
-        private IMotor rotateWheelPZ = new EposMotor(); //motor pro otáčení kola pravé zadní nohy
+        private bool absoluteControllMode = false; //příznak, zda se bude robot ovládat absolutně
+        private Dictionary<MotorId, EposMotor> motors = new Dictionary<MotorId, EposMotor>(); //mapa motorů
+
+        public EposRobot() {
+            var motorsIds = MotorId.GetValues(typeof(MotorId));
+            foreach (MotorId motorId in motorsIds)
+            {
+                motors.Add(motorId, new EposMotor());
+            }
+        }
 
         /// <summary>
         /// Inicializace připojení k motorům
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public override string inicialize(Action<string, string, string> motorStateObserver)
+        public override string inicialize(Action<MotorState, string, MotorId, bool, int> motorStateObserver)
         {
             try
             {
-                connector = new DeviceManager("EPOS2", "MAXON_RS232", "RS232", "COM3");
-                movePP.inicialize(connector, motorStateObserver, 4, "PP_P", "velocity", false);
-                moveLP.inicialize(connector, motorStateObserver, 8, "LP_P", "velocity", true);
-                moveLZ.inicialize(connector, motorStateObserver, 12, "LZ_P", "velocity", false);
-                movePZ.inicialize(connector, motorStateObserver, 16, "PZ_P", "velocity", true);
-                rotatePP.inicialize(connector, motorStateObserver, 3, "PP_R", "position", false);
-                rotateLP.inicialize(connector, motorStateObserver, 7, "LP_R", "position", false);
-                rotateLZ.inicialize(connector, motorStateObserver, 11, "LZ_R", "position", false);
-                rotatePZ.inicialize(connector, motorStateObserver, 15, "PZ_R", "position", false);
-                liftPP.inicialize(connector, motorStateObserver, 2, "PP_Z", "position", false);
-                liftLP.inicialize(connector, motorStateObserver, 6, "LP_Z", "position", false);
-                liftLZ.inicialize(connector, motorStateObserver, 10, "LZ_Z", "position", false);
-                liftPZ.inicialize(connector, motorStateObserver, 14, "PZ_Z", "position", false);
-                rotateWheelPP.inicialize(connector, motorStateObserver, 1, "PP_ZK", "position", false);
-                rotateWheelLP.inicialize(connector, motorStateObserver, 5, "LP_ZK", "position", false);
-                rotateWheelLZ.inicialize(connector, motorStateObserver, 9, "LZ_ZK", "position", false);
-                rotateWheelPZ.inicialize(connector, motorStateObserver, 13, "PZ_ZK", "position", false);
+                connector = new DeviceManager("EPOS2", "MAXON SERIAL V2", "USB", "USB0");
+                motors[MotorId.PP_P].inicialize(connector, motorStateObserver, 4, MotorId.PP_P, "velocity", true);
+                motors[MotorId.LP_P].inicialize(connector, motorStateObserver, 8, MotorId.LP_P, "velocity", false);
+                motors[MotorId.LZ_P].inicialize(connector, motorStateObserver, 12, MotorId.LZ_P, "velocity", false);
+                motors[MotorId.PZ_P].inicialize(connector, motorStateObserver, 16, MotorId.PZ_P, "velocity", true);
+                motors[MotorId.PP_R].inicialize(connector, motorStateObserver, 3, MotorId.PP_R, "position", false);
+                motors[MotorId.LP_R].inicialize(connector, motorStateObserver, 7, MotorId.LP_R, "position", false);
+                motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, 11, MotorId.LZ_R, "position", false);
+                motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, 15, MotorId.PZ_R, "position", false);
+                motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, 2, MotorId.PP_Z, "position", false);
+                motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, 6, MotorId.LP_Z, "position", false);
+                motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, 10, MotorId.LZ_Z, "position", false);
+                motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, 14, MotorId.PZ_Z, "position", false);
+                motors[MotorId.PP_ZK].inicialize(connector, motorStateObserver, 1, MotorId.PP_ZK, "position", false);
+                motors[MotorId.LP_ZK].inicialize(connector, motorStateObserver, 5, MotorId.LP_ZK, "position", false);
+                motors[MotorId.LZ_ZK].inicialize(connector, motorStateObserver, 9, MotorId.LZ_ZK, "position", false);
+                motors[MotorId.PZ_ZK].inicialize(connector, motorStateObserver, 13, MotorId.PZ_ZK, "position", false);
+
+                foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+                {
+                    motor.Value.enableStateObserver();
+                }
+
                 return "";
             }
             catch (DeviceException e)
@@ -84,10 +86,10 @@ namespace Robot
             if (Math.Abs(direction) > 90) {
                 speed = -speed;
             }
-            movePP.move(speed);
-            moveLP.move(speed);
-            moveLZ.move(speed);
-            movePZ.move(speed);
+            motors[MotorId.PP_P].moving(speed);
+            motors[MotorId.LP_P].moving(speed);
+            motors[MotorId.LZ_P].moving(speed);
+            motors[MotorId.PZ_P].moving(speed);
         }
 
         /// <summary>
@@ -131,28 +133,51 @@ namespace Robot
         }
 
         /// <summary>
+        /// Pohne s daným motorem v daném směru o daný krok
+        /// </summary>
+        /// <param name="motorId">id motoru</param>
+        /// <param name="step">krok motoru v qc</param>
+        public override void moveWithMotor(MotorId motorId, int step) {
+            motors[motorId].move(step);
+        }
+
+        /// <summary>
         /// Vypne celého robota
         /// </summary>
         public override void disable() {
-            movePP.disable();
-            moveLP.disable();
-            moveLZ.disable();
-            movePZ.disable();
-            rotatePP.disable();
-            rotateLP.disable();
-            rotateLZ.disable();
-            rotatePZ.disable();
-            liftPP.disable();
-            liftLP.disable();
-            liftLZ.disable();
-            liftPZ.disable();
-            rotateWheelPP.disable();
-            rotateWheelLP.disable();
-            rotateWheelLZ.disable();
-            rotateWheelPZ.disable();
+            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            {
+                motor.Value.disableStateObserver();
+            }
+
+            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            {
+                motor.Value.disable();
+            }
+
             if (connector != null)
             {
                 connector.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Změní ovládání robota (absolutní nebo joystikem)
+        /// </summary>
+        public override void changeControllMode() {
+            if (absoluteControllMode) {
+                absoluteControllMode = false;
+                motors[MotorId.PP_P].changeMode("velocity");
+                motors[MotorId.LP_P].changeMode("velocity");
+                motors[MotorId.LZ_P].changeMode("velocity");
+                motors[MotorId.PZ_P].changeMode("velocity");
+            }
+            else {
+                absoluteControllMode = true;
+                motors[MotorId.PP_P].changeMode("position");
+                motors[MotorId.LP_P].changeMode("position");
+                motors[MotorId.LZ_P].changeMode("position");
+                motors[MotorId.PZ_P].changeMode("position");
             }
         }
     }

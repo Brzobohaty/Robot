@@ -29,9 +29,13 @@ namespace Robot
         {
             this.mainWindow = mainWindow;
             controllView = ControllView.getInstance();
+            AbsoluteControllView absoluteControllView = AbsoluteControllView.getInstance();
             diagnosticView = DiagnosticView.getInstance();
             mainWindow.subscribeWindowShownObserver(inicialize);
             mainWindow.subscribeWindowCloseObserver(closeApplication);
+            controllView.subscribeAbsolutePositioningObserver(buttonForChangeControllModePressed);
+            absoluteControllView.subscribeJoystickPositioningObserver(buttonForChangeControllModePressed);
+            absoluteControllView.subscribeButtonForAbsoluteMoveClickObserver(buttonForAbsoluteMoveClicked);
         }
 
         /// <summary>
@@ -232,6 +236,24 @@ namespace Robot
         /// </summary>
         private void closeApplication() {
             robot.disable();
+        }
+
+        /// <summary>
+        /// Callback při stisknutí tačítka pro absolutní pozicování robota
+        /// </summary>
+        private void buttonForChangeControllModePressed() {
+            mainWindow.changeControllMode();
+            robot.changeControllMode();
+        }
+
+        /// <summary>
+        /// Callback při stisknutí tačítka pro otočení daného motoru v daném směru o daný krok
+        /// </summary>
+        /// <param name="motorId">id motoru</param>
+        /// <param name="step">krok motoru v qc</param>
+        private void buttonForAbsoluteMoveClicked(MotorId motorId, int step)
+        {
+            robot.moveWithMotor(motorId, step);
         }
     }
 }

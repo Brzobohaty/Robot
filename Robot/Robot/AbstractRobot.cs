@@ -16,7 +16,7 @@ namespace Robot
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public abstract string inicialize(Action<string, string, string> motorStateObserver);
+        public abstract string inicialize(Action<MotorState, string, MotorId, bool, int> motorStateObserver);
 
         /// <summary>
         /// Pohne s robotem v daném směru a danou rychlostí
@@ -54,5 +54,17 @@ namespace Robot
         /// Vypne robota
         /// </summary>
         public abstract void disable();
+
+        /// <summary>
+        /// Pohne s daným motorem v daném směru o daný krok
+        /// </summary>
+        /// <param name="motorId">id motoru</param>
+        /// <param name="step">krok motoru v qc</param>
+        public abstract void moveWithMotor(MotorId motorId, int step);
+
+        /// <summary>
+        /// Změní ovládání robota (absolutní nebo joystikem)
+        /// </summary>
+        public abstract void changeControllMode();
     }
 }

@@ -19,7 +19,7 @@ namespace Robot
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <returns>instanci představujícíc robota</returns>
-        public IRobot getRobot(Action<string, string, string> motorStateObserver)
+        public IRobot getRobot(Action<MotorState, string, MotorId, bool, int> motorStateObserver)
         {
             IRobot robot = new EposRobot();
             errorMessage = robot.inicialize(motorStateObserver);

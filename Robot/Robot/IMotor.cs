@@ -21,13 +21,13 @@ namespace Robot.Robot
         /// <param name="id">id motoru ["PP_P", "LP_P", "LZ_P", "PZ_P", "PP_R", "LP_R", "LZ_R", "PZ_R", "PP_Z", "LP_Z", "LZ_Z", "PZ_Z", "PP_ZK", "LP_ZK", "LZ_ZK", "PZ_ZK"]</param>
         /// <param name="mode">defaultní nastavení módu ["velocity","position"]</param>
         /// <param name="reverse">příznak obrácení směru točení</param>
-        void inicialize(DeviceManager connector, Action<string, string, string> stateObserver, int nodeNumber, string id, string mode, bool reverse);
+        void inicialize(DeviceManager connector, Action<MotorState, string, MotorId, bool, int> stateObserver, int nodeNumber, MotorId id, string mode, bool reverse);
 
         /// <summary>
         /// Pohnutí s motorem
         /// </summary>
         /// <param name="speed">rychlost -100 až 100</param>
-        void move(int speed);
+        void moving(int speed);
 
         /// <summary>
         /// Pohnutí s motorem

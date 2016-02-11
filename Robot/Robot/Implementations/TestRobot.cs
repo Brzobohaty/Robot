@@ -19,7 +19,7 @@ namespace Robot.Robot.Implementations
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public override string inicialize(Action<string, string, string> motorStateObserver)
+        public override string inicialize(Action<MotorState, string, MotorId, bool, int> motorStateObserver)
         {
             return "";
             frontLeftWheel = new TestMotor();
@@ -76,10 +76,29 @@ namespace Robot.Robot.Implementations
         }
 
         /// <summary>
+        /// Pohne s daným motorem v daném směru o daný krok
+        /// </summary>
+        /// <param name="motorId">id motoru</param>
+        /// <param name="direction">směr točení [-1,1]</param>
+        /// <param name="step">krok motoru v qc</param>
+        public override void moveWithMotor(MotorId motorId, int step)
+        {
+
+        }
+
+        /// <summary>
         /// Vypne motor
         /// </summary>
         public override void disable()
         {
+        }
+
+        /// <summary>
+        /// Změní ovládání robota (absolutní nebo joystikem)
+        /// </summary>
+        public override void changeControllMode()
+        {
+            
         }
     }
 }
