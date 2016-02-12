@@ -19,12 +19,14 @@ namespace Robot.Robot.Implementations
         private string mode; //mód ve kterém se zrovna nachází handler motoru ["velocity","position"] 
         private ProfileVelocityMode velocityHandler; //handler pro rychlostní operace s motorem 
         private ProfilePositionMode positionHandler; //handler pro pozicové operace s motorem
-        private Action<MotorState, string, MotorId, bool, int> stateObserver; //callback pro stav motoru
+        private Action<MotorState, string, MotorId, int> stateObserver; //callback pro stav motoru
         private int rev = 1; //modifikátor směru [1, -1]
         private MotorId id; //id motoru
         private MotorState state; //aktuální stav motoru
         private MotionInfo stateHandler; //handler stavu motoru 
         private Timer timerObserver; //časovač pro spouštění posluchače stavu
+        private int multiplier; //násobitel otáček
+        private int oldVelocity = 0; //stará rychlost
 
         /// <summary>
         /// Inicializace motoru
@@ -35,13 +37,15 @@ namespace Robot.Robot.Implementations
         /// <param name="id">id motoru</param>
         /// <param name="mode">defaultní nastavení módu ["velocity","position"]</param>
         /// <param name="reverse">příznak obrácení směru točení</param>
-        public void inicialize(DeviceManager connector, Action<MotorState, string, MotorId, bool, int> stateObserver, int nodeNumber, MotorId id, string mode, bool reverse)
+        /// <param name="multiplier">násobitel otáček v případě, že je motor za převodovkou</param>
+        public void inicialize(DeviceManager connector, Action<MotorState, string, MotorId, int> stateObserver, int nodeNumber, MotorId id, string mode, bool reverse, int multiplier)
         {
             try
             {
                 this.mode = mode;
                 this.stateObserver = stateObserver;
                 this.id = id;
+                this.multiplier = multiplier;
 
                 if (reverse)
                 {
@@ -61,17 +65,19 @@ namespace Robot.Robot.Implementations
                 changeMode(mode);
 
                 setStateObserver();
-                stateObserver(MotorState.enabled, "", id, false, 0);
+                stateObserver(MotorState.enabled, "", id, 0);
             }
             catch (DeviceException e)
             {
+                sm = null;
                 disableStateObserver();
-                stateObserver(MotorState.error, String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode), id, false, 0);
+                stateObserver(MotorState.error, String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode), id, 0);
             }
             catch (Exception e)
             {
+                sm = null;
                 disableStateObserver();
-                stateObserver(MotorState.error, e.Message, id, false, 0);
+                stateObserver(MotorState.error, e.Message, id, 0);
             }
         }
 
@@ -81,10 +87,13 @@ namespace Robot.Robot.Implementations
         /// <param name="mode">mód ["velocity","position"]</param>
         public void changeMode(string mode)
         {
-            switch (mode)
+            if (velocityHandler != null && positionHandler != null)
             {
-                case "velocity": velocityHandler.ActivateProfileVelocityMode(); break;
-                case "position": positionHandler.ActivateProfilePositionMode(); break;
+                switch (mode)
+                {
+                    case "velocity": velocityHandler.ActivateProfileVelocityMode(); break;
+                    case "position": positionHandler.ActivateProfilePositionMode(); break;
+                }
             }
         }
 
@@ -94,17 +103,20 @@ namespace Robot.Robot.Implementations
         /// <param name="speed">rychlost -100 až 100</param>
         public void moving(int speed)
         {
-            try
+            if (velocityHandler != null)
             {
-                velocityHandler.MoveWithVelocity(speed * rev * 10);
-            }
-            catch (DeviceException e)
-            {
-                stateObserver(MotorState.error, String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode), id, false, 0);
-            }
-            catch (Exception e)
-            {
-                stateObserver(MotorState.error, e.Message, id, false, 0);
+                try
+                {
+                    velocityHandler.MoveWithVelocity(speed * rev * 10);
+                }
+                catch (DeviceException e)
+                {
+                    stateObserver(MotorState.error, String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode), id, 0);
+                }
+                catch (Exception e)
+                {
+                    stateObserver(MotorState.error, e.Message, id, 0);
+                }
             }
         }
 
@@ -114,17 +126,20 @@ namespace Robot.Robot.Implementations
         /// <param name="step">krok posunutí v qc</param>
         public void move(int step)
         {
-            try
+            if (positionHandler != null)
             {
-                positionHandler.MoveToPosition(Convert.ToInt32(step), false, false);
-            }
-            catch (DeviceException e)
-            {
-                stateObserver(MotorState.error, String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode), id, false, 0);
-            }
-            catch (Exception e)
-            {
-                stateObserver(MotorState.error, e.Message, id, false, 0);
+                try
+                {
+                    positionHandler.MoveToPosition(Convert.ToInt32(step * multiplier), false, false);
+                }
+                catch (DeviceException e)
+                {
+                    stateObserver(MotorState.error, String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode), id, 0);
+                }
+                catch (Exception e)
+                {
+                    stateObserver(MotorState.error, e.Message, id, 0);
+                }
             }
         }
 
@@ -135,17 +150,20 @@ namespace Robot.Robot.Implementations
         /// <param name="position">pozice 0 až 360</param>
         public void move(int speed, int position)
         {
-            try
+            if (positionHandler != null)
             {
-                positionHandler.MoveToPosition(Convert.ToInt32(position), false, false);
-            }
-            catch (DeviceException e)
-            {
-                stateObserver(MotorState.error, String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode), id, false, 0);
-            }
-            catch (Exception e)
-            {
-                stateObserver(MotorState.error, e.Message, id, false, 0);
+                try
+                {
+                    positionHandler.MoveToPosition(Convert.ToInt32(position), false, false);
+                }
+                catch (DeviceException e)
+                {
+                    stateObserver(MotorState.error, String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode), id, 0);
+                }
+                catch (Exception e)
+                {
+                    stateObserver(MotorState.error, e.Message, id, 0);
+                }
             }
         }
 
@@ -184,8 +202,9 @@ namespace Robot.Robot.Implementations
                 if (!sm.GetDisableState())
                     sm.SetDisableState();
             }
-            if (stateObserver != null) {
-                stateObserver(MotorState.disabled, "", id, false, 0);
+            if (stateObserver != null)
+            {
+                stateObserver(MotorState.disabled, "", id, 0);
             }
         }
 
@@ -211,6 +230,10 @@ namespace Robot.Robot.Implementations
             }
         }
 
+        public void setHoming(){
+            
+        }
+
         /// <summary>
         /// Nastavení timeru pro dotazování stavu motoru
         /// </summary>
@@ -218,7 +241,7 @@ namespace Robot.Robot.Implementations
         {
             timerObserver = new Timer();
             timerObserver.Elapsed += new ElapsedEventHandler(stateHandle);
-            timerObserver.Interval = 300;
+            timerObserver.Interval = 100;
             timerObserver.Enabled = false;
         }
 
@@ -232,19 +255,41 @@ namespace Robot.Robot.Implementations
             MotorState newState;
             if (!sm.GetDisableState())
             {
-                int velocity = stateHandler.GetVelocityIs();
-                if (Math.Abs(velocity) > 50)
+                if (sm.GetFaultState())
                 {
-                    newState = MotorState.running;
+                    newState = MotorState.error;
+                    if (newState != state)
+                    {
+                        state = newState;
+                        stateObserver(state, "", id, 0);
+                    }
                 }
                 else
                 {
-                    newState = MotorState.enabled;
+                    int velocity = stateHandler.GetVelocityIs();
+                    if (Math.Abs(velocity) > 50)
+                    {
+                        newState = MotorState.running;
+                    }
+                    else
+                    {
+                        newState = MotorState.enabled;
+                    }
+                    if (newState != state || Math.Abs(velocity) > 50)
+                    {
+                        state = newState;
+                        oldVelocity = velocity;
+                        stateObserver(state, "", id, velocity);
+                    }
                 }
+            }
+            else
+            {
+                newState = MotorState.disabled;
                 if (newState != state)
                 {
                     state = newState;
-                    stateObserver(state, "", id, true, velocity);
+                    stateObserver(state, "", id, 0);
                 }
             }
         }

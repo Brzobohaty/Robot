@@ -16,7 +16,7 @@ namespace Robot
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public abstract string inicialize(Action<MotorState, string, MotorId, bool, int> motorStateObserver);
+        public abstract string inicialize(Action<MotorState, string, MotorId, int> motorStateObserver);
 
         /// <summary>
         /// Pohne s robotem v daném směru a danou rychlostí

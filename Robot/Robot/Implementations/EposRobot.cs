@@ -34,27 +34,27 @@ namespace Robot
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public override string inicialize(Action<MotorState, string, MotorId, bool, int> motorStateObserver)
+        public override string inicialize(Action<MotorState, string, MotorId, int> motorStateObserver)
         {
             try
             {
-                connector = new DeviceManager("EPOS2", "MAXON SERIAL V2", "USB", "USB0");
-                motors[MotorId.PP_P].inicialize(connector, motorStateObserver, 4, MotorId.PP_P, "velocity", true);
-                motors[MotorId.LP_P].inicialize(connector, motorStateObserver, 8, MotorId.LP_P, "velocity", false);
-                motors[MotorId.LZ_P].inicialize(connector, motorStateObserver, 12, MotorId.LZ_P, "velocity", false);
-                motors[MotorId.PZ_P].inicialize(connector, motorStateObserver, 16, MotorId.PZ_P, "velocity", true);
-                motors[MotorId.PP_R].inicialize(connector, motorStateObserver, 3, MotorId.PP_R, "position", false);
-                motors[MotorId.LP_R].inicialize(connector, motorStateObserver, 7, MotorId.LP_R, "position", false);
-                motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, 11, MotorId.LZ_R, "position", false);
-                motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, 15, MotorId.PZ_R, "position", false);
-                motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, 2, MotorId.PP_Z, "position", false);
-                motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, 6, MotorId.LP_Z, "position", false);
-                motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, 10, MotorId.LZ_Z, "position", false);
-                motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, 14, MotorId.PZ_Z, "position", false);
-                motors[MotorId.PP_ZK].inicialize(connector, motorStateObserver, 1, MotorId.PP_ZK, "position", false);
-                motors[MotorId.LP_ZK].inicialize(connector, motorStateObserver, 5, MotorId.LP_ZK, "position", false);
-                motors[MotorId.LZ_ZK].inicialize(connector, motorStateObserver, 9, MotorId.LZ_ZK, "position", false);
-                motors[MotorId.PZ_ZK].inicialize(connector, motorStateObserver, 13, MotorId.PZ_ZK, "position", false);
+                connector = new DeviceManager("EPOS2", "CANopen", "IXXAT_USB-to-CAN compact 0", "CAN0");
+                motors[MotorId.PP_P].inicialize(connector, motorStateObserver, 4, MotorId.PP_P, "velocity", true, 1);
+                motors[MotorId.LP_P].inicialize(connector, motorStateObserver, 8, MotorId.LP_P, "velocity", false, 1);
+                motors[MotorId.LZ_P].inicialize(connector, motorStateObserver, 12, MotorId.LZ_P, "velocity", false, 1);
+                motors[MotorId.PZ_P].inicialize(connector, motorStateObserver, 16, MotorId.PZ_P, "velocity", true, 1);
+                motors[MotorId.PP_R].inicialize(connector, motorStateObserver, 3, MotorId.PP_R, "position", false, 4);
+                motors[MotorId.LP_R].inicialize(connector, motorStateObserver, 7, MotorId.LP_R, "position", false, 4);
+                motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, 11, MotorId.LZ_R, "position", false, 4);
+                motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, 15, MotorId.PZ_R, "position", false, 4);
+                motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, 2, MotorId.PP_Z, "position", false, 4);
+                motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, 6, MotorId.LP_Z, "position", false, 4);
+                motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, 10, MotorId.LZ_Z, "position", false, 4);
+                motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, 14, MotorId.PZ_Z, "position", false, 4);
+                motors[MotorId.PP_ZK].inicialize(connector, motorStateObserver, 1, MotorId.PP_ZK, "position", false, 4);
+                motors[MotorId.LP_ZK].inicialize(connector, motorStateObserver, 5, MotorId.LP_ZK, "position", false, 4);
+                motors[MotorId.LZ_ZK].inicialize(connector, motorStateObserver, 9, MotorId.LZ_ZK, "position", false, 4);
+                motors[MotorId.PZ_ZK].inicialize(connector, motorStateObserver, 13, MotorId.PZ_ZK, "position", false, 4);
 
                 foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
                 {

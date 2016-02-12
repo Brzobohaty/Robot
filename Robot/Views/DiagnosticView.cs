@@ -62,15 +62,10 @@ namespace Robot
         /// <param name="state">stav</param>
         /// <param name="message">zpráva ke stavu</param>
         /// <param name="motorId">id motoru</param>
-        /// <param name="withoutUpdate">příznak, zda se nemá updatvat okamžitě view (musí se udělat, pokud se přistupuje z jiného vlákna)</param>
         /// <param name="speed">aktuální rychlost motoru</param>
-        public void showMotorState(MotorState state, string message, MotorId motorId, bool withoutUpdate, int speed)
+        public void showMotorState(MotorState state, string message, MotorId motorId, int speed)
         {
-            foreach (KeyValuePair<MotorId, Label> motorView in motorViews)
-            {
-                _showMotorState(motorView.Value, state, message, motorView.Key, withoutUpdate, speed);
-                
-            }
+            _showMotorState(motorViews[motorId], state, message, motorId, speed);
         }
 
         /// <summary>
@@ -80,8 +75,7 @@ namespace Robot
         /// <param name="state">stav</param>
         /// <param name="message">zpráva ke stavu</param>
         /// <param name="motorId">id motoru</param>
-        /// <param name="withoutUpdate">příznak, zda se nemá updatvat okamžitě view (musí se udělat, pokud se přistupuje z jiného vlákna)</param>
-        private void _showMotorState(Label motorView, MotorState state, String message, MotorId motorId, bool withoutUpdate, int speed) {
+        private void _showMotorState(Label motorView, MotorState state, String message, MotorId motorId, int speed) {
             switch (state)
             {
                 case MotorState.error:
@@ -97,10 +91,12 @@ namespace Robot
                     motorView.BackColor = Color.Orange;
                     break;
             }
-            toolTip.SetToolTip(motorView, "ID motoru: " + motorId + "\nStav motoru: " + state + "\nZpráva: " + message);
-            if (!withoutUpdate) {
+            this.Invoke((MethodInvoker)delegate
+            {
+                motorView.Text = speed.ToString();
+                toolTip.SetToolTip(motorView, "ID motoru: " + motorId + "\nStav motoru: " + state + "\nZpráva: " + message);
                 motorView.Update();
-            }
+            });
         }
     }
 }

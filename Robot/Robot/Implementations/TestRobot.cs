@@ -19,7 +19,7 @@ namespace Robot.Robot.Implementations
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public override string inicialize(Action<MotorState, string, MotorId, bool, int> motorStateObserver)
+        public override string inicialize(Action<MotorState, string, MotorId, int> motorStateObserver)
         {
             return "";
             frontLeftWheel = new TestMotor();
