@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DiagnosticView));
             this.errorLabelMotors = new System.Windows.Forms.Label();
             this.labelDiagnostic = new System.Windows.Forms.Label();
@@ -48,6 +49,7 @@
             this.labelLP_P = new System.Windows.Forms.Label();
             this.labelLZ_P = new System.Windows.Forms.Label();
             this.labelPP_P = new System.Windows.Forms.Label();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -226,6 +228,7 @@
             this.labelLP_P.Size = new System.Drawing.Size(70, 70);
             this.labelLP_P.TabIndex = 24;
             this.labelLP_P.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.toolTip.SetToolTip(this.labelLP_P, "<b>aa</b>\r\nbb");
             // 
             // labelLZ_P
             // 
@@ -244,6 +247,14 @@
             this.labelPP_P.Name = "labelPP_P";
             this.labelPP_P.Size = new System.Drawing.Size(70, 70);
             this.labelPP_P.TabIndex = 22;
+            // 
+            // toolTip
+            // 
+            this.toolTip.AutomaticDelay = 0;
+            this.toolTip.AutoPopDelay = 999999999;
+            this.toolTip.InitialDelay = 0;
+            this.toolTip.IsBalloon = true;
+            this.toolTip.ReshowDelay = 0;
             // 
             // DiagnosticView
             // 
@@ -280,5 +291,6 @@
         public System.Windows.Forms.Label labelLP_P;
         public System.Windows.Forms.Label labelLZ_P;
         public System.Windows.Forms.Label labelPP_P;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

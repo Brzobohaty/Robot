@@ -34,6 +34,11 @@ namespace Robot
             motorViews.Add(MotorId.LP_ZK, labelLP_ZK);
             motorViews.Add(MotorId.LZ_ZK, labelLZ_ZK);
             motorViews.Add(MotorId.PZ_ZK, labelPZ_ZK);
+
+            foreach (KeyValuePair<MotorId, Label> motorView in motorViews)
+            {
+                toolTip.SetToolTip(motorView.Value, "ID motoru: " + motorView.Key + "\nStav motoru: not inicialized");
+            }
         }
 
         public static DiagnosticView getInstance()
@@ -92,6 +97,7 @@ namespace Robot
                     motorView.BackColor = Color.Orange;
                     break;
             }
+            toolTip.SetToolTip(motorView, "ID motoru: " + motorId + "\nStav motoru: " + state + "\nZpráva: " + message);
             if (!withoutUpdate) {
                 motorView.Update();
             }
