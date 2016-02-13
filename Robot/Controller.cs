@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
@@ -14,8 +15,10 @@ namespace Robot
         private MainWindow mainWindow; // hlavní okno apklikace
         private ControllView controllView; // view s ovládáním robota
         private DiagnosticView diagnosticView; // view s diagnstikou robota
+        private AbsoluteControllView absoluteControllView; //view s absolutním ovládáním robota
         private IRobot robot; // instance představující robota
         private IJoystick joystick; // instance představující joystick
+        private bool defaultPositionButtonWasPressed; //příznak, že bylo stlačeno tlačítko pro defaultní pozici
 
         //timery obstarávající periodické spouštění při držění tlačítka
         private System.Timers.Timer moveUpPeriodHandler;
@@ -29,13 +32,16 @@ namespace Robot
         {
             this.mainWindow = mainWindow;
             controllView = ControllView.getInstance();
-            AbsoluteControllView absoluteControllView = AbsoluteControllView.getInstance();
+            absoluteControllView = AbsoluteControllView.getInstance();
             diagnosticView = DiagnosticView.getInstance();
             mainWindow.subscribeWindowShownObserver(inicialize);
             mainWindow.subscribeWindowCloseObserver(closeApplication);
             controllView.subscribeAbsolutePositioningObserver(buttonForChangeControllModePressed);
             absoluteControllView.subscribeJoystickPositioningObserver(buttonForChangeControllModePressed);
             absoluteControllView.subscribeButtonForAbsoluteMoveClickObserver(buttonForAbsoluteMoveClicked);
+            absoluteControllView.subscribeButtonForRecalibrClickObserver(buttonForRecalibrClicked);
+            absoluteControllView.subscribeButtonForSetDefaultPositionClickObserver(buttonForSetDefaultStateClicked);
+            absoluteControllView.subscribeButtonForCalibrClickObserver(buttonForCalibrClicked);
         }
 
         /// <summary>
@@ -44,7 +50,7 @@ namespace Robot
         private void inicialize()
         {
             RobotBridge robotBridge = new RobotBridge();
-            robot = robotBridge.getRobot(diagnosticView.showMotorState);
+            robot = robotBridge.getRobot(diagnosticView);
             if (robotBridge.errorMessage.Length > 0)
             {
                 diagnosticView.showBusError(robotBridge.errorMessage);
@@ -67,6 +73,7 @@ namespace Robot
             widenPeriodHandler = getPeriodHandler();
             narrowPeriodHandler = getPeriodHandler();
             defaultPositionPeriodHandler = getPeriodHandler();
+            checkHoming();
         }
 
         /// <summary>
@@ -119,10 +126,6 @@ namespace Robot
             if (sender == narrowPeriodHandler)
             {
                 robot.narrow();
-            }
-            if (sender == defaultPositionPeriodHandler)
-            {
-                robot.setDefaultPosition();
             }
         }
 
@@ -206,12 +209,14 @@ namespace Robot
         {
             if (pressed)
             {
-                periodiclyAction(defaultPositionPeriodHandler, null);
-                defaultPositionPeriodHandler.Start();
+                defaultPositionButtonWasPressed = true;
             }
             else
             {
-                defaultPositionPeriodHandler.Stop();
+                if (defaultPositionButtonWasPressed) {
+                    robot.setDefaultPosition();
+                }
+                defaultPositionButtonWasPressed = false;
             }
             controllView.buttonDefaultPositionPressed(pressed);
         }
@@ -241,9 +246,10 @@ namespace Robot
         /// <summary>
         /// Callback při stisknutí tačítka pro absolutní pozicování robota
         /// </summary>
-        private void buttonForChangeControllModePressed() {
-            mainWindow.changeControllMode();
-            robot.changeControllMode();
+        /// <param name="absoluteControllMode">true, pokud zobrazit absolutní pozicování</param>
+        private void buttonForChangeControllModePressed(bool absoluteControllMode) {
+            mainWindow.changeControllMode(absoluteControllMode);
+            robot.changeControllMode(absoluteControllMode);
         }
 
         /// <summary>
@@ -254,6 +260,54 @@ namespace Robot
         private void buttonForAbsoluteMoveClicked(MotorId motorId, int step)
         {
             robot.moveWithMotor(motorId, step);
+        }
+
+        /// <summary>
+        /// Callback při stisknutí tačítka pro rekalibraci
+        /// </summary>
+        private void buttonForRecalibrClicked()
+        {
+            prepareRecalibration();       
+        }
+
+        /// <summary>
+        /// Callback při stisknutí tačítka pro kalibraci
+        /// </summary>
+        private void buttonForCalibrClicked()
+        {
+            mainWindow.changeDiagnosticView(true);
+            absoluteControllView.stopRecalibr();
+            robot.homing();
+        }
+
+        /// <summary>
+        /// Příprava na rekalibraci robota
+        /// </summary>
+        private void prepareRecalibration() {
+            mainWindow.changeControllMode(true);
+            mainWindow.changeDiagnosticView(false);
+            absoluteControllView.startRecalibr();
+        }
+
+        /// <summary>
+        /// Callback při stisknutí tačítka pro nastavení současného stavu jako výchozího
+        /// </summary>
+        private void buttonForSetDefaultStateClicked()
+        {
+            robot.setCurrentPositionAsDefault();
+        }
+
+        /// <summary>
+        /// Otestuje, zda jsou uloženy nulové pozice pro všechny motory a pokud ne, tak je uživatel požádán o rekalibraci robota
+        /// </summary>
+        private void checkHoming(){
+            if (!robot.reHoming()){
+                DialogResult dialogResult = MessageBox.Show("Bylo zjištěno, že v tomto počítači ještě nejsou uloženy referenční hodnoty motorů nebo došlo k jejich ztrátě při náhlém vypnutí robota. Je potřeba provést rekalibraci. Rekalibrace se provádí tak, že uživatel nastaví všechny motory do nulové polohy a následně jsou tyto polohy brány ve všech výpočtech jako referenční. Pokud uživatel nastaví hodnoty špatně, může dojít k poškození robota.", "Rekalibrace", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (dialogResult == DialogResult.OK)
+                {
+                    prepareRecalibration();
+                }
+            }
         }
     }
 }

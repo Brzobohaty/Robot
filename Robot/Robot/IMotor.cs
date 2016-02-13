@@ -18,11 +18,11 @@ namespace Robot.Robot
         /// <param name="connector">connector sběrnice</param>
         /// <param name="stateObserver">posluchač stavu motoru</param>
         /// <param name="nodeNumber">číslo node</param>
-        /// <param name="id">id motoru ["PP_P", "LP_P", "LZ_P", "PZ_P", "PP_R", "LP_R", "LZ_R", "PZ_R", "PP_Z", "LP_Z", "LZ_Z", "PZ_Z", "PP_ZK", "LP_ZK", "LZ_ZK", "PZ_ZK"]</param>
-        /// <param name="mode">defaultní nastavení módu ["velocity","position"]</param>
+        /// <param name="id">id motoru</param>
+        /// <param name="mode">defaultní nastavení módu</param>
         /// <param name="reverse">příznak obrácení směru točení</param>
         /// <param name="multiplier">násobitel otáček v případě, že je motor za převodovkou</param>
-        void inicialize(DeviceManager connector, Action<MotorState, string, MotorId, int> stateObserver, int nodeNumber, MotorId id, string mode, bool reverse, int multiplier);
+        void inicialize(DeviceManager connector, StateObserver stateObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier);
 
         /// <summary>
         /// Pohnutí s motorem
@@ -31,21 +31,9 @@ namespace Robot.Robot
         void moving(int speed);
 
         /// <summary>
-        /// Pohnutí s motorem
-        /// </summary>
-        /// <param name="speed">rychlost -100 až 100</param>
-        /// <param name="position">pozice 0 až 360</param>
-        void move(int speed, int position);
-
-        /// <summary>
-        /// Vrátí aktuální reálnou rychlost motoru
-        /// </summary>
-        /// <returns>rychlost v otáčkách za sekundu</returns>
-        int getSpeed();
-
-        /// <summary>
         /// Vrátí aktuální reálnou pozici
         /// </summary>
+        /// <exception cref="DeviceException">Pokud motor nedokáže získat hodnot, protože je v chybě.</exception>
         /// <returns>pozice 0 až 360</returns>
         int getPosition();
 

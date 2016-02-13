@@ -16,7 +16,7 @@ namespace Robot
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        string inicialize(Action<MotorState, string, MotorId, int> motorStateObserver);
+        string inicialize(StateObserver motorStateObserver);
 
         /// <summary>
         /// Pohne s robotem v daném směru a danou rychlostí
@@ -65,6 +65,23 @@ namespace Robot
         /// <summary>
         /// Změní ovládání robota (absolutní nebo joystikem)
         /// </summary>
-        void changeControllMode();
+        /// <param name="absoluteControllMode">true, pokud zobrazit absolutní pozicování</param>
+        void changeControllMode(bool absoluteControllMode);
+
+        /// <summary>
+        /// Nastaví aktuální stav robota jako defaultní
+        /// </summary>
+        void setCurrentPositionAsDefault();
+
+        /// <summary>
+        /// Zkontroluje, zda jsou nastaveny poslední pozice motorů před vypnutím a pokud ano, tak je nahraje do motorů jako současnou pozici
+        /// </summary>
+        /// <returns>true, pokud se nahrání povedlo</returns>
+        bool reHoming();
+
+        /// <summary>
+        /// Nastaví současný stav všech motorů jako nulovou pozici
+        /// </summary>
+        void homing();
     }
 }

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Timers;
+using Robot.Views;
 
 namespace Robot
 {
@@ -17,9 +18,10 @@ namespace Robot
         private static MainWindow instance = new MainWindow(); //jediná instance této třídy
         private Action inicializeObserver; //callback pro dokončení view
         private Action closeObserver; //callback pro ukončení aplikace
-        private bool absoluteControllMode = false; //příznak, zda je zapnut absolutní ovládácí mód
         private ControllView controllView; //panel s ovládáním robota pomocí joysticku
         private AbsoluteControllView absoluteControllView; //panel s absolutním ovládáním jednotlivých motorů robota
+        private DiagnosticView diagnosticView; //panel s diagnostikou robota
+        private RecalibrView recalibrView; //panel s návodem k rekalibraci
 
         private MainWindow()
         {
@@ -31,11 +33,14 @@ namespace Robot
             absoluteControllView = AbsoluteControllView.getInstance();
             absoluteControllView.Dock = DockStyle.Fill;
 
-            splitContainer1.Panel1.Controls.Add(controllView);
-
-            DiagnosticView diagnosticView = DiagnosticView.getInstance();
-            splitContainer1.Panel2.Controls.Add(diagnosticView);
+            diagnosticView = DiagnosticView.getInstance();
             diagnosticView.Dock = DockStyle.Fill;
+
+            recalibrView = RecalibrView.getInstance();
+            recalibrView.Dock = DockStyle.Fill;
+
+            splitContainer1.Panel1.Controls.Add(controllView);
+            splitContainer1.Panel2.Controls.Add(diagnosticView);
         }
 
         public static MainWindow getInstance()
@@ -64,17 +69,34 @@ namespace Robot
         /// <summary>
         /// Změní ovládací mód 
         /// </summary>
-        public void changeControllMode() {
+        /// <param name="absoluteControllMode">true, pokud zobrazit absolutní pozicování</param>
+        public void changeControllMode(bool absoluteControllMode) {
             if (absoluteControllMode)
             {
-                absoluteControllMode = false;
+                splitContainer1.Panel1.Controls.Clear();
+                splitContainer1.Panel1.Controls.Add(absoluteControllView);
+            }
+            else {
                 splitContainer1.Panel1.Controls.Clear();
                 splitContainer1.Panel1.Controls.Add(controllView);
             }
-            else {
-                absoluteControllMode = true;
-                splitContainer1.Panel1.Controls.Clear();
-                splitContainer1.Panel1.Controls.Add(absoluteControllView);
+        }
+
+        /// <summary>
+        /// Prohodí view diagnostiky za view rekalibrace nebo opačně
+        /// </summary>
+        /// <param name="diagnosticViewVisible">true, pokud zobrazit diagnostiku</param>
+        public void changeDiagnosticView(bool diagnosticViewVisible)
+        {
+            if (diagnosticViewVisible)
+            {
+                splitContainer1.Panel2.Controls.Clear();
+                splitContainer1.Panel2.Controls.Add(diagnosticView);
+            }
+            else
+            {
+                splitContainer1.Panel2.Controls.Clear();
+                splitContainer1.Panel2.Controls.Add(recalibrView);
             }
         }
 

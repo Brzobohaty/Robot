@@ -29,10 +29,11 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AbsoluteControllView));
-            this.errorLabelControl = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.buttonJoystickPositioning = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.buttonRecalibr = new System.Windows.Forms.Button();
+            this.buttonSetDefaultPosition = new System.Windows.Forms.Button();
             this.rightPZ_ZK = new System.Windows.Forms.Button();
             this.leftPZ_ZK = new System.Windows.Forms.Button();
             this.downPZ_Z = new System.Windows.Forms.Button();
@@ -67,20 +68,13 @@
             this.label2 = new System.Windows.Forms.Label();
             this.comboBoxStep = new System.Windows.Forms.ComboBox();
             this.rightLP_P = new System.Windows.Forms.Button();
+            this.panelWithWarrning = new System.Windows.Forms.Panel();
+            this.labelWarrning = new System.Windows.Forms.Label();
+            this.labelWarningIcon = new System.Windows.Forms.Label();
+            this.buttonCalibr = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
+            this.panelWithWarrning.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // errorLabelControl
-            // 
-            this.errorLabelControl.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.errorLabelControl.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.errorLabelControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.errorLabelControl.ForeColor = System.Drawing.Color.Red;
-            this.errorLabelControl.Location = new System.Drawing.Point(0, 853);
-            this.errorLabelControl.Name = "errorLabelControl";
-            this.errorLabelControl.Size = new System.Drawing.Size(769, 55);
-            this.errorLabelControl.TabIndex = 14;
-            this.errorLabelControl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label1
             // 
@@ -89,7 +83,7 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(769, 55);
+            this.label1.Size = new System.Drawing.Size(811, 55);
             this.label1.TabIndex = 11;
             this.label1.Text = "Ovládání";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -98,9 +92,9 @@
             // 
             this.buttonJoystickPositioning.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.buttonJoystickPositioning.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.buttonJoystickPositioning.Location = new System.Drawing.Point(0, 803);
+            this.buttonJoystickPositioning.Location = new System.Drawing.Point(0, 945);
             this.buttonJoystickPositioning.Name = "buttonJoystickPositioning";
-            this.buttonJoystickPositioning.Size = new System.Drawing.Size(769, 50);
+            this.buttonJoystickPositioning.Size = new System.Drawing.Size(811, 50);
             this.buttonJoystickPositioning.TabIndex = 15;
             this.buttonJoystickPositioning.Text = "Ovládání pomocí joystiku";
             this.buttonJoystickPositioning.UseVisualStyleBackColor = true;
@@ -109,6 +103,9 @@
             // panel1
             // 
             this.panel1.AutoScroll = true;
+            this.panel1.Controls.Add(this.buttonCalibr);
+            this.panel1.Controls.Add(this.buttonRecalibr);
+            this.panel1.Controls.Add(this.buttonSetDefaultPosition);
             this.panel1.Controls.Add(this.rightPZ_ZK);
             this.panel1.Controls.Add(this.leftPZ_ZK);
             this.panel1.Controls.Add(this.downPZ_Z);
@@ -146,8 +143,30 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 55);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(769, 748);
+            this.panel1.Size = new System.Drawing.Size(811, 890);
             this.panel1.TabIndex = 51;
+            // 
+            // buttonRecalibr
+            // 
+            this.buttonRecalibr.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.buttonRecalibr.Location = new System.Drawing.Point(407, 754);
+            this.buttonRecalibr.Name = "buttonRecalibr";
+            this.buttonRecalibr.Size = new System.Drawing.Size(329, 50);
+            this.buttonRecalibr.TabIndex = 86;
+            this.buttonRecalibr.Text = "Rekalibrovat";
+            this.buttonRecalibr.UseVisualStyleBackColor = true;
+            this.buttonRecalibr.Click += new System.EventHandler(this.buttonRecalibr_Click);
+            // 
+            // buttonSetDefaultPosition
+            // 
+            this.buttonSetDefaultPosition.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.buttonSetDefaultPosition.Location = new System.Drawing.Point(37, 754);
+            this.buttonSetDefaultPosition.Name = "buttonSetDefaultPosition";
+            this.buttonSetDefaultPosition.Size = new System.Drawing.Size(327, 50);
+            this.buttonSetDefaultPosition.TabIndex = 85;
+            this.buttonSetDefaultPosition.Text = "Nastavit jako výchozí pozici";
+            this.buttonSetDefaultPosition.UseVisualStyleBackColor = true;
+            this.buttonSetDefaultPosition.Click += new System.EventHandler(this.buttonSetDefaultPosition_Click);
             // 
             // rightPZ_ZK
             // 
@@ -559,25 +578,72 @@
             this.rightLP_P.UseVisualStyleBackColor = true;
             this.rightLP_P.Click += new System.EventHandler(this.rightLP_P_Click);
             // 
+            // panelWithWarrning
+            // 
+            this.panelWithWarrning.Controls.Add(this.labelWarrning);
+            this.panelWithWarrning.Controls.Add(this.labelWarningIcon);
+            this.panelWithWarrning.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panelWithWarrning.Location = new System.Drawing.Point(0, 995);
+            this.panelWithWarrning.Name = "panelWithWarrning";
+            this.panelWithWarrning.Size = new System.Drawing.Size(811, 56);
+            this.panelWithWarrning.TabIndex = 87;
+            // 
+            // labelWarrning
+            // 
+            this.labelWarrning.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.labelWarrning.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelWarrning.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.labelWarrning.ForeColor = System.Drawing.Color.Red;
+            this.labelWarrning.Location = new System.Drawing.Point(50, 0);
+            this.labelWarrning.Name = "labelWarrning";
+            this.labelWarrning.Size = new System.Drawing.Size(761, 56);
+            this.labelWarrning.TabIndex = 53;
+            this.labelWarrning.Text = "Při rekalibraci jsou vypnuta všechna omezení. \r\nDávejte pozor na dojezdy motorů d" +
+    "o krajních poloh.";
+            this.labelWarrning.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.labelWarrning.Visible = false;
+            // 
+            // labelWarningIcon
+            // 
+            this.labelWarningIcon.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.labelWarningIcon.Dock = System.Windows.Forms.DockStyle.Left;
+            this.labelWarningIcon.Image = ((System.Drawing.Image)(resources.GetObject("labelWarningIcon.Image")));
+            this.labelWarningIcon.Location = new System.Drawing.Point(0, 0);
+            this.labelWarningIcon.Name = "labelWarningIcon";
+            this.labelWarningIcon.Size = new System.Drawing.Size(50, 56);
+            this.labelWarningIcon.TabIndex = 52;
+            this.labelWarningIcon.Visible = false;
+            // 
+            // buttonCalibr
+            // 
+            this.buttonCalibr.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.buttonCalibr.Location = new System.Drawing.Point(37, 766);
+            this.buttonCalibr.Name = "buttonCalibr";
+            this.buttonCalibr.Size = new System.Drawing.Size(327, 50);
+            this.buttonCalibr.TabIndex = 87;
+            this.buttonCalibr.Text = "Kalibrovat";
+            this.buttonCalibr.UseVisualStyleBackColor = true;
+            this.buttonCalibr.Visible = false;
+            this.buttonCalibr.Click += new System.EventHandler(this.buttonCalibr_Click);
+            // 
             // AbsoluteControllView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.buttonJoystickPositioning);
-            this.Controls.Add(this.errorLabelControl);
+            this.Controls.Add(this.panelWithWarrning);
             this.Controls.Add(this.label1);
             this.Name = "AbsoluteControllView";
-            this.Size = new System.Drawing.Size(769, 908);
+            this.Size = new System.Drawing.Size(811, 1051);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.panelWithWarrning.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Label errorLabelControl;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button buttonJoystickPositioning;
         private System.Windows.Forms.Panel panel1;
@@ -615,5 +681,11 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox comboBoxStep;
         private System.Windows.Forms.Button rightLP_P;
+        private System.Windows.Forms.Button buttonSetDefaultPosition;
+        private System.Windows.Forms.Button buttonRecalibr;
+        private System.Windows.Forms.Label labelWarningIcon;
+        private System.Windows.Forms.Panel panelWithWarrning;
+        private System.Windows.Forms.Label labelWarrning;
+        private System.Windows.Forms.Button buttonCalibr;
     }
 }

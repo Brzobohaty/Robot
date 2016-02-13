@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Robot
 {
-    public partial class DiagnosticView : UserControl
+    public partial class DiagnosticView : UserControl, StateObserver
     {
         private static DiagnosticView instance = new DiagnosticView();
         private Dictionary<MotorId, Label> motorViews = new Dictionary<MotorId, Label>(); //mapa view motorů
@@ -63,9 +63,9 @@ namespace Robot
         /// <param name="message">zpráva ke stavu</param>
         /// <param name="motorId">id motoru</param>
         /// <param name="speed">aktuální rychlost motoru</param>
-        public void showMotorState(MotorState state, string message, MotorId motorId, int speed)
+        public void motorStateChanged(MotorState state, string message, MotorId motorId, int speed)
         {
-            _showMotorState(motorViews[motorId], state, message, motorId, speed);
+            showMotorState(motorViews[motorId], state, message, motorId, speed);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Robot
         /// <param name="state">stav</param>
         /// <param name="message">zpráva ke stavu</param>
         /// <param name="motorId">id motoru</param>
-        private void _showMotorState(Label motorView, MotorState state, String message, MotorId motorId, int speed) {
+        private void showMotorState(Label motorView, MotorState state, String message, MotorId motorId, int speed) {
             switch (state)
             {
                 case MotorState.error:

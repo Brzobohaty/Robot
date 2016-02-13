@@ -10,7 +10,7 @@ namespace Robot.Robot.Implementations
     /// <summary>
     /// Objekt představující testovací softwarovou simulaci robota
     /// </summary>
-    class TestRobot : AbstractRobot
+    class TestRobot : IRobot
     {
         private IMotor frontLeftWheel;
 
@@ -19,7 +19,7 @@ namespace Robot.Robot.Implementations
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public override string inicialize(Action<MotorState, string, MotorId, int> motorStateObserver)
+        public string inicialize(StateObserver motorStateObserver)
         {
             return "";
             frontLeftWheel = new TestMotor();
@@ -30,7 +30,7 @@ namespace Robot.Robot.Implementations
         /// </summary>
         /// <param name="direction">směr pohybu v úhlech -180 až 180</param>
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
-        public override void move(int direction, int speed)
+        public void move(int direction, int speed)
         {
             Console.WriteLine("Move to direction: "+direction+" with speed: "+speed);
         }
@@ -38,7 +38,7 @@ namespace Robot.Robot.Implementations
         /// <summary>
         /// Sníží robota
         /// </summary>
-        public override void moveDown()
+        public void moveDown()
         {
             Console.WriteLine("Move down");
         }
@@ -46,7 +46,7 @@ namespace Robot.Robot.Implementations
         /// <summary>
         /// Zvýší robota
         /// </summary>
-        public override void moveUp()
+        public void moveUp()
         {
             Console.WriteLine("Move up");
         }
@@ -54,7 +54,7 @@ namespace Robot.Robot.Implementations
         /// <summary>
         /// Rozšíří robota
         /// </summary>
-        public override void widen()
+        public void widen()
         {
             Console.WriteLine("Rozšířit");
         }
@@ -62,7 +62,7 @@ namespace Robot.Robot.Implementations
         /// <summary>
         /// Zůží robota
         /// </summary>
-        public override void narrow()
+        public void narrow()
         {
             Console.WriteLine("Zůžit");
         }
@@ -70,7 +70,7 @@ namespace Robot.Robot.Implementations
         /// <summary>
         /// Nastaví robota do defaultní pozice
         /// </summary>
-        public override void setDefaultPosition()
+        public void setDefaultPosition()
         {
             Console.WriteLine("Default position");
         }
@@ -81,7 +81,7 @@ namespace Robot.Robot.Implementations
         /// <param name="motorId">id motoru</param>
         /// <param name="direction">směr točení [-1,1]</param>
         /// <param name="step">krok motoru v qc</param>
-        public override void moveWithMotor(MotorId motorId, int step)
+        public void moveWithMotor(MotorId motorId, int step)
         {
 
         }
@@ -89,16 +89,41 @@ namespace Robot.Robot.Implementations
         /// <summary>
         /// Vypne motor
         /// </summary>
-        public override void disable()
+        public void disable()
         {
         }
 
         /// <summary>
         /// Změní ovládání robota (absolutní nebo joystikem)
         /// </summary>
-        public override void changeControllMode()
+        /// <param name="absoluteControllMode">true, pokud zobrazit absolutní pozicování</param>
+        public void changeControllMode(bool absoluteControllMode)
         {
             
+        }
+
+        /// <summary>
+        /// Nastaví současný stav všech motorů jako nulovou pozici
+        /// </summary>
+        public void homing()
+        {
+
+        }
+
+        /// <summary>
+        /// Zkontroluje, zda jsou nastaveny poslední pozice motorů před vypnutím a pokud ano, tak je nahraje do motorů jako současnou pozici
+        /// </summary>
+        /// <returns>true, pokud se nahrání povedlo</returns>
+        public bool reHoming()
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Nastaví aktuální stav robota jako defaultní
+        /// </summary>
+        public void setCurrentPositionAsDefault()
+        {
         }
     }
 }

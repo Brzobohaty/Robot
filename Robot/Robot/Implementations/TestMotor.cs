@@ -25,7 +25,7 @@ namespace Robot.Robot.Implementations
         /// <param name="mode">defaultní nastavení módu ["velocity","position"]</param>
         /// <param name="reverse">příznak obrácení směru točení</param>
         /// <param name="multiplier">násobitel otáček v případě, že je motor za převodovkou</param>
-        public void inicialize(DeviceManager connector, Action<MotorState, string, MotorId, int> stateObserver, int nodeNumber, MotorId id, string mode, bool reverse, int multiplier)
+        public void inicialize(DeviceManager connector, StateObserver stateObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier)
         {
         }
 
@@ -61,6 +61,7 @@ namespace Robot.Robot.Implementations
         /// <summary>
         /// Vrátí aktuální reálnou pozici
         /// </summary>
+        /// <exception cref="DeviceException">Pokud motor nedokáže získat hodnot, protože je v chybě.</exception>
         /// <returns>pozice 0 až 360</returns>
         public int getPosition()
         {
