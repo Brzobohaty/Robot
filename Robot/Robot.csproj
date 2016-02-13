@@ -56,10 +56,11 @@
     <Compile Include="MotorStatesEnum.cs" />
     <Compile Include="MotorsIdEnum.cs" />
     <Compile Include="Robot\IMotor.cs" />
-    <Compile Include="Robot\Implementations\EposMotor.cs" />
-    <Compile Include="Robot\Implementations\MotorsModesEnum.cs" />
-    <Compile Include="Robot\Implementations\TestMotor.cs" />
-    <Compile Include="Robot\Implementations\TestRobot.cs" />
+    <Compile Include="Robot\Implementations\Epos\EposErrorCode.cs" />
+    <Compile Include="Robot\Implementations\Epos\EposMotor.cs" />
+    <Compile Include="Robot\MotorsModesEnum.cs" />
+    <Compile Include="Robot\Implementations\Test\TestMotor.cs" />
+    <Compile Include="Robot\Implementations\Test\TestRobot.cs" />
     <Compile Include="Robot\RobotBridge.cs" />
     <Compile Include="StateObserver.cs" />
     <Compile Include="Views\AbsoluteControllView.cs">
@@ -81,7 +82,7 @@
       <DependentUpon>DiagnosticView.cs</DependentUpon>
     </Compile>
     <Compile Include="Joystick\IJoystick.cs" />
-    <Compile Include="Robot\Implementations\EposRobot.cs" />
+    <Compile Include="Robot\Implementations\Epos\EposRobot.cs" />
     <Compile Include="Joystick\AbstractJoystick.cs" />
     <Compile Include="Robot\IRobot.cs" />
     <Compile Include="Joystick\JoystickBridge.cs" />

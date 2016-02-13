@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EposCmd.Net;
 
-namespace Robot.Robot.Implementations
+namespace Robot.Robot.Implementations.Test
 {
     /// <summary>
     /// Objekt představující testovací softwarovou simulaci robota
@@ -21,8 +21,8 @@ namespace Robot.Robot.Implementations
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
         public string inicialize(StateObserver motorStateObserver)
         {
-            return "";
             frontLeftWheel = new TestMotor();
+            return "";
         }
 
         /// <summary>

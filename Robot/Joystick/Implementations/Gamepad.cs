@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using SlimDX.DirectInput;
 using System.Timers;
 
-namespace Robot
+namespace Robot.Joystick.Implementations
 {
     /// <summary>
     /// Abstrakce HW gamepadu připojeného k PC
     /// </summary>
     class Gamepad : AbstractJoystick
     {
-        private Joystick gamepad; //připojený gamepad
+        private SlimDX.DirectInput.Joystick gamepad; //připojený gamepad
         private GamePadeState state = new GamePadeState(); //stav gamepadu
         private const int sensitivity = 10; //citlivost joysticku 
 
@@ -39,17 +39,17 @@ namespace Robot
         /// </summary>
         /// <returns>zařízení</returns>
         /// <exception>Pokud se nepodařilo najít žádné funkční zařízení</exception>
-        private Joystick getGamepad()
+        private SlimDX.DirectInput.Joystick getGamepad()
         {
             DirectInput dinput = new DirectInput();
-            Joystick gamepad;
+            SlimDX.DirectInput.Joystick gamepad;
             string errorMessage = "Nebylo nalezeno žádné vnější ovládací zařízení.";
 
             foreach (DeviceInstance device in dinput.GetDevices(DeviceClass.GameController, DeviceEnumerationFlags.AttachedOnly))
             {
                 try
                 {
-                    gamepad = new Joystick(dinput, device.InstanceGuid);
+                    gamepad = new SlimDX.DirectInput.Joystick(dinput, device.InstanceGuid);
                     gamepad.Acquire();
 
                     foreach (DeviceObjectInstance deviceObject in gamepad.GetObjects())

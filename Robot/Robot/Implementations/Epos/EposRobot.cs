@@ -1,16 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using EposCmd.Net;
-using EposCmd.Net.DeviceCmdSet.Operation;
-using Robot.Robot;
-using Robot.Robot.Implementations;
-using System.Timers;
-using System.Collections.Generic;
 
-namespace Robot
+namespace Robot.Robot.Implementations.Epos
 {
     /// <summary>
     /// Objekt představující abstrakci samotného robota
@@ -19,9 +11,11 @@ namespace Robot
     {
         private DeviceManager connector; // handler pro přopojení motorů
         private Dictionary<MotorId, EposMotor> motors = new Dictionary<MotorId, EposMotor>(); //mapa motorů
+        private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
 
         public EposRobot()
         {
+            errorDictionary = EposErrorCode.getInstance();
             var motorsIds = MotorId.GetValues(typeof(MotorId));
             foreach (MotorId motorId in motorsIds)
             {
@@ -66,7 +60,7 @@ namespace Robot
             catch (DeviceException e)
             {
                 disable();
-                return String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode);
+                return String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode));
             }
             catch (Exception e)
             {
@@ -248,7 +242,7 @@ namespace Robot
                 try {
                     Properties.Settings.Default[motor.Key.ToString()] = motor.Value.getPosition();
                 }
-                catch (DeviceException e) {
+                catch (DeviceException) {
                     allMotorsOk = false;
                 }
             }

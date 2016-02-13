@@ -1,11 +1,13 @@
 ﻿using Robot.Robot.Implementations;
+using Robot.Robot.Implementations.Epos;
+using Robot.Robot.Implementations.Test;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Robot
+namespace Robot.Robot
 {
     /// <summary>
     /// Slouží pro získání instance robota

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Robot.Robot.Implementations
+namespace Robot.Robot.Implementations.Test
 {
     /// <summary>
     /// Představuje softwarovou simulaci motoru

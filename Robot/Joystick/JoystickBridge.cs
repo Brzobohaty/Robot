@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Robot.Joystick.Implementations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Robot
+namespace Robot.Joystick
 {
     /// <summary>
     /// Slouží pro získání instance nejlépe vyhovujícího ovládacího zařízení

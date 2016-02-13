@@ -1,5 +1,6 @@
 ﻿using EposCmd.Net;
 using EposCmd.Net.DeviceCmdSet.Operation;
+using Robot.Robot.Implementations.Epos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 
-namespace Robot.Robot.Implementations
+namespace Robot.Robot.Implementations.Epos
 {
     /// <summary>
     /// Motor v HW implementací od firmy EPOS
@@ -33,6 +34,11 @@ namespace Robot.Robot.Implementations
         private int maxPosition; //maximální pozice na motoru
         private int minPosition; //minimální pozice na motoru
         private bool hasLimit = false; //příznak, zda má motor maximální a minimální hranici pohybu
+        private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
+
+        public EposMotor() {
+            errorDictionary = EposErrorCode.getInstance();
+        }
 
         /// <summary>
         /// Inicializace motoru
@@ -98,7 +104,7 @@ namespace Robot.Robot.Implementations
             {
                 sm = null;
                 disableStateObserver();
-                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode), id, 0);
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0);
             }
             catch (Exception e)
             {
@@ -139,7 +145,7 @@ namespace Robot.Robot.Implementations
                     }
                     catch (DeviceException e)
                     {
-                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode), id, 0);
+                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0);
                     }
                     catch (Exception e)
                     {
@@ -165,7 +171,7 @@ namespace Robot.Robot.Implementations
                     }
                     catch (DeviceException e)
                     {
-                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode), id, 0);
+                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0);
                     }
                     catch (Exception e)
                     {
@@ -195,7 +201,7 @@ namespace Robot.Robot.Implementations
                     }
                     catch (DeviceException e)
                     {
-                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nErrorCode: {1:X8}", e.ErrorMessage, e.ErrorCode), id, 0);
+                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0);
                     }
                     catch (Exception e)
                     {

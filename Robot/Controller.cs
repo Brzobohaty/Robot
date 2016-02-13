@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Robot.Joystick;
+using Robot.Robot;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
