@@ -38,10 +38,13 @@ namespace Robot
             diagnosticView = DiagnosticView.getInstance();
             mainWindow.subscribeWindowShownObserver(inicialize);
             mainWindow.subscribeWindowCloseObserver(closeApplication);
+            mainWindow.subscribeButtonForRecalibrClickObserver(buttonForRecalibrClicked);
+            mainWindow.subscribeButtonForConnectionSettingsClickObserver(buttonForConnectionSettingsClicked);
+            mainWindow.subscribeButtonForReinicializeClickObserver(buttonForReinicializeClicked);
+            mainWindow.subscribeButtonForSearchGamepadClickObserver(buttonForSearchGamepadClicked);
             controllView.subscribeAbsolutePositioningObserver(buttonForChangeControllModePressed);
             absoluteControllView.subscribeJoystickPositioningObserver(buttonForChangeControllModePressed);
             absoluteControllView.subscribeButtonForAbsoluteMoveClickObserver(buttonForAbsoluteMoveClicked);
-            absoluteControllView.subscribeButtonForRecalibrClickObserver(buttonForRecalibrClicked);
             absoluteControllView.subscribeButtonForSetDefaultPositionClickObserver(buttonForSetDefaultStateClicked);
             absoluteControllView.subscribeButtonForCalibrClickObserver(buttonForCalibrClicked);
         }
@@ -51,18 +54,47 @@ namespace Robot
         /// </summary>
         private void inicialize()
         {
+            controllOnOff(false);
+            inicializeRobot(false);
+            inicializeJoystick();
+            moveUpPeriodHandler = getPeriodHandler();
+            moveDownPeriodHandler = getPeriodHandler();
+            widenPeriodHandler = getPeriodHandler();
+            narrowPeriodHandler = getPeriodHandler();
+            defaultPositionPeriodHandler = getPeriodHandler();
+            checkHoming();
+            controllOnOff(true);
+        }
+
+        /// <summary>
+        /// Inicializace robota
+        /// </summary>
+        /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
+        private void inicializeRobot(bool withChooseOfBus) {
             RobotBridge robotBridge = new RobotBridge();
-            robot = robotBridge.getRobot(diagnosticView);
+            robot = robotBridge.getRobot(diagnosticView, withChooseOfBus);
             if (robotBridge.errorMessage.Length > 0)
             {
-                diagnosticView.showBusError(robotBridge.errorMessage);
+                diagnosticView.showDisgnosticMessage(true, robotBridge.errorMessage);
             }
+            else
+            {
+                diagnosticView.showDisgnosticMessage(false, "Připojení ke sběrnici proběhlo v pořádku.");
+            }
+        }
 
+        /// <summary>
+        /// Inicializace joysticku/gamepadu
+        /// </summary>
+        private void inicializeJoystick() {
             JoystickBridge joystickBridge = new JoystickBridge();
             joystick = joystickBridge.getJoystick();
             if (joystickBridge.errorMessage.Length > 0)
             {
-                controllView.showControlError(joystickBridge.errorMessage);
+                controllView.showControlMessage(true, joystickBridge.errorMessage);
+            }
+            else {
+                controllView.showControlMessage(false, "Vnější ovládací zařízení je připraveno k použití.");
             }
             joystick.subscribeStickObserver(joystickChanged);
             joystick.subscribeButtonMoveUpObserver(joystickButtonMoveUpChanged);
@@ -70,12 +102,6 @@ namespace Robot
             joystick.subscribeButtonNarrowObserver(joystickButtonNarrowChanged);
             joystick.subscribeButtonWidenObserver(joystickButtonWidenChanged);
             joystick.subscribeButtonDefaultPositionObserver(joystickButtonDefaultPositionChanged);
-            moveUpPeriodHandler = getPeriodHandler();
-            moveDownPeriodHandler = getPeriodHandler();
-            widenPeriodHandler = getPeriodHandler();
-            narrowPeriodHandler = getPeriodHandler();
-            defaultPositionPeriodHandler = getPeriodHandler();
-            checkHoming();
         }
 
         /// <summary>
@@ -250,6 +276,7 @@ namespace Robot
         /// </summary>
         /// <param name="absoluteControllMode">true, pokud zobrazit absolutní pozicování</param>
         private void buttonForChangeControllModePressed(bool absoluteControllMode) {
+            joystick.onOff(!absoluteControllMode);
             mainWindow.changeControllMode(absoluteControllMode);
             robot.changeControllMode(absoluteControllMode);
         }
@@ -277,15 +304,18 @@ namespace Robot
         /// </summary>
         private void buttonForCalibrClicked()
         {
+            controllOnOff(false);
             mainWindow.changeDiagnosticView(true);
             absoluteControllView.stopRecalibr();
             robot.homing();
+            controllOnOff(true);
         }
 
         /// <summary>
         /// Příprava na rekalibraci robota
         /// </summary>
         private void prepareRecalibration() {
+            joystick.onOff(false);
             mainWindow.changeControllMode(true);
             mainWindow.changeDiagnosticView(false);
             absoluteControllView.startRecalibr();
@@ -310,6 +340,55 @@ namespace Robot
                     prepareRecalibration();
                 }
             }
+        }
+
+        /// <summary>
+        /// Callback při stisknutí tačítka pro nastavení připojení
+        /// </summary>
+        private void buttonForConnectionSettingsClicked() {
+            controllOnOff(false);
+            robot.disable();
+            inicializeRobot(true);
+            controllOnOff(true);
+        }
+
+        /// <summary>
+        /// Callback při stisknutí tačítka pro reinicializaci robota
+        /// </summary>
+        private void buttonForReinicializeClicked()
+        {
+            robot.disable();
+            inicialize();
+        }
+
+        /// <summary>
+        /// Callback při stisknutí tačítka pro vyhledání gamepadu
+        /// </summary>
+        private void buttonForSearchGamepadClicked()
+        {
+            controllOnOff(false);
+            
+            if (joystick != null)
+            {
+                joystick.unsibscribeAllObservers();
+                joystick.onOff(true);
+            }
+            inicializeJoystick();
+
+            controllOnOff(true);
+        }
+
+        /// <summary>
+        /// Odpojí/připojí všechna ovládání od robota
+        /// </summary>
+        /// <param name="on">true pokud připojit</param>
+        private void controllOnOff(bool on)
+        {
+            if (joystick != null)
+            {
+                joystick.onOff(on);
+            }
+            absoluteControllView.onOff(on);
         }
     }
 }

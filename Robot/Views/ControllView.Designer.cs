@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ControllView));
-            this.errorLabelControl = new System.Windows.Forms.Label();
+            this.messageLabelControl = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.buttonAbsolutPositioning = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -51,15 +51,15 @@
             // 
             // errorLabelControl
             // 
-            this.errorLabelControl.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.errorLabelControl.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.errorLabelControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.errorLabelControl.ForeColor = System.Drawing.Color.Red;
-            this.errorLabelControl.Location = new System.Drawing.Point(0, 567);
-            this.errorLabelControl.Name = "errorLabelControl";
-            this.errorLabelControl.Size = new System.Drawing.Size(468, 55);
-            this.errorLabelControl.TabIndex = 14;
-            this.errorLabelControl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.messageLabelControl.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.messageLabelControl.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.messageLabelControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.messageLabelControl.ForeColor = System.Drawing.Color.Red;
+            this.messageLabelControl.Location = new System.Drawing.Point(0, 567);
+            this.messageLabelControl.Name = "errorLabelControl";
+            this.messageLabelControl.Size = new System.Drawing.Size(468, 55);
+            this.messageLabelControl.TabIndex = 14;
+            this.messageLabelControl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label1
             // 
@@ -227,7 +227,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.buttonAbsolutPositioning);
-            this.Controls.Add(this.errorLabelControl);
+            this.Controls.Add(this.messageLabelControl);
             this.Controls.Add(this.label1);
             this.Name = "ControllView";
             this.Size = new System.Drawing.Size(468, 622);
@@ -243,7 +243,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Label errorLabelControl;
+        private System.Windows.Forms.Label messageLabelControl;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button buttonAbsolutPositioning;
         private System.Windows.Forms.Panel panel2;

@@ -18,8 +18,9 @@ namespace Robot.Robot.Implementations.Test
         /// Inicializace připojení k motorům
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
+        /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public string inicialize(StateObserver motorStateObserver)
+        public string inicialize(StateObserver motorStateObserver, bool withChooseOfBus)
         {
             frontLeftWheel = new TestMotor();
             return "";

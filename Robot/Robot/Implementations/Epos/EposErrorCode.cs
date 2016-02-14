@@ -15,6 +15,7 @@ namespace Robot.Robot.Implementations.Epos
         private Dictionary<string, string> dictionary = new Dictionary<string, string>(); //slovník
 
         private EposErrorCode(){
+            dictionary.Add("00000000", "No connection choosen");
             dictionary.Add("05030000", "Toggle bit not alternated");
             dictionary.Add("05040000", "SDO protocol timed out");
             dictionary.Add("05040001", "Client /server command specifier not valid or unknown");
@@ -108,7 +109,11 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="code">kód chyby</param>
         /// <returns>zpráva chyby</returns>
         public string getErrorMessage(uint code){
-            return dictionary[String.Format("{0:X8}", code)];
+            try{
+                return dictionary[String.Format("{0:X8}", code)];
+            }catch(KeyNotFoundException){
+                return "Neznámá chyba";
+            }
         }
     }
 }

@@ -15,8 +15,9 @@ namespace Robot.Robot
         /// Inicializace připojení k motorům
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
+        /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        string inicialize(StateObserver motorStateObserver);
+        string inicialize(StateObserver motorStateObserver, bool withChooseOfBus);
 
         /// <summary>
         /// Pohne s robotem v daném směru a danou rychlostí

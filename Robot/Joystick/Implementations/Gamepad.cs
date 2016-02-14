@@ -16,12 +16,14 @@ namespace Robot.Joystick.Implementations
         private SlimDX.DirectInput.Joystick gamepad; //připojený gamepad
         private GamePadeState state = new GamePadeState(); //stav gamepadu
         private const int sensitivity = 10; //citlivost joysticku 
+        private bool enabled = true; //příznak vypnutého/zapnutého ovládání
 
         /// <summary>
         /// Inicializace gamepad
         /// </summary>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
         public override string inicialize() {
+            onOff(false);
             try
             {
                 gamepad = getGamepad();
@@ -32,6 +34,14 @@ namespace Robot.Joystick.Implementations
             {
                 return e.Message;
             }
+        }
+
+        /// <summary>
+        /// Vypne/zapne ovládání pomocí ovladače
+        /// </summary>
+        /// <param name="on">true pokud zapnout</param>
+        public override void onOff(bool on) {
+            enabled = on;
         }
 
         /// <summary>
@@ -87,51 +97,54 @@ namespace Robot.Joystick.Implementations
         /// <param name="e"></param>
         private void gamepadHandle(object sender, EventArgs e)
         {
-            JoystickState stateNow = new JoystickState();
-            stateNow = gamepad.GetCurrentState();
-            bool[] buttons = stateNow.GetButtons();
+            if (enabled) {
+                JoystickState stateNow = new JoystickState();
+                stateNow = gamepad.GetCurrentState();
+                bool[] buttons = stateNow.GetButtons();
 
-            if ((Math.Abs(state.x - stateNow.X) > sensitivity || Math.Abs(state.y - stateNow.Y) > sensitivity) && stickObserver != null)
-            {
-                state.x = stateNow.X;
-                state.y = stateNow.Y;
-                int x = state.x;
-                int y = state.y;
-                if (Math.Abs(x) < 10 && Math.Abs(y) < 10)
+                if ((Math.Abs(state.x - stateNow.X) > sensitivity || Math.Abs(state.y - stateNow.Y) > sensitivity) && stickObserver != null)
                 {
-                    x = 0;
-                    y = 0;
+                    state.x = stateNow.X;
+                    state.y = stateNow.Y;
+                    int x = state.x;
+                    int y = state.y;
+                    if (Math.Abs(x) < 10 && Math.Abs(y) < 10)
+                    {
+                        x = 0;
+                        y = 0;
+                    }
+                    stickObserver(x, y);
                 }
-                stickObserver(x, y);
-            }
 
-            if (state.moveDown != buttons[0] && buttonMoveDownObserver != null) {
-                buttonMoveDownObserver(buttons[0]);
-                state.moveDown = buttons[0];
-            }
+                if (state.moveDown != buttons[0] && buttonMoveDownObserver != null)
+                {
+                    buttonMoveDownObserver(buttons[0]);
+                    state.moveDown = buttons[0];
+                }
 
-            if (state.moveUp != buttons[3] && buttonMoveUpObserver != null)
-            {
-                buttonMoveUpObserver(buttons[3]);
-                state.moveUp = buttons[3];
-            }
+                if (state.moveUp != buttons[3] && buttonMoveUpObserver != null)
+                {
+                    buttonMoveUpObserver(buttons[3]);
+                    state.moveUp = buttons[3];
+                }
 
-            if (state.narrow != buttons[2] && buttonNarrowObserver != null)
-            {
-                buttonNarrowObserver(buttons[2]);
-                state.narrow = buttons[2];
-            }
+                if (state.narrow != buttons[2] && buttonNarrowObserver != null)
+                {
+                    buttonNarrowObserver(buttons[2]);
+                    state.narrow = buttons[2];
+                }
 
-            if (state.widen != buttons[1] && buttonWidenObserver != null)
-            {
-                buttonWidenObserver(buttons[1]);
-                state.widen = buttons[1];
-            }
+                if (state.widen != buttons[1] && buttonWidenObserver != null)
+                {
+                    buttonWidenObserver(buttons[1]);
+                    state.widen = buttons[1];
+                }
 
-            if (state.defaultPosition != buttons[7] && buttonDefaultPositionObserver != null)
-            {
-                buttonDefaultPositionObserver(buttons[7]);
-                state.defaultPosition = buttons[7];
+                if (state.defaultPosition != buttons[7] && buttonDefaultPositionObserver != null)
+                {
+                    buttonDefaultPositionObserver(buttons[7]);
+                    state.defaultPosition = buttons[7];
+                }
             }
         }
 

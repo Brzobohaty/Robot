@@ -20,11 +20,12 @@ namespace Robot.Robot
         /// Vrátí instanci ovládající fyzického robota nebo v případě chyby vrátí softwarovou simulaci robota
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
+        /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
         /// <returns>instanci představujícíc robota</returns>
-        public IRobot getRobot(StateObserver motorStateObserver)
+        public IRobot getRobot(StateObserver motorStateObserver, bool withChooseOfBus)
         {
             IRobot robot = new EposRobot();
-            errorMessage = robot.inicialize(motorStateObserver);
+            errorMessage = robot.inicialize(motorStateObserver, withChooseOfBus);
             if (errorMessage.Length > 0)
             {
                 robot = new TestRobot();

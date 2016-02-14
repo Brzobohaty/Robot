@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DiagnosticView));
-            this.errorLabelMotors = new System.Windows.Forms.Label();
+            this.labelMessage = new System.Windows.Forms.Label();
             this.labelDiagnostic = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.labelLZ_Z = new System.Windows.Forms.Label();
@@ -55,15 +55,15 @@
             // 
             // errorLabelMotors
             // 
-            this.errorLabelMotors.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.errorLabelMotors.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.errorLabelMotors.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.errorLabelMotors.ForeColor = System.Drawing.Color.Red;
-            this.errorLabelMotors.Location = new System.Drawing.Point(0, 749);
-            this.errorLabelMotors.Name = "errorLabelMotors";
-            this.errorLabelMotors.Size = new System.Drawing.Size(747, 55);
-            this.errorLabelMotors.TabIndex = 3;
-            this.errorLabelMotors.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.labelMessage.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.labelMessage.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.labelMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.labelMessage.ForeColor = System.Drawing.Color.Red;
+            this.labelMessage.Location = new System.Drawing.Point(0, 749);
+            this.labelMessage.Name = "errorLabelMotors";
+            this.labelMessage.Size = new System.Drawing.Size(747, 55);
+            this.labelMessage.TabIndex = 3;
+            this.labelMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // labelDiagnostic
             // 
@@ -276,7 +276,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.errorLabelMotors);
+            this.Controls.Add(this.labelMessage);
             this.Controls.Add(this.labelDiagnostic);
             this.Name = "DiagnosticView";
             this.Size = new System.Drawing.Size(747, 804);
@@ -287,7 +287,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Label errorLabelMotors;
+        private System.Windows.Forms.Label labelMessage;
         private System.Windows.Forms.Label labelDiagnostic;
         private System.Windows.Forms.Panel panel1;
         public System.Windows.Forms.Label labelLZ_Z;

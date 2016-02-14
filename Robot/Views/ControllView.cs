@@ -15,13 +15,14 @@ namespace Robot
     public partial class ControllView : UserControl, IJoystick
     {
         private static ControllView instance = new ControllView();
-        protected Action<int, int> stickObserver; //callback pro změnu stavu páčky (int x souřadnice páčky, int y souřadnice páčky)
-        protected Action<bool> buttonMoveUpObserver; //callback pro změnu stavu tlačítka pro pohyb nahoru (bool pohyb nahoru)
-        protected Action<bool> buttonMoveDownObserver; //callback pro změnu stavu tlačítka pro pohyb dolu (bool pohyb dolu)
-        protected Action<bool> buttonNarrowObserver; //callback pro změnu stavu tlačítka pro zůžení (bool zůžit)
-        protected Action<bool> buttonWidenObserver; //callback pro změnu stavu tlačítka pro rozšíření (bool rozšířit)
-        protected Action<bool> buttonDefaultPositionObserver; //callback pro změnu stavu tlačítka pro defaultní pozici (bool defaultní pozice)
-        protected Action<bool> buttonAbsolutePositioningObserver; //callback pro stisknutí tačítka pro absolutní pozicování robota
+        private Action<int, int> stickObserver; //callback pro změnu stavu páčky (int x souřadnice páčky, int y souřadnice páčky)
+        private Action<bool> buttonMoveUpObserver; //callback pro změnu stavu tlačítka pro pohyb nahoru (bool pohyb nahoru)
+        private Action<bool> buttonMoveDownObserver; //callback pro změnu stavu tlačítka pro pohyb dolu (bool pohyb dolu)
+        private Action<bool> buttonNarrowObserver; //callback pro změnu stavu tlačítka pro zůžení (bool zůžit)
+        private Action<bool> buttonWidenObserver; //callback pro změnu stavu tlačítka pro rozšíření (bool rozšířit)
+        private Action<bool> buttonDefaultPositionObserver; //callback pro změnu stavu tlačítka pro defaultní pozici (bool defaultní pozice)
+        private Action<bool> buttonAbsolutePositioningObserver; //callback pro stisknutí tačítka pro absolutní pozicování robota
+        private bool enabledStick = true; //příznak zapnutí/vypnutí ovládání páčkou
 
         private const int joystickR = 70; //poloměr kružnice joysticku
         private Point stickLocation = new Point(joystickR, joystickR); //pozice páčky joysticku
@@ -38,13 +39,21 @@ namespace Robot
         }
 
         /// <summary>
-        /// Zobrazí chybovou hlášku týkající se ovládání
+        /// Zobrazí hlášku týkající se ovládání
         /// </summary>
-        /// <param name="message">text chyby</param>
-        public void showControlError(string message)
+        /// <param name="error">indikátor, zda se jedná o chybu</param>
+        /// <param name="message">text hlášky</param>
+        public void showControlMessage(bool error, string message)
         {
-            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            errorLabelControl.Text = message;
+            if (error)
+            {
+                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                messageLabelControl.ForeColor = Color.Red;
+            }
+            else {
+                messageLabelControl.ForeColor = Color.Green;
+            }
+            messageLabelControl.Text = message;
         }
 
         /// <summary>
@@ -53,7 +62,23 @@ namespace Robot
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
         public string inicialize()
         {
+            onOff(false);
             return "";
+        }
+
+        /// <summary>
+        /// Vypne/zapne ovládání pomocí ovladače
+        /// </summary>
+        /// <param name="on">true pokud zapnout</param>
+        public void onOff(bool on)
+        {
+            buttonAbsolutPositioning.Enabled = on;
+            buttonDefaultPosition.Enabled = on;
+            buttonMoveDown.Enabled = on;
+            buttonMoveUp.Enabled = on;
+            buttonNarrow.Enabled = on;
+            buttonWiden.Enabled = on;
+            enabledStick = on;
         }
 
         /// <summary>
@@ -189,6 +214,22 @@ namespace Robot
         }
 
         /// <summary>
+        /// Odstraní všechny posluchače na joysticku
+        /// </summary>
+        public void unsibscribeAllObservers()
+        {
+            stickObserver = emptyMethod;
+            buttonMoveUpObserver = emptyMethod;
+            buttonMoveDownObserver = emptyMethod;
+            buttonNarrowObserver = emptyMethod;
+            buttonWidenObserver = emptyMethod;
+            buttonDefaultPositionObserver = emptyMethod;
+        }
+
+        private void emptyMethod(bool a){}
+        private void emptyMethod(int a, int b){}
+
+        /// <summary>
         /// Udělá vzhled daného tlačítko jako stisknuté nebo nestisknuté podle daného parametru
         /// </summary>
         /// <param name="button">tlačítko</param>
@@ -263,7 +304,9 @@ namespace Robot
         {
             stickLocation = new Point(joystickR, joystickR);
             panelForJoystick.Invalidate();
-            stickObserver(0, 0);
+            if (enabledStick) {
+                stickObserver(0, 0);
+            }
         }
 
         //event listenery ================================================================
@@ -276,7 +319,10 @@ namespace Robot
                 {
                     stickLocation = e.Location;
                     panelForJoystick.Invalidate();
-                    stickObserver((int)Math.Floor((e.X - joystickR) / ((double)joystickR / 100)), (int)Math.Floor((e.Y - joystickR) / ((double)joystickR / 100)));
+                    if (enabledStick)
+                    {
+                        stickObserver((int)Math.Floor((e.X - joystickR) / ((double)joystickR / 100)), (int)Math.Floor((e.Y - joystickR) / ((double)joystickR / 100)));
+                    }
                 }
                 else
                 {
@@ -295,7 +341,10 @@ namespace Robot
                     Cursor.Clip = new Rectangle(tableLayoutPanel2.PointToScreen(panelForJoystick.Location), panelForJoystick.Size);
                     stickLocation = e.Location;
                     panelForJoystick.Invalidate();
-                    stickObserver((int)Math.Floor((e.X - joystickR) / ((double)joystickR / 100)), (int)Math.Floor((e.Y - joystickR) / ((double)joystickR / 100)));
+                    if (enabledStick)
+                    {
+                        stickObserver((int)Math.Floor((e.X - joystickR) / ((double)joystickR / 100)), (int)Math.Floor((e.Y - joystickR) / ((double)joystickR / 100)));
+                    }
                 }
             }
         }

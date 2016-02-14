@@ -32,7 +32,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.buttonJoystickPositioning = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.buttonRecalibr = new System.Windows.Forms.Button();
+            this.buttonCalibr = new System.Windows.Forms.Button();
             this.buttonSetDefaultPosition = new System.Windows.Forms.Button();
             this.rightPZ_ZK = new System.Windows.Forms.Button();
             this.leftPZ_ZK = new System.Windows.Forms.Button();
@@ -71,7 +71,6 @@
             this.panelWithWarrning = new System.Windows.Forms.Panel();
             this.labelWarrning = new System.Windows.Forms.Label();
             this.labelWarningIcon = new System.Windows.Forms.Label();
-            this.buttonCalibr = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panelWithWarrning.SuspendLayout();
             this.SuspendLayout();
@@ -104,7 +103,6 @@
             // 
             this.panel1.AutoScroll = true;
             this.panel1.Controls.Add(this.buttonCalibr);
-            this.panel1.Controls.Add(this.buttonRecalibr);
             this.panel1.Controls.Add(this.buttonSetDefaultPosition);
             this.panel1.Controls.Add(this.rightPZ_ZK);
             this.panel1.Controls.Add(this.leftPZ_ZK);
@@ -146,16 +144,17 @@
             this.panel1.Size = new System.Drawing.Size(811, 890);
             this.panel1.TabIndex = 51;
             // 
-            // buttonRecalibr
+            // buttonCalibr
             // 
-            this.buttonRecalibr.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.buttonRecalibr.Location = new System.Drawing.Point(407, 754);
-            this.buttonRecalibr.Name = "buttonRecalibr";
-            this.buttonRecalibr.Size = new System.Drawing.Size(329, 50);
-            this.buttonRecalibr.TabIndex = 86;
-            this.buttonRecalibr.Text = "Rekalibrovat";
-            this.buttonRecalibr.UseVisualStyleBackColor = true;
-            this.buttonRecalibr.Click += new System.EventHandler(this.buttonRecalibr_Click);
+            this.buttonCalibr.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.buttonCalibr.Location = new System.Drawing.Point(37, 763);
+            this.buttonCalibr.Name = "buttonCalibr";
+            this.buttonCalibr.Size = new System.Drawing.Size(327, 50);
+            this.buttonCalibr.TabIndex = 87;
+            this.buttonCalibr.Text = "Kalibrovat";
+            this.buttonCalibr.UseVisualStyleBackColor = true;
+            this.buttonCalibr.Visible = false;
+            this.buttonCalibr.Click += new System.EventHandler(this.buttonCalibr_Click);
             // 
             // buttonSetDefaultPosition
             // 
@@ -614,18 +613,6 @@
             this.labelWarningIcon.TabIndex = 52;
             this.labelWarningIcon.Visible = false;
             // 
-            // buttonCalibr
-            // 
-            this.buttonCalibr.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.buttonCalibr.Location = new System.Drawing.Point(37, 766);
-            this.buttonCalibr.Name = "buttonCalibr";
-            this.buttonCalibr.Size = new System.Drawing.Size(327, 50);
-            this.buttonCalibr.TabIndex = 87;
-            this.buttonCalibr.Text = "Kalibrovat";
-            this.buttonCalibr.UseVisualStyleBackColor = true;
-            this.buttonCalibr.Visible = false;
-            this.buttonCalibr.Click += new System.EventHandler(this.buttonCalibr_Click);
-            // 
             // AbsoluteControllView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -682,7 +669,6 @@
         private System.Windows.Forms.ComboBox comboBoxStep;
         private System.Windows.Forms.Button rightLP_P;
         private System.Windows.Forms.Button buttonSetDefaultPosition;
-        private System.Windows.Forms.Button buttonRecalibr;
         private System.Windows.Forms.Label labelWarningIcon;
         private System.Windows.Forms.Panel panelWithWarrning;
         private System.Windows.Forms.Label labelWarrning;

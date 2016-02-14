@@ -26,6 +26,12 @@ namespace Robot.Joystick
         abstract public string inicialize();
 
         /// <summary>
+        /// Vypne/zapne ovládání pomocí ovladače
+        /// </summary>
+        /// <param name="on">true pokud zapnout</param>
+        abstract public void onOff(bool on);
+
+        /// <summary>
         /// Přiřazení posluchače pro změnu stavu joysticku
         /// </summary>
         /// <param name="observer">metoda vykonaná při eventu s parametry (int x souřadnice páčky, int y souřadnice páčky)</param>
@@ -77,6 +83,19 @@ namespace Robot.Joystick
         public void subscribeButtonDefaultPositionObserver(Action<bool> observer)
         {
             buttonDefaultPositionObserver = observer;
+        }
+
+        /// <summary>
+        /// Odstraní všechny posluchače na joysticku
+        /// </summary>
+        public void unsibscribeAllObservers()
+        {
+            stickObserver = null;
+            buttonMoveUpObserver = null;
+            buttonMoveDownObserver = null;
+            buttonNarrowObserver = null;
+            buttonWidenObserver = null;
+            buttonDefaultPositionObserver = null;
         }
     }
 }

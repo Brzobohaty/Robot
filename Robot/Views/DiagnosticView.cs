@@ -49,11 +49,23 @@ namespace Robot
         /// <summary>
         /// Zobrazí chybovou hlášku týkající se sběrnice
         /// </summary>
+        /// <param name="error">indikátor, zda se jedná o chybu</param>
         /// <param name="message">text chyby</param>
-        public void showBusError(string message)
+        public void showDisgnosticMessage(bool error, string message)
         {
-            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            errorLabelMotors.Text = message;
+            if (error)
+            {
+                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                labelMessage.ForeColor = Color.Red;
+            }
+            else
+            {
+                labelMessage.ForeColor = Color.Green;
+            }
+            labelMessage.Text = message;
+
+
+
         }
 
         /// <summary>

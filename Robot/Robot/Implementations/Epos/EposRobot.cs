@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using EposCmd.Net;
+using EposCmd.Net.DeviceCmdSet.Initialization;
 
 namespace Robot.Robot.Implementations.Epos
 {
@@ -27,12 +28,20 @@ namespace Robot.Robot.Implementations.Epos
         /// Inicializace připojení k motorům
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
+        /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public string inicialize(StateObserver motorStateObserver)
+        public string inicialize(StateObserver motorStateObserver, bool withChooseOfBus)
         {
             try
             {
-                connector = new DeviceManager("EPOS2", "CANopen", "IXXAT_USB-to-CAN compact 0", "CAN0");
+                if (withChooseOfBus)
+                {
+                    connector = new DeviceManager();
+                }
+                else
+                {
+                    connector = new DeviceManager("EPOS2", "CANopen", "IXXAT_USB-to-CAN compact 0", "CAN0");
+                }
                 motors[MotorId.PP_P].inicialize(connector, motorStateObserver, 4, MotorId.PP_P, MotorMode.velocity, true, 1);
                 motors[MotorId.LP_P].inicialize(connector, motorStateObserver, 8, MotorId.LP_P, MotorMode.velocity, false, 1);
                 motors[MotorId.LZ_P].inicialize(connector, motorStateObserver, 12, MotorId.LZ_P, MotorMode.velocity, false, 1);

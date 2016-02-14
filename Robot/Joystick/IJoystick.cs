@@ -52,5 +52,16 @@ namespace Robot.Joystick
         /// </summary>
         /// <param name="observer">metoda vykonaná při eventu s parametry (bool defaultní pozice)</param>
         void subscribeButtonDefaultPositionObserver(Action<bool> observer);
+
+        /// <summary>
+        /// Vypne/zapne ovládání pomocí ovladače
+        /// </summary>
+        /// <param name="on">true pokud zapnout</param>
+        void onOff(bool on);
+
+        /// <summary>
+        /// Odstraní všechny posluchače na joysticku
+        /// </summary>
+        void unsibscribeAllObservers();
     }
 }
