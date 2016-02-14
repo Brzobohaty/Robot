@@ -230,6 +230,198 @@ namespace Robot.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LP_ZK_default {
+            get {
+                return ((int)(this["LP_ZK_default"]));
+            }
+            set {
+                this["LP_ZK_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LP_Z_default {
+            get {
+                return ((int)(this["LP_Z_default"]));
+            }
+            set {
+                this["LP_Z_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LP_R_default {
+            get {
+                return ((int)(this["LP_R_default"]));
+            }
+            set {
+                this["LP_R_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LP_P_default {
+            get {
+                return ((int)(this["LP_P_default"]));
+            }
+            set {
+                this["LP_P_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PP_ZK_default {
+            get {
+                return ((int)(this["PP_ZK_default"]));
+            }
+            set {
+                this["PP_ZK_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PP_Z_default {
+            get {
+                return ((int)(this["PP_Z_default"]));
+            }
+            set {
+                this["PP_Z_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PP_R_default {
+            get {
+                return ((int)(this["PP_R_default"]));
+            }
+            set {
+                this["PP_R_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PP_P_default {
+            get {
+                return ((int)(this["PP_P_default"]));
+            }
+            set {
+                this["PP_P_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LZ_ZK_default {
+            get {
+                return ((int)(this["LZ_ZK_default"]));
+            }
+            set {
+                this["LZ_ZK_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LZ_Z_default {
+            get {
+                return ((int)(this["LZ_Z_default"]));
+            }
+            set {
+                this["LZ_Z_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LZ_R_default {
+            get {
+                return ((int)(this["LZ_R_default"]));
+            }
+            set {
+                this["LZ_R_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LZ_P_default {
+            get {
+                return ((int)(this["LZ_P_default"]));
+            }
+            set {
+                this["LZ_P_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PZ_ZK_default {
+            get {
+                return ((int)(this["PZ_ZK_default"]));
+            }
+            set {
+                this["PZ_ZK_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PZ_Z_default {
+            get {
+                return ((int)(this["PZ_Z_default"]));
+            }
+            set {
+                this["PZ_Z_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PZ_R_default {
+            get {
+                return ((int)(this["PZ_R_default"]));
+            }
+            set {
+                this["PZ_R_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PZ_P_default {
+            get {
+                return ((int)(this["PZ_P_default"]));
+            }
+            set {
+                this["PZ_P_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int Setting {
             get {
                 return ((int)(this["Setting"]));

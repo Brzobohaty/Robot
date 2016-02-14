@@ -30,7 +30,6 @@ namespace Robot.Robot.Implementations.Epos
         private Timer timerObserver; //časovač pro spouštění posluchače stavu
         private int multiplier; //násobitel otáček
         private int oldVelocity = 0; //stará rychlost
-        private int defaultPosition = 0; //defaultní pozice
         private int maxPosition; //maximální pozice na motoru
         private int minPosition; //minimální pozice na motoru
         private bool hasLimit = false; //příznak, zda má motor maximální a minimální hranici pohybu
@@ -307,7 +306,7 @@ namespace Robot.Robot.Implementations.Epos
         {
             MotorMode previouseMode = mode;
             changeMode(MotorMode.position);
-            moveToPosition(defaultPosition);
+            moveToPosition((int)Properties.Settings.Default[id.ToString() + "_default"]);
             changeMode(previouseMode);
         }
 
@@ -318,7 +317,8 @@ namespace Robot.Robot.Implementations.Epos
         {
             if (stateHandler != null)
             {
-                defaultPosition = stateHandler.GetPositionIs();
+                Properties.Settings.Default[id.ToString()+"_default"] = stateHandler.GetPositionIs();
+                Properties.Settings.Default.Save();
             }
         }
 
