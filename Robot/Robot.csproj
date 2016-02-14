@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MessageTypesEnum.cs" />
     <Compile Include="MotorStatesEnum.cs" />
     <Compile Include="MotorsIdEnum.cs" />
     <Compile Include="Robot\IMotor.cs" />

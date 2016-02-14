@@ -71,15 +71,16 @@ namespace Robot
         /// </summary>
         /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
         private void inicializeRobot(bool withChooseOfBus) {
+            diagnosticView.showDisgnosticMessage(MessageTypeEnum.progress, "Probíhá inicializace robota.");
             RobotBridge robotBridge = new RobotBridge();
             robot = robotBridge.getRobot(diagnosticView, withChooseOfBus);
             if (robotBridge.errorMessage.Length > 0)
             {
-                diagnosticView.showDisgnosticMessage(true, robotBridge.errorMessage);
+                diagnosticView.showDisgnosticMessage(MessageTypeEnum.error, robotBridge.errorMessage);
             }
             else
             {
-                diagnosticView.showDisgnosticMessage(false, "Připojení ke sběrnici proběhlo v pořádku.");
+                diagnosticView.showDisgnosticMessage(MessageTypeEnum.success, "Připojení ke sběrnici proběhlo v pořádku.");
             }
         }
 
@@ -87,21 +88,23 @@ namespace Robot
         /// Inicializace joysticku/gamepadu
         /// </summary>
         private void inicializeJoystick() {
+            controllView.showControlMessage(MessageTypeEnum.progress, "Probíhá inicializace ovládacího zařízení.");
             JoystickBridge joystickBridge = new JoystickBridge();
             joystick = joystickBridge.getJoystick();
-            if (joystickBridge.errorMessage.Length > 0)
-            {
-                controllView.showControlMessage(true, joystickBridge.errorMessage);
-            }
-            else {
-                controllView.showControlMessage(false, "Vnější ovládací zařízení je připraveno k použití.");
-            }
             joystick.subscribeStickObserver(joystickChanged);
             joystick.subscribeButtonMoveUpObserver(joystickButtonMoveUpChanged);
             joystick.subscribeButtonMoveDownObserver(joystickButtonMoveDownChanged);
             joystick.subscribeButtonNarrowObserver(joystickButtonNarrowChanged);
             joystick.subscribeButtonWidenObserver(joystickButtonWidenChanged);
             joystick.subscribeButtonDefaultPositionObserver(joystickButtonDefaultPositionChanged);
+            if (joystickBridge.errorMessage.Length > 0)
+            {
+                controllView.showControlMessage(MessageTypeEnum.error, joystickBridge.errorMessage);
+            }
+            else
+            {
+                controllView.showControlMessage(MessageTypeEnum.success, "Vnější ovládací zařízení je připraveno k použití.");
+            }
         }
 
         /// <summary>
@@ -304,11 +307,13 @@ namespace Robot
         /// </summary>
         private void buttonForCalibrClicked()
         {
+            diagnosticView.showDisgnosticMessage(MessageTypeEnum.progress, "Probíhá kalibrace motorů ...");
             controllOnOff(false);
             mainWindow.changeDiagnosticView(true);
             absoluteControllView.stopRecalibr();
             robot.homing();
             controllOnOff(true);
+            diagnosticView.showDisgnosticMessage(MessageTypeEnum.success, "Kalibrace proběhla v pořádku.");
         }
 
         /// <summary>

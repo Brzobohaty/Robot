@@ -41,17 +41,22 @@ namespace Robot
         /// <summary>
         /// Zobrazí hlášku týkající se ovládání
         /// </summary>
-        /// <param name="error">indikátor, zda se jedná o chybu</param>
+        /// <param name="type">typ hlášky</param>
         /// <param name="message">text hlášky</param>
-        public void showControlMessage(bool error, string message)
+        public void showControlMessage(MessageTypeEnum type, string message)
         {
-            if (error)
+            switch (type)
             {
-                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                messageLabelControl.ForeColor = Color.Red;
-            }
-            else {
-                messageLabelControl.ForeColor = Color.Green;
+                case MessageTypeEnum.error:
+                    MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    messageLabelControl.ForeColor = Color.Red;
+                    break;
+                case MessageTypeEnum.success:
+                    messageLabelControl.ForeColor = Color.Green;
+                    break;
+                case MessageTypeEnum.progress:
+                    messageLabelControl.ForeColor = Color.Blue;
+                    break;
             }
             messageLabelControl.Text = message;
         }

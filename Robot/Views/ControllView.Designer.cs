@@ -49,14 +49,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.panelForJoystick)).BeginInit();
             this.SuspendLayout();
             // 
-            // errorLabelControl
+            // messageLabelControl
             // 
             this.messageLabelControl.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.messageLabelControl.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.messageLabelControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.messageLabelControl.ForeColor = System.Drawing.Color.Red;
             this.messageLabelControl.Location = new System.Drawing.Point(0, 567);
-            this.messageLabelControl.Name = "errorLabelControl";
+            this.messageLabelControl.Name = "messageLabelControl";
             this.messageLabelControl.Size = new System.Drawing.Size(468, 55);
             this.messageLabelControl.TabIndex = 14;
             this.messageLabelControl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -77,6 +77,7 @@
             // 
             this.buttonAbsolutPositioning.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.buttonAbsolutPositioning.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.buttonAbsolutPositioning.ForeColor = System.Drawing.Color.Black;
             this.buttonAbsolutPositioning.Location = new System.Drawing.Point(0, 517);
             this.buttonAbsolutPositioning.Name = "buttonAbsolutPositioning";
             this.buttonAbsolutPositioning.Size = new System.Drawing.Size(468, 50);

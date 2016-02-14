@@ -49,23 +49,24 @@ namespace Robot
         /// <summary>
         /// Zobrazí chybovou hlášku týkající se sběrnice
         /// </summary>
-        /// <param name="error">indikátor, zda se jedná o chybu</param>
+        /// <param name="type">typ hlášky</param>
         /// <param name="message">text chyby</param>
-        public void showDisgnosticMessage(bool error, string message)
+        public void showDisgnosticMessage(MessageTypeEnum type, string message)
         {
-            if (error)
+            switch (type)
             {
-                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                labelMessage.ForeColor = Color.Red;
-            }
-            else
-            {
-                labelMessage.ForeColor = Color.Green;
+                case MessageTypeEnum.error:
+                    MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    labelMessage.ForeColor = Color.Red;
+                    break;
+                case MessageTypeEnum.success:
+                    labelMessage.ForeColor = Color.Green;
+                    break;
+                case MessageTypeEnum.progress:
+                    labelMessage.ForeColor = Color.Blue;
+                    break;
             }
             labelMessage.Text = message;
-
-
-
         }
 
         /// <summary>
