@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Media;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
@@ -21,6 +22,10 @@ namespace Robot
         private IRobot robot; // instance představující robota
         private IJoystick joystick; // instance představující joystick
         private bool defaultPositionButtonWasPressed; //příznak, že bylo stlačeno tlačítko pro defaultní pozici
+        private bool recalibrationInProgrress; //příznak, že probíhý rekalibrace
+        private Thread inicializeRobotThread; //vlákno pro inicializaci robota
+        private Thread inicializeJoystickThread; //vlákno pro inicializaci joysticku
+        private System.Timers.Timer finishInicializationObserver; // posluchač ukončení vláken inicializace
 
         //timery obstarávající periodické spouštění při držění tlačítka
         private System.Timers.Timer moveUpPeriodHandler;
@@ -47,6 +52,8 @@ namespace Robot
             absoluteControllView.subscribeButtonForAbsoluteMoveClickObserver(buttonForAbsoluteMoveClicked);
             absoluteControllView.subscribeButtonForSetDefaultPositionClickObserver(buttonForSetDefaultStateClicked);
             absoluteControllView.subscribeButtonForCalibrClickObserver(buttonForCalibrClicked);
+            absoluteControllView.subscribeButtonForCancelCalibrationClickObserver(buttonForCancelCalibrationClicked);
+            absoluteControllView.subscribecheckBoxLimitProtectionObserver(checkBoxLimitProtectionChanged);
         }
 
         /// <summary>
@@ -55,25 +62,45 @@ namespace Robot
         private void inicialize()
         {
             controllOnOff(false);
-            inicializeRobot(false);
-            inicializeJoystick();
-            moveUpPeriodHandler = getPeriodHandler();
-            moveDownPeriodHandler = getPeriodHandler();
-            widenPeriodHandler = getPeriodHandler();
-            narrowPeriodHandler = getPeriodHandler();
-            defaultPositionPeriodHandler = getPeriodHandler();
-            checkHoming();
-            controllOnOff(true);
+            inicializeRobotThread = new Thread(delegate () { inicializeRobot(false); });
+            inicializeRobotThread.Start();
+            inicializeJoystickThread = new Thread(inicializeJoystick);
+            inicializeJoystickThread.Start();
+
+            finishInicializationObserver = new System.Timers.Timer();
+            finishInicializationObserver.Elapsed += new ElapsedEventHandler(finishInicialization);
+            finishInicializationObserver.Interval = 100;
+            finishInicializationObserver.Enabled = true;
+        }
+
+        /// <summary>
+        /// Dokončení inicializace po tom co bude inicializován robot a joystick
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="ev"></param>
+        private void finishInicialization(object sender, EventArgs ev)
+        {
+            if (!inicializeRobotThread.IsAlive && !inicializeJoystickThread.IsAlive) {
+                finishInicializationObserver.Stop();
+                moveUpPeriodHandler = getPeriodHandler();
+                moveDownPeriodHandler = getPeriodHandler();
+                widenPeriodHandler = getPeriodHandler();
+                narrowPeriodHandler = getPeriodHandler();
+                defaultPositionPeriodHandler = getPeriodHandler();
+                checkHoming();
+                controllOnOff(true);
+            }
         }
 
         /// <summary>
         /// Inicializace robota
         /// </summary>
         /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
-        private void inicializeRobot(bool withChooseOfBus) {
+        private void inicializeRobot(bool withChooseOfBus)
+        {
             diagnosticView.showDisgnosticMessage(MessageTypeEnum.progress, "Probíhá inicializace robota.");
             RobotBridge robotBridge = new RobotBridge();
-            robot = robotBridge.getRobot(diagnosticView, withChooseOfBus);
+            robot = robotBridge.getRobot(diagnosticView, withChooseOfBus, motorErrorOccured);
             if (robotBridge.errorMessage.Length > 0)
             {
                 diagnosticView.showDisgnosticMessage(MessageTypeEnum.error, robotBridge.errorMessage);
@@ -87,7 +114,8 @@ namespace Robot
         /// <summary>
         /// Inicializace joysticku/gamepadu
         /// </summary>
-        private void inicializeJoystick() {
+        private void inicializeJoystick()
+        {
             controllView.showControlMessage(MessageTypeEnum.progress, "Probíhá inicializace ovládacího zařízení.");
             JoystickBridge joystickBridge = new JoystickBridge();
             joystick = joystickBridge.getJoystick();
@@ -244,7 +272,8 @@ namespace Robot
             }
             else
             {
-                if (defaultPositionButtonWasPressed) {
+                if (defaultPositionButtonWasPressed)
+                {
                     robot.setDefaultPosition();
                 }
                 defaultPositionButtonWasPressed = false;
@@ -270,15 +299,26 @@ namespace Robot
         /// <summary>
         /// Callback při zavření celé aplikace
         /// </summary>
-        private void closeApplication() {
-            robot.disable();
+        private void closeApplication()
+        {
+            if (recalibrationInProgrress)
+            {
+                robot.disable(false);
+            }
+            else
+            {
+                robot.disable(true);
+            }
         }
 
         /// <summary>
         /// Callback při stisknutí tačítka pro absolutní pozicování robota
         /// </summary>
         /// <param name="absoluteControllMode">true, pokud zobrazit absolutní pozicování</param>
-        private void buttonForChangeControllModePressed(bool absoluteControllMode) {
+        private void buttonForChangeControllModePressed(bool absoluteControllMode)
+        {
+            robot.limitProtectionEnable(true);
+            absoluteControllView.limitProtectionEnable(true);
             joystick.onOff(!absoluteControllMode);
             mainWindow.changeControllMode(absoluteControllMode);
             robot.changeControllMode(absoluteControllMode);
@@ -299,7 +339,7 @@ namespace Robot
         /// </summary>
         private void buttonForRecalibrClicked()
         {
-            prepareRecalibration();       
+            prepareRecalibration(true);
         }
 
         /// <summary>
@@ -307,23 +347,29 @@ namespace Robot
         /// </summary>
         private void buttonForCalibrClicked()
         {
+            recalibrationInProgrress = false;
             diagnosticView.showDisgnosticMessage(MessageTypeEnum.progress, "Probíhá kalibrace motorů ...");
             controllOnOff(false);
             mainWindow.changeDiagnosticView(true);
             absoluteControllView.stopRecalibr();
             robot.homing();
             controllOnOff(true);
+            robot.limitProtectionEnable(true);
             diagnosticView.showDisgnosticMessage(MessageTypeEnum.success, "Kalibrace proběhla v pořádku.");
         }
 
         /// <summary>
         /// Příprava na rekalibraci robota
         /// </summary>
-        private void prepareRecalibration() {
+        /// <param name="byUser">true pokud kalibraci vyvolal uživatel</param>
+        private void prepareRecalibration(bool byUser)
+        {
+            recalibrationInProgrress = true;
             joystick.onOff(false);
             mainWindow.changeControllMode(true);
             mainWindow.changeDiagnosticView(false);
-            absoluteControllView.startRecalibr();
+            absoluteControllView.startRecalibr(byUser);
+            robot.limitProtectionEnable(false);
         }
 
         /// <summary>
@@ -337,12 +383,14 @@ namespace Robot
         /// <summary>
         /// Otestuje, zda jsou uloženy nulové pozice pro všechny motory a pokud ne, tak je uživatel požádán o rekalibraci robota
         /// </summary>
-        private void checkHoming(){
-            if (!robot.reHoming()){
+        private void checkHoming()
+        {
+            if (!robot.reHoming())
+            {
                 DialogResult dialogResult = MessageBox.Show("Bylo zjištěno, že v tomto počítači ještě nejsou uloženy referenční hodnoty motorů nebo došlo k jejich ztrátě při náhlém vypnutí robota. Je potřeba provést rekalibraci. Rekalibrace se provádí tak, že uživatel nastaví všechny motory do nulové polohy a následně jsou tyto polohy brány ve všech výpočtech jako referenční. Pokud uživatel nastaví hodnoty špatně, může dojít k poškození robota.", "Rekalibrace", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 if (dialogResult == DialogResult.OK)
                 {
-                    prepareRecalibration();
+                    prepareRecalibration(false);
                 }
             }
         }
@@ -350,9 +398,10 @@ namespace Robot
         /// <summary>
         /// Callback při stisknutí tačítka pro nastavení připojení
         /// </summary>
-        private void buttonForConnectionSettingsClicked() {
+        private void buttonForConnectionSettingsClicked()
+        {
             controllOnOff(false);
-            robot.disable();
+            robot.disable(true);
             inicializeRobot(true);
             controllOnOff(true);
         }
@@ -362,7 +411,7 @@ namespace Robot
         /// </summary>
         private void buttonForReinicializeClicked()
         {
-            robot.disable();
+            robot.disable(true);
             inicialize();
         }
 
@@ -372,7 +421,7 @@ namespace Robot
         private void buttonForSearchGamepadClicked()
         {
             controllOnOff(false);
-            
+
             if (joystick != null)
             {
                 joystick.unsibscribeAllObservers();
@@ -381,6 +430,17 @@ namespace Robot
             inicializeJoystick();
 
             controllOnOff(true);
+        }
+
+        /// <summary>
+        /// Callback při stisknutí tačítka pro zrušení kalibrace
+        /// </summary>
+        private void buttonForCancelCalibrationClicked()
+        {
+            recalibrationInProgrress = false;
+            mainWindow.changeDiagnosticView(true);
+            absoluteControllView.stopRecalibr();
+            robot.limitProtectionEnable(true);
         }
 
         /// <summary>
@@ -394,6 +454,24 @@ namespace Robot
                 joystick.onOff(on);
             }
             absoluteControllView.onOff(on);
+        }
+
+        /// <summary>
+        /// Změna stavu check boxu pro zanutí´/vypnutí ochrany pro dojezdy
+        /// </summary>
+        /// <param name="checkedd">příznak zaškrtnutí checkboxu</param>
+        private void checkBoxLimitProtectionChanged(bool checkedd)
+        {
+            robot.limitProtectionEnable(checkedd);
+        }
+
+        /// <summary>
+        /// Callback, pokud nastala chyba na nějakém motoru
+        /// </summary>
+        private void motorErrorOccured()
+        {
+            diagnosticView.showDisgnosticMessage(MessageTypeEnum.error, "Na některých motorech došlo k chybě. Motory byly preventivně vypnuty. Pro pokračování je potřeba reinicializovat obvod (menu - nastavení).");
+            robot.disable(false);
         }
     }
 }

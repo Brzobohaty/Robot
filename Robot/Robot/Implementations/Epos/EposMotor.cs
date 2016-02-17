@@ -14,8 +14,9 @@ namespace Robot.Robot.Implementations.Epos
     /// <summary>
     /// Motor v HW implementací od firmy EPOS
     /// </summary>
-    class EposMotor : IMotor
+    class EposMotor
     {
+        public MotorState state { get; private set; } //aktuální stav motoru
         private Device motor; //ovladač motoru
         private StateMachine sm; //ovladač stavu motoru
         private MotorMode mode; //mód ve kterém se zrovna nachází handler motoru
@@ -23,15 +24,16 @@ namespace Robot.Robot.Implementations.Epos
         private ProfilePositionMode positionHandler; //handler pro pozicové operace s motorem
         private HomingMode homingHandler; //handler pro homing motoru
         private StateObserver stateObserver; //posluchač pro stav motoru
+        private Action motorErrorOccuredObserver; //posluchač chyb na motoru
         private int rev = 1; //modifikátor směru [1, -1]
         private MotorId id; //id motoru
-        private MotorState state; //aktuální stav motoru
         private MotionInfo stateHandler; //handler stavu motoru 
         private Timer timerObserver; //časovač pro spouštění posluchače stavu
         private int multiplier; //násobitel otáček
         private int maxPosition; //maximální pozice na motoru
         private int minPosition; //minimální pozice na motoru
         private bool hasPositionLimit = false; //příznak, zda má motor maximální a minimální hranici pohybu
+        private bool limitEnable = true; //příznak, zda má motor zaplou kontrolu limitů
         private const int maxSpeed = 5000; //maximální rychlost motoru
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
 
@@ -50,14 +52,17 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="mode">defaultní nastavení módu</param>
         /// <param name="reverse">příznak obrácení směru točení</param>
         /// <param name="multiplier">násobitel otáček v případě, že je motor za převodovkou</param>
+        /// <param name="positionVeocity">rychlost motoru v otáčkách při pozicování</param>
+        /// <param name="positionAceleration">zrychlení motoru v otáčkách při pozicování</param>
+        /// <param name="positionDeceleration">zpomalení motoru v otáčkách při pozicování</param>
         /// <param name="minPosition">minimální pozice motoru</param>
         /// <param name="maxPosition">maximální pozice motoru</param>
-        public void inicialize(DeviceManager connector, StateObserver stateObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, int minPosition, int maxPosition)
+        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, int minPosition, int maxPosition)
         {
             hasPositionLimit = true;
             this.maxPosition = maxPosition;
             this.minPosition = minPosition;
-            inicialize(connector, stateObserver, nodeNumber, id, mode, reverse, multiplier);
+            inicialize(connector, stateObserver, motorErrorOccuredObserver, nodeNumber, id, mode, reverse, multiplier, positionVelocity, positionAceleration, positionDeceleration);
         }
 
         /// <summary>
@@ -70,12 +75,16 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="mode">defaultní nastavení módu</param>
         /// <param name="reverse">příznak obrácení směru točení</param>
         /// <param name="multiplier">násobitel otáček v případě, že je motor za převodovkou</param>
-        public void inicialize(DeviceManager connector, StateObserver stateObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier)
+        /// <param name="positionVeocity">rychlost motoru v otáčkách při pozicování</param>
+        /// <param name="positionAceleration">zrychlení motoru v otáčkách při pozicování</param>
+        /// <param name="positionDeceleration">zpomalení motoru v otáčkách při pozicování</param>
+        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration)
         {
             try
             {
                 this.mode = mode;
                 this.stateObserver = stateObserver;
+                this.motorErrorOccuredObserver = motorErrorOccuredObserver;
                 this.id = id;
                 this.multiplier = multiplier;
 
@@ -94,6 +103,7 @@ namespace Robot.Robot.Implementations.Epos
 
                 velocityHandler = motor.Operation.ProfileVelocityMode;
                 positionHandler = motor.Operation.ProfilePositionMode;
+                positionHandler.SetPositionProfile(positionVelocity, positionAceleration, positionDeceleration);
                 homingHandler = motor.Operation.HomingMode;
                 changeMode(mode);
 
@@ -104,12 +114,14 @@ namespace Robot.Robot.Implementations.Epos
             {
                 sm = null;
                 disableStateObserver();
+                state = MotorState.error;
                 stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
             }
             catch (Exception e)
             {
                 sm = null;
                 disableStateObserver();
+                state = MotorState.error;
                 stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
             }
         }
@@ -120,6 +132,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="mode">mód</param>
         public void changeMode(MotorMode mode)
         {
+            this.mode = mode;
             if (velocityHandler != null && positionHandler != null && homingHandler != null)
             {
                 switch (mode)
@@ -145,11 +158,15 @@ namespace Robot.Robot.Implementations.Epos
                 }
                 catch (DeviceException e)
                 {
+                    state = MotorState.error;
                     stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    motorErrorOccuredObserver();
                 }
                 catch (Exception e)
                 {
+                    state = MotorState.error;
                     stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
+                    motorErrorOccuredObserver();
                 }
             }
         }
@@ -162,26 +179,8 @@ namespace Robot.Robot.Implementations.Epos
         {
             if (positionHandler != null && stateHandler != null)
             {
-                int position = stateHandler.GetPositionIs() + step;
-                if (!hasPositionLimit || (hasPositionLimit && position > minPosition && position < maxPosition))
-                {
-                    try
-                    {
-                        positionHandler.MoveToPosition(Convert.ToInt32(step * multiplier), false, false);
-                    }
-                    catch (DeviceException e)
-                    {
-                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
-                    }
-                    catch (Exception e)
-                    {
-                        stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
-                    }
-                }
-                else
-                {
-                    SystemSounds.Beep.Play();
-                }
+                int position = stateHandler.GetPositionIs() + (step * rev * multiplier);
+                moveToPosition(position);
             }
         }
 
@@ -191,27 +190,31 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="position">absolutní pozice</param>
         public void moveToPosition(int position)
         {
-            if (positionHandler != null && stateHandler != null)
+            if (hasPositionLimit && position <= minPosition)
             {
-                if (!hasPositionLimit || (hasPositionLimit && position > minPosition && position < maxPosition))
-                {
-                    try
-                    {
-                        positionHandler.MoveToPosition(Convert.ToInt32(position), true, false);
-                    }
-                    catch (DeviceException e)
-                    {
-                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
-                    }
-                    catch (Exception e)
-                    {
-                        stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
-                    }
-                }
-                else
-                {
-                    SystemSounds.Beep.Play();
-                }
+                position = minPosition;
+                SystemSounds.Beep.Play();
+            }
+            if (hasPositionLimit && position >= maxPosition)
+            {
+                position = maxPosition;
+                SystemSounds.Beep.Play();
+            }
+            try
+            {
+                positionHandler.MoveToPosition(Convert.ToInt32(position), true, false);
+            }
+            catch (DeviceException e)
+            {
+                state = MotorState.error;
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                motorErrorOccuredObserver();
+            }
+            catch (Exception e)
+            {
+                state = MotorState.error;
+                stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
+                motorErrorOccuredObserver();
             }
         }
 
@@ -239,7 +242,7 @@ namespace Robot.Robot.Implementations.Epos
         {
             if (timerObserver != null)
             {
-                timerObserver.Dispose();
+                timerObserver.Stop();
             }
             if (sm != null)
             {
@@ -251,7 +254,35 @@ namespace Robot.Robot.Implementations.Epos
             }
             if (stateObserver != null)
             {
-                stateObserver.motorStateChanged(MotorState.disabled, "", id, 0, 0, 0, 0);
+                if (state != MotorState.error)
+                {
+                    stateObserver.motorStateChanged(MotorState.disabled, "", id, 0, 0, 0, 0);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Zapne motor
+        /// </summary>
+        public void enable() {
+            if (timerObserver != null)
+            {
+                timerObserver.Start();
+            }
+            if (sm != null)
+            {
+                if (sm.GetFaultState())
+                    sm.ClearFault();
+
+                if (!sm.GetEnableState())
+                    sm.SetEnableState();
+            }
+            if (stateObserver != null)
+            {
+                if (state != MotorState.error)
+                {
+                    stateObserver.motorStateChanged(MotorState.enabled, "", id, 0, 0, 0, 0);
+                }
             }
         }
 
@@ -324,6 +355,31 @@ namespace Robot.Robot.Implementations.Epos
         }
 
         /// <summary>
+        /// Vypne/zapne ochranu dojezdu motoru
+        /// </summary>
+        /// <param name="on">true pokud zapnout</param>
+        public void limitProtectionOnOff(bool on)
+        {
+            limitEnable = on;
+        }
+
+        /// <summary>
+        /// Zastaví motor
+        /// </summary>
+        public void halt()
+        {
+            switch (mode)
+            {
+                case MotorMode.position:
+                    positionHandler.HaltPositionMovement();
+                    break;
+                case MotorMode.velocity:
+                    velocityHandler.HaltVelocityMovement();
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Nastavení timeru pro dotazování stavu motoru
         /// </summary>
         private void setStateObserver()
@@ -338,37 +394,55 @@ namespace Robot.Robot.Implementations.Epos
         /// Handler stavu motoru
         /// </summary>
         /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void stateHandle(object sender, EventArgs e)
+        /// <param name="ev"></param>
+        private void stateHandle(object sender, EventArgs ev)
         {
-            if (!sm.GetDisableState())
+            try
             {
-                if (sm.GetFaultState())
+                if (!sm.GetDisableState())
                 {
-                    state = MotorState.error;
-                    stateObserver.motorStateChanged(state, "", id, 0, 0, 0, 0);
-                }
-                else
-                {
-                    int velocity = stateHandler.GetVelocityIs();
-                    int position = stateHandler.GetPositionIs();
-                    if (Math.Abs(velocity) > 50)
+                    if (sm.GetFaultState())
                     {
-                        state = MotorState.running;
+                        state = MotorState.error;
+                        stateObserver.motorStateChanged(state, "", id, 0, 0, 0, 0);
+                        motorErrorOccuredObserver();
                     }
                     else
                     {
-                        state = MotorState.enabled;
+                        int velocity = stateHandler.GetVelocityIs();
+                        int position = stateHandler.GetPositionIs();
+                        if (Math.Abs(velocity) > 50)
+                        {
+                            state = MotorState.running;
+                        }
+                        else
+                        {
+                            state = MotorState.enabled;
+                        }
+                        int speedRelative = velocity / (maxSpeed / 100);
+                        int positionRelative;
+                        if (position == 0 || (maxPosition - minPosition) == 0)
+                        {
+                            positionRelative = 0;
+                        }
+                        else
+                        {
+                            positionRelative = ((position + (minPosition * (-1))) / (maxPosition - minPosition)) * 200 - 100;
+                        }
+                        stateObserver.motorStateChanged(state, "", id, velocity, position, speedRelative, positionRelative);
                     }
-                    int speedRelative = velocity / (maxSpeed / 100);
-                    int positionRelative = ((position + (minPosition*(-1))) / (maxPosition - minPosition))*200-100;
-                    stateObserver.motorStateChanged(state, "", id, velocity, position, speedRelative, positionRelative);
+                }
+                else
+                {
+                    state = MotorState.disabled;
+                    stateObserver.motorStateChanged(state, "", id, 0, 0, 0, 0);
                 }
             }
-            else
+            catch (DeviceException e)
             {
-                state = MotorState.disabled;
-                stateObserver.motorStateChanged(state, "", id, 0, 0, 0, 0);
+                state = MotorState.error;
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                motorErrorOccuredObserver();
             }
         }
     }

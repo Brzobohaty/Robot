@@ -32,6 +32,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.buttonJoystickPositioning = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.checkBoxLimitProtection = new System.Windows.Forms.CheckBox();
+            this.buttonCancelRecalibration = new System.Windows.Forms.Button();
             this.buttonCalibr = new System.Windows.Forms.Button();
             this.buttonSetDefaultPosition = new System.Windows.Forms.Button();
             this.rightPZ_ZK = new System.Windows.Forms.Button();
@@ -102,6 +104,8 @@
             // panel1
             // 
             this.panel1.AutoScroll = true;
+            this.panel1.Controls.Add(this.checkBoxLimitProtection);
+            this.panel1.Controls.Add(this.buttonCancelRecalibration);
             this.panel1.Controls.Add(this.buttonCalibr);
             this.panel1.Controls.Add(this.buttonSetDefaultPosition);
             this.panel1.Controls.Add(this.rightPZ_ZK);
@@ -143,6 +147,31 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(811, 890);
             this.panel1.TabIndex = 51;
+            // 
+            // checkBoxLimitProtection
+            // 
+            this.checkBoxLimitProtection.AutoSize = true;
+            this.checkBoxLimitProtection.Checked = true;
+            this.checkBoxLimitProtection.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxLimitProtection.Location = new System.Drawing.Point(338, 59);
+            this.checkBoxLimitProtection.Name = "checkBoxLimitProtection";
+            this.checkBoxLimitProtection.Size = new System.Drawing.Size(139, 21);
+            this.checkBoxLimitProtection.TabIndex = 89;
+            this.checkBoxLimitProtection.Text = "Ochrana dojezdů";
+            this.checkBoxLimitProtection.UseVisualStyleBackColor = true;
+            this.checkBoxLimitProtection.CheckedChanged += new System.EventHandler(this.checkBoxLimitProtection_CheckedChanged);
+            // 
+            // buttonCancelRecalibration
+            // 
+            this.buttonCancelRecalibration.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.buttonCancelRecalibration.Location = new System.Drawing.Point(407, 763);
+            this.buttonCancelRecalibration.Name = "buttonCancelRecalibration";
+            this.buttonCancelRecalibration.Size = new System.Drawing.Size(329, 50);
+            this.buttonCancelRecalibration.TabIndex = 88;
+            this.buttonCancelRecalibration.Text = "Cancel";
+            this.buttonCancelRecalibration.UseVisualStyleBackColor = true;
+            this.buttonCancelRecalibration.Visible = false;
+            this.buttonCancelRecalibration.Click += new System.EventHandler(this.buttonCancelRecalibration_Click);
             // 
             // buttonCalibr
             // 
@@ -673,5 +702,7 @@
         private System.Windows.Forms.Panel panelWithWarrning;
         private System.Windows.Forms.Label labelWarrning;
         private System.Windows.Forms.Button buttonCalibr;
+        private System.Windows.Forms.Button buttonCancelRecalibration;
+        private System.Windows.Forms.CheckBox checkBoxLimitProtection;
     }
 }

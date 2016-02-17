@@ -19,8 +19,9 @@ namespace Robot.Robot.Implementations.Test
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
+        /// <param name="motorErrorOccuredObserver">posluchač jakéhokoli eroru motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public string inicialize(StateObserver motorStateObserver, bool withChooseOfBus)
+        public string inicialize(StateObserver motorStateObserver, bool withChooseOfBus, Action motorErrorOccuredObserver)
         {
             frontLeftWheel = new TestMotor();
             return "";
@@ -90,7 +91,8 @@ namespace Robot.Robot.Implementations.Test
         /// <summary>
         /// Vypne motor
         /// </summary>
-        public void disable()
+        /// <param name="savePosition">true pokud uložit pozice motoru</param>
+        public void disable(bool savePosition)
         {
         }
 
@@ -125,6 +127,23 @@ namespace Robot.Robot.Implementations.Test
         /// </summary>
         public void setCurrentPositionAsDefault()
         {
+        }
+
+        /// <summary>
+        /// Vypne/zapne ochranu dojezdů motorů
+        /// </summary>
+        /// <param name="on">true pokud zapnout</param>
+        public void limitProtectionEnable(bool on)
+        {
+
+        }
+
+        /// <summary>
+        /// Zastaví všechny motory.
+        /// </summary>
+        public void haltAll()
+        {
+            
         }
     }
 }

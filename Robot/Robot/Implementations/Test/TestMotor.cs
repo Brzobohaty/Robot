@@ -25,7 +25,10 @@ namespace Robot.Robot.Implementations.Test
         /// <param name="mode">defaultní nastavení módu ["velocity","position"]</param>
         /// <param name="reverse">příznak obrácení směru točení</param>
         /// <param name="multiplier">násobitel otáček v případě, že je motor za převodovkou</param>
-        public void inicialize(DeviceManager connector, StateObserver stateObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier)
+        /// <param name="positionVeocity">rychlost motoru v otáčkách při pozicování</param>
+        /// <param name="positionAceleration">zrychlení motoru v otáčkách při pozicování</param>
+        /// <param name="positionDeceleration">zpomalení motoru v otáčkách při pozicování</param>
+        public void inicialize(DeviceManager connector, StateObserver stateObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration)
         {
         }
 

@@ -29,8 +29,9 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
+        /// <param name="motorErrorOccuredObserver">posluchač jakéhokoli eroru motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public string inicialize(StateObserver motorStateObserver, bool withChooseOfBus)
+        public string inicialize(StateObserver motorStateObserver, bool withChooseOfBus, Action motorErrorOccuredObserver)
         {
             try
             {
@@ -42,38 +43,46 @@ namespace Robot.Robot.Implementations.Epos
                 {
                     connector = new DeviceManager("EPOS2", "CANopen", "IXXAT_USB-to-CAN compact 0", "CAN0");
                 }
-                motors[MotorId.PP_P].inicialize(connector, motorStateObserver, 4, MotorId.PP_P, MotorMode.velocity, true, 1);
-                motors[MotorId.LP_P].inicialize(connector, motorStateObserver, 8, MotorId.LP_P, MotorMode.velocity, false, 1);
-                motors[MotorId.LZ_P].inicialize(connector, motorStateObserver, 12, MotorId.LZ_P, MotorMode.velocity, false, 1);
-                motors[MotorId.PZ_P].inicialize(connector, motorStateObserver, 16, MotorId.PZ_P, MotorMode.velocity, true, 1);
-                motors[MotorId.PP_R].inicialize(connector, motorStateObserver, 3, MotorId.PP_R, MotorMode.position, false, 4, -3000, 3000);
-                motors[MotorId.LP_R].inicialize(connector, motorStateObserver, 7, MotorId.LP_R, MotorMode.position, false, 4, -3000, 3000);
-                motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, 11, MotorId.LZ_R, MotorMode.position, false, 4, -3000, 3000);
-                motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, 15, MotorId.PZ_R, MotorMode.position, false, 4, -3000, 3000);
-                motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, 2, MotorId.PP_Z, MotorMode.position, false, 4, -3000, 3000);
-                motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, 6, MotorId.LP_Z, MotorMode.position, false, 4, -3000, 3000);
-                motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, 10, MotorId.LZ_Z, MotorMode.position, false, 4, -3000, 3000);
-                motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, 14, MotorId.PZ_Z, MotorMode.position, false, 4, -3000, 3000);
-                motors[MotorId.PP_ZK].inicialize(connector, motorStateObserver, 1, MotorId.PP_ZK, MotorMode.position, false, 4, -3000, 3000);
-                motors[MotorId.LP_ZK].inicialize(connector, motorStateObserver, 5, MotorId.LP_ZK, MotorMode.position, false, 4, -3000, 3000);
-                motors[MotorId.LZ_ZK].inicialize(connector, motorStateObserver, 9, MotorId.LZ_ZK, MotorMode.position, false, 4, -3000, 3000);
-                motors[MotorId.PZ_ZK].inicialize(connector, motorStateObserver, 13, MotorId.PZ_ZK, MotorMode.position, false, 4, -3000, 3000);
+                motors[MotorId.PP_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 4, MotorId.PP_P, MotorMode.velocity, true, 1, 5000, 2000, 2000);
+                motors[MotorId.LP_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 8, MotorId.LP_P, MotorMode.velocity, false, 1, 5000, 2000, 2000);
+                motors[MotorId.LZ_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 12, MotorId.LZ_P, MotorMode.velocity, false, 1, 5000, 2000, 2000);
+                motors[MotorId.PZ_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 16, MotorId.PZ_P, MotorMode.velocity, true, 1, 5000, 2000, 2000);
+                motors[MotorId.PP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 3, MotorId.PP_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502);
+                motors[MotorId.LP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 7, MotorId.LP_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502);
+                motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 11, MotorId.LZ_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502);
+                motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 15, MotorId.PZ_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502);
+                motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 2, MotorId.PP_Z, MotorMode.position, false, 4, 1000, 2000, 2000, 0, 129263);
+                motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 6, MotorId.LP_Z, MotorMode.position, false, 4, 1000, 2000, 2000, 0, 129263);
+                motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 10, MotorId.LZ_Z, MotorMode.position, false, 4, 1000, 2000, 2000, 0, 129263);
+                motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 14, MotorId.PZ_Z, MotorMode.position, false, 4, 1000, 2000, 2000, 0, 129263);
+                motors[MotorId.PP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 1, MotorId.PP_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 125000);
+                motors[MotorId.LP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 5, MotorId.LP_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 125000);
+                motors[MotorId.LZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 9, MotorId.LZ_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 125000);
+                motors[MotorId.PZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 13, MotorId.PZ_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 125000);
 
                 foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
                 {
                     motor.Value.enableStateObserver();
                 }
 
+                foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+                {
+                    if (motor.Value.state == MotorState.error)
+                    {
+                        motorErrorOccuredObserver();
+                    }
+                }
+
                 return "";
             }
             catch (DeviceException e)
             {
-                disable();
+                disable(true);
                 return String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode));
             }
             catch (Exception e)
             {
-                disable();
+                disable(true);
                 return e.Message;
             }
         }
@@ -85,15 +94,29 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         public void move(int direction, int speed)
         {
-            //Console.WriteLine("Move to direction: "+direction+" with speed: "+speed);
-            if (Math.Abs(direction) > 90)
-            {
-                speed = -speed;
+            if (speed != 0) {
+                if (Math.Abs(direction) > 90)
+                {
+                    speed = -speed;
+                    motors[MotorId.PP_P].moving(speed);
+                    motors[MotorId.LP_P].moving(speed);
+                    motors[MotorId.LZ_P].disable();
+                    motors[MotorId.PZ_P].disable();
+                }
+                else
+                {
+                    motors[MotorId.PP_P].disable();
+                    motors[MotorId.LP_P].disable();
+                    motors[MotorId.LZ_P].moving(speed);
+                    motors[MotorId.PZ_P].moving(speed);
+                }
             }
-            motors[MotorId.PP_P].moving(speed);
-            motors[MotorId.LP_P].moving(speed);
-            motors[MotorId.LZ_P].moving(speed);
-            motors[MotorId.PZ_P].moving(speed);
+            else {
+                motors[MotorId.PP_P].enable();
+                motors[MotorId.LP_P].enable();
+                motors[MotorId.LZ_P].enable();
+                motors[MotorId.PZ_P].enable();
+            }
         }
 
         /// <summary>
@@ -152,9 +175,10 @@ namespace Robot.Robot.Implementations.Epos
         /// <summary>
         /// Vypne celého robota
         /// </summary>
-        public void disable()
+        /// <param name="savePosition">true pokud uložit pozice motoru</param>
+        public void disable(bool savePosition)
         {
-            if (connector != null)
+            if (connector != null && savePosition)
             {
                 saveCurrentPositions();
             }
@@ -181,7 +205,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="absoluteControllMode">true, pokud zobrazit absolutní pozicování</param>
         public void changeControllMode(bool absoluteControllMode)
         {
-            if (absoluteControllMode)
+            if (!absoluteControllMode)
             {
                 motors[MotorId.PP_P].changeMode(MotorMode.velocity);
                 motors[MotorId.LP_P].changeMode(MotorMode.velocity);
@@ -214,18 +238,25 @@ namespace Robot.Robot.Implementations.Epos
         /// <returns>true, pokud se nahrání povedlo</returns>
         public bool reHoming()
         {
-            if (Properties.Settings.Default.correctlyEnded)
+            if (allMotorsOK())
             {
-                Properties.Settings.Default.correctlyEnded = false;
-                foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+                if (Properties.Settings.Default.correctlyEnded)
                 {
-                    motor.Value.setHomingPosition((int)Properties.Settings.Default[motor.Key.ToString()]);
+                    Properties.Settings.Default.correctlyEnded = false;
+                    Properties.Settings.Default.Save();
+                    foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+                    {
+                        motor.Value.setHomingPosition((int)Properties.Settings.Default[motor.Key.ToString()]);
+                    }
+                    return true;
                 }
-                return true;
+                else
+                {
+                    return false;
+                }
             }
-            else
-            {
-                return false;
+            else {
+                return true;
             }
         }
 
@@ -241,22 +272,66 @@ namespace Robot.Robot.Implementations.Epos
         }
 
         /// <summary>
+        /// Vypne/zapne ochranu dojezdů motorů
+        /// </summary>
+        /// <param name="on">true pokud zapnout</param>
+        public void limitProtectionEnable(bool on) {
+            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            {
+                motor.Value.limitProtectionOnOff(on);
+            }
+        }
+
+        /// <summary>
+        /// Zastaví všechny motory.
+        /// </summary>
+        public void haltAll(){
+            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            {
+                motor.Value.halt();
+            }
+        }
+
+        /// <summary>
         /// Uloží současné pozice motorů
         /// </summary>
         private void saveCurrentPositions()
         {
             bool allMotorsOk = true;
-            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            if (allMotorsOK())
             {
-                try {
-                    Properties.Settings.Default[motor.Key.ToString()] = motor.Value.getPosition();
+                foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+                {
+                    try
+                    {
+                        Properties.Settings.Default[motor.Key.ToString()] = motor.Value.getPosition();
+                    }
+                    catch (DeviceException)
+                    {
+                        allMotorsOk = false;
+                        break;
+                    }
                 }
-                catch (DeviceException) {
-                    allMotorsOk = false;
-                }
+            }
+            else {
+                allMotorsOk = false;
             }
             Properties.Settings.Default.correctlyEnded = allMotorsOk;
             Properties.Settings.Default.Save();
+        }
+
+        /// <summary>
+        /// Zkontroluje, zda jsou všechny motory v pořádku
+        /// </summary>
+        /// <returns>true pokud josu</returns>
+        private bool allMotorsOK() {
+            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            {
+                if (motor.Value.state == MotorState.error || motor.Value.state == MotorState.disabled) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

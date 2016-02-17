@@ -68,6 +68,8 @@ namespace Robot
             return instance;
         }
 
+        delegate void ShowDisagnosticMessageCallback(MessageTypeEnum type, string message);
+
         /// <summary>
         /// Zobrazí chybovou hlášku týkající se sběrnice
         /// </summary>
@@ -78,7 +80,7 @@ namespace Robot
             switch (type)
             {
                 case MessageTypeEnum.error:
-                    MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     labelMessage.ForeColor = Color.Red;
                     break;
                 case MessageTypeEnum.success:
@@ -88,7 +90,16 @@ namespace Robot
                     labelMessage.ForeColor = Color.Blue;
                     break;
             }
-            labelMessage.Text = message;
+            if (labelMessage.InvokeRequired)
+            {
+                ShowDisagnosticMessageCallback cb = new ShowDisagnosticMessageCallback(showDisgnosticMessage);
+                this.Invoke(cb, new object[] { type, message });
+            }
+            else
+            {
+                labelMessage.Text = message;
+            }
+            
         }
 
         /// <summary>

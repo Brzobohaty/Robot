@@ -23,7 +23,7 @@ namespace Robot
         private Action<bool> buttonDefaultPositionObserver; //callback pro změnu stavu tlačítka pro defaultní pozici (bool defaultní pozice)
         private Action<bool> buttonAbsolutePositioningObserver; //callback pro stisknutí tačítka pro absolutní pozicování robota
         private bool enabledStick = true; //příznak zapnutí/vypnutí ovládání páčkou
-
+        
         private const int joystickR = 70; //poloměr kružnice joysticku
         private Point stickLocation = new Point(joystickR, joystickR); //pozice páčky joysticku
 
@@ -38,6 +38,8 @@ namespace Robot
             return instance;
         }
 
+        delegate void ShowControlMessageCallback(MessageTypeEnum type, string message);
+
         /// <summary>
         /// Zobrazí hlášku týkající se ovládání
         /// </summary>
@@ -48,7 +50,7 @@ namespace Robot
             switch (type)
             {
                 case MessageTypeEnum.error:
-                    MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     messageLabelControl.ForeColor = Color.Red;
                     break;
                 case MessageTypeEnum.success:
@@ -58,7 +60,15 @@ namespace Robot
                     messageLabelControl.ForeColor = Color.Blue;
                     break;
             }
-            messageLabelControl.Text = message;
+            if (messageLabelControl.InvokeRequired)
+            {
+                ShowControlMessageCallback cb = new ShowControlMessageCallback(showControlMessage);
+                this.Invoke(cb, new object[] { type, message });
+            }
+            else
+            {
+                messageLabelControl.Text = message;
+            }
         }
 
         /// <summary>
@@ -71,19 +81,29 @@ namespace Robot
             return "";
         }
 
+        delegate void OnOffCallback(bool on);
+
         /// <summary>
         /// Vypne/zapne ovládání pomocí ovladače
         /// </summary>
         /// <param name="on">true pokud zapnout</param>
         public void onOff(bool on)
         {
-            buttonAbsolutPositioning.Enabled = on;
-            buttonDefaultPosition.Enabled = on;
-            buttonMoveDown.Enabled = on;
-            buttonMoveUp.Enabled = on;
-            buttonNarrow.Enabled = on;
-            buttonWiden.Enabled = on;
-            enabledStick = on;
+            if (buttonAbsolutPositioning.InvokeRequired && buttonDefaultPosition.InvokeRequired && buttonMoveDown.InvokeRequired && buttonMoveUp.InvokeRequired && buttonNarrow.InvokeRequired && buttonWiden.InvokeRequired)
+            {
+                OnOffCallback cb = new OnOffCallback(onOff);
+                this.Invoke(cb, new object[] { on });
+            }
+            else
+            {
+                buttonAbsolutPositioning.Enabled = on;
+                buttonDefaultPosition.Enabled = on;
+                buttonMoveDown.Enabled = on;
+                buttonMoveUp.Enabled = on;
+                buttonNarrow.Enabled = on;
+                buttonWiden.Enabled = on;
+                enabledStick = on;
+            }
         }
 
         /// <summary>

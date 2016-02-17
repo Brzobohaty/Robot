@@ -21,11 +21,12 @@ namespace Robot.Robot
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
+        /// <param name="motorErrorOccuredObserver">posluchač jakéhokoli eroru motoru</param>
         /// <returns>instanci představujícíc robota</returns>
-        public IRobot getRobot(StateObserver motorStateObserver, bool withChooseOfBus)
+        public IRobot getRobot(StateObserver motorStateObserver, bool withChooseOfBus, Action motorErrorOccuredObserver)
         {
             IRobot robot = new EposRobot();
-            errorMessage = robot.inicialize(motorStateObserver, withChooseOfBus);
+            errorMessage = robot.inicialize(motorStateObserver, withChooseOfBus, motorErrorOccuredObserver);
             if (errorMessage.Length > 0)
             {
                 robot = new TestRobot();

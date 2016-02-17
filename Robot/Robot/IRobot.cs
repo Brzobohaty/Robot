@@ -16,8 +16,9 @@ namespace Robot.Robot
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
+        /// <param name="motorErrorOccuredObserver">posluchač jakéhokoli eroru motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        string inicialize(StateObserver motorStateObserver, bool withChooseOfBus);
+        string inicialize(StateObserver motorStateObserver, bool withChooseOfBus, Action motorErrorOccuredObserver);
 
         /// <summary>
         /// Pohne s robotem v daném směru a danou rychlostí
@@ -54,7 +55,8 @@ namespace Robot.Robot
         /// <summary>
         /// Vypne robota
         /// </summary>
-        void disable();
+        /// <param name="savePosition">true pokud uložit pozice motoru</param>
+        void disable(bool savePosition);
 
         /// <summary>
         /// Pohne s daným motorem v daném směru o daný krok
@@ -84,5 +86,16 @@ namespace Robot.Robot
         /// Nastaví současný stav všech motorů jako nulovou pozici
         /// </summary>
         void homing();
+
+        /// <summary>
+        /// Vypne/zapne ochranu dojezdů motorů
+        /// </summary>
+        /// <param name="on">true pokud zapnout</param>
+        void limitProtectionEnable(bool on);
+
+        /// <summary>
+        /// Zastaví všechny motory.
+        /// </summary>
+        void haltAll();
     }
 }

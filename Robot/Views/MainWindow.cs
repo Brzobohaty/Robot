@@ -51,7 +51,7 @@ namespace Robot
         {
             return instance;
         }
-        
+
         /// <summary>
         /// Přiřazení posluchače pro dokončení a zobrazení view
         /// </summary>
@@ -70,37 +70,58 @@ namespace Robot
             closeObserver = observer;
         }
 
+        delegate void ChangeControllModeCallback(bool absoluteControllMode);
+
         /// <summary>
         /// Změní ovládací mód 
         /// </summary>
         /// <param name="absoluteControllMode">true, pokud zobrazit absolutní pozicování</param>
         public void changeControllMode(bool absoluteControllMode) {
-            if (absoluteControllMode)
+            if (splitContainer1.InvokeRequired)
             {
-                splitContainer1.Panel1.Controls.Clear();
-                splitContainer1.Panel1.Controls.Add(absoluteControllView);
+                ChangeControllModeCallback cb = new ChangeControllModeCallback(changeControllMode);
+                this.Invoke(cb, new object[] { absoluteControllMode });
             }
-            else {
-                splitContainer1.Panel1.Controls.Clear();
-                splitContainer1.Panel1.Controls.Add(controllView);
+            else
+            {
+                if (absoluteControllMode)
+                {
+                    splitContainer1.Panel1.Controls.Clear();
+                    splitContainer1.Panel1.Controls.Add(absoluteControllView);
+                }
+                else
+                {
+                    splitContainer1.Panel1.Controls.Clear();
+                    splitContainer1.Panel1.Controls.Add(controllView);
+                }
             }
         }
 
+        delegate void ChangeDiagnosticViewCallback(bool diagnosticViewVisible);
+        
         /// <summary>
         /// Prohodí view diagnostiky za view rekalibrace nebo opačně
         /// </summary>
         /// <param name="diagnosticViewVisible">true, pokud zobrazit diagnostiku</param>
         public void changeDiagnosticView(bool diagnosticViewVisible)
         {
-            if (diagnosticViewVisible)
+            if (splitContainer1.InvokeRequired)
             {
-                splitContainer1.Panel2.Controls.Clear();
-                splitContainer1.Panel2.Controls.Add(diagnosticView);
+                ChangeDiagnosticViewCallback cb = new ChangeDiagnosticViewCallback(changeDiagnosticView);
+                this.Invoke(cb, new object[] { diagnosticViewVisible });
             }
             else
             {
-                splitContainer1.Panel2.Controls.Clear();
-                splitContainer1.Panel2.Controls.Add(recalibrView);
+                if (diagnosticViewVisible)
+                {
+                    splitContainer1.Panel2.Controls.Clear();
+                    splitContainer1.Panel2.Controls.Add(diagnosticView);
+                }
+                else
+                {
+                    splitContainer1.Panel2.Controls.Clear();
+                    splitContainer1.Panel2.Controls.Add(recalibrView);
+                }
             }
         }
 
