@@ -33,6 +33,7 @@
             this.labelMessage = new System.Windows.Forms.Label();
             this.labelDiagnostic = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.robotCanvas = new System.Windows.Forms.PictureBox();
             this.labelLZ_Z = new System.Windows.Forms.Label();
             this.labelPP_Z = new System.Windows.Forms.Label();
             this.labelPZ_Z = new System.Windows.Forms.Label();
@@ -51,16 +52,17 @@
             this.labelPP_P = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.robotCanvas)).BeginInit();
             this.SuspendLayout();
             // 
-            // errorLabelMotors
+            // labelMessage
             // 
             this.labelMessage.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.labelMessage.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.labelMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.labelMessage.ForeColor = System.Drawing.Color.Red;
-            this.labelMessage.Location = new System.Drawing.Point(0, 749);
-            this.labelMessage.Name = "errorLabelMotors";
+            this.labelMessage.Location = new System.Drawing.Point(0, 1104);
+            this.labelMessage.Name = "labelMessage";
             this.labelMessage.Size = new System.Drawing.Size(747, 55);
             this.labelMessage.TabIndex = 3;
             this.labelMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -80,6 +82,7 @@
             // panel1
             // 
             this.panel1.AutoScroll = true;
+            this.panel1.Controls.Add(this.robotCanvas);
             this.panel1.Controls.Add(this.labelLZ_Z);
             this.panel1.Controls.Add(this.labelPP_Z);
             this.panel1.Controls.Add(this.labelPZ_Z);
@@ -99,8 +102,16 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 55);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(747, 694);
+            this.panel1.Size = new System.Drawing.Size(747, 1049);
             this.panel1.TabIndex = 22;
+            // 
+            // robotCanvas
+            // 
+            this.robotCanvas.Location = new System.Drawing.Point(39, 456);
+            this.robotCanvas.Name = "robotCanvas";
+            this.robotCanvas.Size = new System.Drawing.Size(509, 458);
+            this.robotCanvas.TabIndex = 38;
+            this.robotCanvas.TabStop = false;
             // 
             // labelLZ_Z
             // 
@@ -279,8 +290,9 @@
             this.Controls.Add(this.labelMessage);
             this.Controls.Add(this.labelDiagnostic);
             this.Name = "DiagnosticView";
-            this.Size = new System.Drawing.Size(747, 804);
+            this.Size = new System.Drawing.Size(747, 1159);
             this.panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.robotCanvas)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -307,5 +319,6 @@
         public System.Windows.Forms.Label labelLZ_P;
         public System.Windows.Forms.Label labelPP_P;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.PictureBox robotCanvas;
     }
 }

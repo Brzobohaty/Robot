@@ -29,13 +29,14 @@ namespace Robot.Robot.Implementations.Epos
         private MotionInfo stateHandler; //handler stavu motoru 
         private Timer timerObserver; //časovač pro spouštění posluchače stavu
         private int multiplier; //násobitel otáček
-        private int oldVelocity = 0; //stará rychlost
         private int maxPosition; //maximální pozice na motoru
         private int minPosition; //minimální pozice na motoru
-        private bool hasLimit = false; //příznak, zda má motor maximální a minimální hranici pohybu
+        private bool hasPositionLimit = false; //příznak, zda má motor maximální a minimální hranici pohybu
+        private const int maxSpeed = 5000; //maximální rychlost motoru
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
 
-        public EposMotor() {
+        public EposMotor()
+        {
             errorDictionary = EposErrorCode.getInstance();
         }
 
@@ -53,7 +54,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="maxPosition">maximální pozice motoru</param>
         public void inicialize(DeviceManager connector, StateObserver stateObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, int minPosition, int maxPosition)
         {
-            hasLimit = true;
+            hasPositionLimit = true;
             this.maxPosition = maxPosition;
             this.minPosition = minPosition;
             inicialize(connector, stateObserver, nodeNumber, id, mode, reverse, multiplier);
@@ -97,19 +98,19 @@ namespace Robot.Robot.Implementations.Epos
                 changeMode(mode);
 
                 setStateObserver();
-                stateObserver.motorStateChanged(MotorState.enabled, "", id, 0);
+                stateObserver.motorStateChanged(MotorState.enabled, "", id, 0, 0, 0, 0);
             }
             catch (DeviceException e)
             {
                 sm = null;
                 disableStateObserver();
-                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0);
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
             }
             catch (Exception e)
             {
                 sm = null;
                 disableStateObserver();
-                stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0);
+                stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
             }
         }
 
@@ -136,20 +137,20 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="speed">rychlost -100 až 100</param>
         public void moving(int speed)
         {
-            if (velocityHandler != null && stateHandler != null && !hasLimit)
+            if (velocityHandler != null && stateHandler != null && !hasPositionLimit)
             {
-                    try
-                    {
-                        velocityHandler.MoveWithVelocity(speed * rev * 10);
-                    }
-                    catch (DeviceException e)
-                    {
-                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0);
-                    }
-                    catch (Exception e)
-                    {
-                        stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0);
-                    }
+                try
+                {
+                    velocityHandler.MoveWithVelocity(speed * rev * 10);
+                }
+                catch (DeviceException e)
+                {
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                }
+                catch (Exception e)
+                {
+                    stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
+                }
             }
         }
 
@@ -162,7 +163,7 @@ namespace Robot.Robot.Implementations.Epos
             if (positionHandler != null && stateHandler != null)
             {
                 int position = stateHandler.GetPositionIs() + step;
-                if (!hasLimit || (hasLimit && position > minPosition && position < maxPosition))
+                if (!hasPositionLimit || (hasPositionLimit && position > minPosition && position < maxPosition))
                 {
                     try
                     {
@@ -170,11 +171,11 @@ namespace Robot.Robot.Implementations.Epos
                     }
                     catch (DeviceException e)
                     {
-                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0);
+                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                     }
                     catch (Exception e)
                     {
-                        stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0);
+                        stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
                     }
                 }
                 else
@@ -192,7 +193,7 @@ namespace Robot.Robot.Implementations.Epos
         {
             if (positionHandler != null && stateHandler != null)
             {
-                if (!hasLimit || (hasLimit && position > minPosition && position < maxPosition))
+                if (!hasPositionLimit || (hasPositionLimit && position > minPosition && position < maxPosition))
                 {
                     try
                     {
@@ -200,11 +201,11 @@ namespace Robot.Robot.Implementations.Epos
                     }
                     catch (DeviceException e)
                     {
-                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0);
+                        stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                     }
                     catch (Exception e)
                     {
-                        stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0);
+                        stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
                     }
                 }
                 else
@@ -250,7 +251,7 @@ namespace Robot.Robot.Implementations.Epos
             }
             if (stateObserver != null)
             {
-                stateObserver.motorStateChanged(MotorState.disabled, "", id, 0);
+                stateObserver.motorStateChanged(MotorState.disabled, "", id, 0, 0, 0, 0);
             }
         }
 
@@ -317,7 +318,7 @@ namespace Robot.Robot.Implementations.Epos
         {
             if (stateHandler != null)
             {
-                Properties.Settings.Default[id.ToString()+"_default"] = stateHandler.GetPositionIs();
+                Properties.Settings.Default[id.ToString() + "_default"] = stateHandler.GetPositionIs();
                 Properties.Settings.Default.Save();
             }
         }
@@ -340,45 +341,34 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="e"></param>
         private void stateHandle(object sender, EventArgs e)
         {
-            MotorState newState;
             if (!sm.GetDisableState())
             {
                 if (sm.GetFaultState())
                 {
-                    newState = MotorState.error;
-                    if (newState != state)
-                    {
-                        state = newState;
-                        stateObserver.motorStateChanged(state, "", id, 0);
-                    }
+                    state = MotorState.error;
+                    stateObserver.motorStateChanged(state, "", id, 0, 0, 0, 0);
                 }
                 else
                 {
                     int velocity = stateHandler.GetVelocityIs();
+                    int position = stateHandler.GetPositionIs();
                     if (Math.Abs(velocity) > 50)
                     {
-                        newState = MotorState.running;
+                        state = MotorState.running;
                     }
                     else
                     {
-                        newState = MotorState.enabled;
+                        state = MotorState.enabled;
                     }
-                    if (newState != state || Math.Abs(velocity) > 50)
-                    {
-                        state = newState;
-                        oldVelocity = velocity;
-                        stateObserver.motorStateChanged(state, "", id, velocity);
-                    }
+                    int speedRelative = velocity / (maxSpeed / 100);
+                    int positionRelative = ((position + (minPosition*(-1))) / (maxPosition - minPosition))*200-100;
+                    stateObserver.motorStateChanged(state, "", id, velocity, position, speedRelative, positionRelative);
                 }
             }
             else
             {
-                newState = MotorState.disabled;
-                if (newState != state)
-                {
-                    state = newState;
-                    stateObserver.motorStateChanged(state, "", id, 0);
-                }
+                state = MotorState.disabled;
+                stateObserver.motorStateChanged(state, "", id, 0, 0, 0, 0);
             }
         }
     }

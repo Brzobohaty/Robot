@@ -268,7 +268,7 @@ namespace Robot
         private void joystickPaint(object sender, PaintEventArgs e)
         {
             var g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             Rectangle rectangle = new Rectangle(0, 0, 150, 150);
 
             // Create a path that consists of a single ellipse.
@@ -297,7 +297,7 @@ namespace Robot
         private void stickPaint(object sender, PaintEventArgs e)
         {
             var g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             Rectangle rectangle = new Rectangle(stickLocation.X, stickLocation.Y, 10, 10);
             g.FillEllipse(Brushes.Red, rectangle);
         }

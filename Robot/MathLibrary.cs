@@ -32,7 +32,7 @@ namespace Robot
         }
 
         /// <summary>
-        /// Pokud je bod uvnitř kružnice, tak vrátí tento bod a pokud ne tak vrátí nebližsí bod na kružnici
+        /// Pokud je bod uvnitř kružnice, tak vrátí tento bod a pokud ne, tak vrátí nebližsí bod na kružnici
         /// </summary>
         /// <param name="x">souřadnice x bodu</param>
         /// <param name="y">souřadnice y bodu</param>
@@ -90,6 +90,19 @@ namespace Robot
             double angle = Math.Acos(((VAdistance * VAdistance) + (VBdistance * VBdistance) - (ABdistance * ABdistance)) / temp);
             double degreeAngle = angle * 180 / Math.PI;
             return degreeAngle;
+        }
+
+        /// <summary>
+        /// Vrátí druhý bod úsečky, který s osu x svírá daný úhel a je od prvního bodu vzdálen o danou hodnotu
+        /// </summary>
+        /// <param name="x">x souřadnice počátku úsečky</param>
+        /// <param name="y">y souřadnice počátku úsečky</param>
+        /// <param name="angle">úhel mezi úsečky a osou x</param>
+        /// <param name="distance">vzdálenost bodu od prvního bodu úsečky</param>
+        /// <returns>souřadnice drhého bodu úsečky</returns>
+        public static Point getPointOnLine(int x, int y, int angle, int distance) {
+            double anglee = (angle * (Math.PI / 180));
+            return new Point((int)Math.Round((x + (distance * Math.Cos(anglee)))), (int)Math.Round((y + (distance * Math.Sin(anglee)))));
         }
     }
 }
