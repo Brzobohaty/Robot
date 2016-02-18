@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using EposCmd.Net;
 using EposCmd.Net.DeviceCmdSet.Initialization;
+using System.Threading;
 
 namespace Robot.Robot.Implementations.Epos
 {
@@ -13,6 +14,8 @@ namespace Robot.Robot.Implementations.Epos
         private DeviceManager connector; // handler pro přopojení motorů
         private Dictionary<MotorId, EposMotor> motors = new Dictionary<MotorId, EposMotor>(); //mapa motorů
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
+        private Action motorErrorOccuredObserver; //Posluchač chyb motorů
+        private System.Timers.Timer periodicChecker; //periodický vyvolávač určitých funkcí
 
         public EposRobot()
         {
@@ -51,10 +54,10 @@ namespace Robot.Robot.Implementations.Epos
                 motors[MotorId.LP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 7, MotorId.LP_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502);
                 motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 11, MotorId.LZ_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502);
                 motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 15, MotorId.PZ_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502);
-                motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 2, MotorId.PP_Z, MotorMode.position, false, 4, 1000, 2000, 2000, 0, 129263);
-                motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 6, MotorId.LP_Z, MotorMode.position, false, 4, 1000, 2000, 2000, 0, 129263);
-                motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 10, MotorId.LZ_Z, MotorMode.position, false, 4, 1000, 2000, 2000, 0, 129263);
-                motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 14, MotorId.PZ_Z, MotorMode.position, false, 4, 1000, 2000, 2000, 0, 129263);
+                motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 2, MotorId.PP_Z, MotorMode.position, false, 4, 1000, 2000, 2000, 0, 142000);
+                motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 6, MotorId.LP_Z, MotorMode.position, false, 4, 1000, 2000, 2000, 0, 142000);
+                motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 10, MotorId.LZ_Z, MotorMode.position, false, 4, 1000, 2000, 2000, 0, 142000);
+                motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 14, MotorId.PZ_Z, MotorMode.position, false, 4, 1000, 2000, 2000, 0, 142000);
                 motors[MotorId.PP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 1, MotorId.PP_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 125000);
                 motors[MotorId.LP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 5, MotorId.LP_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 125000);
                 motors[MotorId.LZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 9, MotorId.LZ_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 125000);
@@ -65,11 +68,14 @@ namespace Robot.Robot.Implementations.Epos
                     motor.Value.enableStateObserver();
                 }
 
+                this.motorErrorOccuredObserver = motorErrorOccuredObserver;
                 foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
                 {
                     if (motor.Value.state == MotorState.error)
                     {
-                        motorErrorOccuredObserver();
+                        Thread thread = new Thread(motorErrorOccuredObserverFunction);
+                        thread.Start();
+                        break;
                     }
                 }
 
@@ -94,29 +100,43 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         public void move(int direction, int speed)
         {
-            if (speed != 0) {
+            if (speed != 0)
+            {
                 if (Math.Abs(direction) > 90)
                 {
                     speed = -speed;
-                    motors[MotorId.PP_P].moving(speed);
-                    motors[MotorId.LP_P].moving(speed);
                     motors[MotorId.LZ_P].disable();
                     motors[MotorId.PZ_P].disable();
+                    motors[MotorId.PP_P].enable();
+                    motors[MotorId.LP_P].enable();
+                    motors[MotorId.PP_P].moving(speed);
+                    motors[MotorId.LP_P].moving(speed);
                 }
                 else
                 {
                     motors[MotorId.PP_P].disable();
                     motors[MotorId.LP_P].disable();
+                    motors[MotorId.LZ_P].enable();
+                    motors[MotorId.PZ_P].enable();
                     motors[MotorId.LZ_P].moving(speed);
                     motors[MotorId.PZ_P].moving(speed);
                 }
             }
-            else {
+            else
+            {
+                motors[MotorId.PP_P].halt();
+                motors[MotorId.LP_P].halt();
+                motors[MotorId.LZ_P].halt();
+                motors[MotorId.PZ_P].halt();
                 motors[MotorId.PP_P].enable();
                 motors[MotorId.LP_P].enable();
                 motors[MotorId.LZ_P].enable();
                 motors[MotorId.PZ_P].enable();
             }
+            //motors[MotorId.PP_P].moving(speed);
+            //motors[MotorId.LP_P].moving(speed);
+            //motors[MotorId.LZ_P].moving(speed);
+            //motors[MotorId.PZ_P].moving(speed);
         }
 
         /// <summary>
@@ -124,7 +144,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void moveDown()
         {
-            Console.WriteLine("Move down");
+            moveDownUp(-1);
         }
 
         /// <summary>
@@ -132,7 +152,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void moveUp()
         {
-            Console.WriteLine("Move up");
+            moveDownUp(1);
         }
 
         /// <summary>
@@ -140,7 +160,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void widen()
         {
-            Console.WriteLine("Rozšířit");
+            narrowWiden(1);
         }
 
         /// <summary>
@@ -148,7 +168,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void narrow()
         {
-            Console.WriteLine("Zůžit");
+            narrowWiden(-1);
         }
 
         /// <summary>
@@ -156,10 +176,18 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void setDefaultPosition()
         {
+            motors[MotorId.PP_P].disable();
+            motors[MotorId.LP_P].disable();
+            motors[MotorId.LZ_P].disable();
+            motors[MotorId.PZ_P].disable();
             foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
             {
                 motor.Value.setDefaultPosition();
             }
+            motors[MotorId.PP_P].enable();
+            motors[MotorId.LP_P].enable();
+            motors[MotorId.LZ_P].enable();
+            motors[MotorId.PZ_P].enable();
         }
 
         /// <summary>
@@ -175,7 +203,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <summary>
         /// Vypne celého robota
         /// </summary>
-        /// <param name="savePosition">true pokud uložit pozice motoru</param>
+        /// <param name="savePosition">příznak, zda uložit pozici</param>
         public void disable(bool savePosition)
         {
             if (connector != null && savePosition)
@@ -191,11 +219,6 @@ namespace Robot.Robot.Implementations.Epos
             foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
             {
                 motor.Value.disable();
-            }
-
-            if (connector != null)
-            {
-                connector.Dispose();
             }
         }
 
@@ -255,7 +278,8 @@ namespace Robot.Robot.Implementations.Epos
                     return false;
                 }
             }
-            else {
+            else
+            {
                 return true;
             }
         }
@@ -275,7 +299,8 @@ namespace Robot.Robot.Implementations.Epos
         /// Vypne/zapne ochranu dojezdů motorů
         /// </summary>
         /// <param name="on">true pokud zapnout</param>
-        public void limitProtectionEnable(bool on) {
+        public void limitProtectionEnable(bool on)
+        {
             foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
             {
                 motor.Value.limitProtectionOnOff(on);
@@ -285,10 +310,115 @@ namespace Robot.Robot.Implementations.Epos
         /// <summary>
         /// Zastaví všechny motory.
         /// </summary>
-        public void haltAll(){
+        public void haltAll()
+        {
             foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
             {
                 motor.Value.halt();
+            }
+        }
+
+        /// <summary>
+        /// Zvýšit/snížit robota krok 1 : narovnat kola
+        /// </summary>
+        /// <param name="direction">-1 = down, 1 = up</param>
+        private void moveDownUp(int direction)
+        {
+            motors[MotorId.PP_P].disable();
+            motors[MotorId.LP_P].disable();
+            motors[MotorId.LZ_P].disable();
+            motors[MotorId.PZ_P].disable();
+            motors[MotorId.PP_R].moveToPosition(-241500);
+            motors[MotorId.LP_R].moveToPosition(-241500);
+            motors[MotorId.LZ_R].moveToPosition(-241500);
+            motors[MotorId.PZ_R].moveToPosition(-241500);
+            createPeriodicChecker();
+            periodicChecker.Elapsed += delegate { moveDownUpPeriodic(direction); };
+
+        }
+
+        /// <summary>
+        /// Zvýšit/snížit robota krok 2 : pohnut se Z
+        /// </summary>
+        /// <param name="direction">-1 = down, 1 = up</param>
+        private void moveDownUpPeriodic(int direction)
+        {
+            if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
+            {
+                periodicChecker.Dispose();
+                motors[MotorId.PP_Z].move(-2000 * direction);
+                motors[MotorId.LP_Z].move(-2000 * direction);
+                motors[MotorId.LZ_Z].move(-2000 * direction);
+                motors[MotorId.PZ_Z].move(-2000 * direction);
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { enablePAfterZPeriodic(); };
+            }
+        }
+
+        /// <summary>
+        /// Zvýšit/snížit robota krok 3 : zapnout P
+        /// </summary>
+        private void enablePAfterZPeriodic()
+        {
+            if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
+            {
+                periodicChecker.Dispose();
+                motors[MotorId.PP_P].enable();
+                motors[MotorId.LP_P].enable();
+                motors[MotorId.LZ_P].enable();
+                motors[MotorId.PZ_P].enable();
+            }
+        }
+
+        /// <summary>
+        /// Rozšíří, zůží robota
+        /// </summary>
+        /// <param name="direction">-1 = zůžit, 1 = rozšířit</param>
+        private void narrowWiden(int direction)
+        {
+            motors[MotorId.PP_P].disable();
+            motors[MotorId.LP_P].disable();
+            motors[MotorId.LZ_P].disable();
+            motors[MotorId.PZ_P].disable();
+            motors[MotorId.PP_R].moveToPosition(0);
+            motors[MotorId.LP_R].moveToPosition(0);
+            motors[MotorId.LZ_R].moveToPosition(0);
+            motors[MotorId.PZ_R].moveToPosition(0);
+            createPeriodicChecker();
+            periodicChecker.Elapsed += delegate { narrowWidenPeriodic(direction); };
+
+        }
+
+        /// <summary>
+        /// Rozšíří, zůží robota
+        /// </summary>
+        /// <param name="direction">-1 = zůžit, 1 = rozšířit</param>
+        private void narrowWidenPeriodic(int direction)
+        {
+            if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
+            {
+                periodicChecker.Dispose();
+                motors[MotorId.PP_ZK].move(2000 * direction);
+                motors[MotorId.LP_ZK].move(2000 * direction);
+                motors[MotorId.LZ_ZK].move(2000 * direction);
+                motors[MotorId.PZ_ZK].move(2000 * direction);
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { enablePAfterZKPeriodic(); };
+            }
+        }
+
+        /// <summary>
+        /// Zvýšit/snížit robota krok 3 : zapnout P
+        /// </summary>
+        private void enablePAfterZKPeriodic()
+        {
+            if (motors[MotorId.PP_ZK].isTargetReached() && motors[MotorId.LP_ZK].isTargetReached() && motors[MotorId.LZ_ZK].isTargetReached() && motors[MotorId.PZ_ZK].isTargetReached())
+            {
+                periodicChecker.Dispose();
+                motors[MotorId.PP_P].enable();
+                motors[MotorId.LP_P].enable();
+                motors[MotorId.LZ_P].enable();
+                motors[MotorId.PZ_P].enable();
             }
         }
 
@@ -298,24 +428,19 @@ namespace Robot.Robot.Implementations.Epos
         private void saveCurrentPositions()
         {
             bool allMotorsOk = true;
-            if (allMotorsOK())
+            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
             {
-                foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+                try
                 {
-                    try
-                    {
-                        Properties.Settings.Default[motor.Key.ToString()] = motor.Value.getPosition();
-                    }
-                    catch (DeviceException)
-                    {
-                        allMotorsOk = false;
-                        break;
-                    }
+                    Properties.Settings.Default[motor.Key.ToString()] = motor.Value.getPosition();
+                }
+                catch (DeviceException)
+                {
+                    allMotorsOk = false;
+                    break;
                 }
             }
-            else {
-                allMotorsOk = false;
-            }
+
             Properties.Settings.Default.correctlyEnded = allMotorsOk;
             Properties.Settings.Default.Save();
         }
@@ -324,14 +449,38 @@ namespace Robot.Robot.Implementations.Epos
         /// Zkontroluje, zda jsou všechny motory v pořádku
         /// </summary>
         /// <returns>true pokud josu</returns>
-        private bool allMotorsOK() {
+        private bool allMotorsOK()
+        {
             foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
             {
-                if (motor.Value.state == MotorState.error || motor.Value.state == MotorState.disabled) {
+                if (motor.Value.state == MotorState.error || motor.Value.state == MotorState.disabled)
+                {
                     return false;
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// Nahlášení chyby motoru
+        /// </summary>
+        private void motorErrorOccuredObserverFunction()
+        {
+            motorErrorOccuredObserver();
+        }
+
+        /// <summary>
+        /// Nastaví periodický vyvolávač různých funkcí
+        /// </summary>
+        private void createPeriodicChecker()
+        {
+            if (periodicChecker != null)
+            {
+                periodicChecker.Dispose();
+            }
+            periodicChecker = new System.Timers.Timer();
+            periodicChecker.Interval = 50;
+            periodicChecker.Enabled = true;
         }
     }
 }

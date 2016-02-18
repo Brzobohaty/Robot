@@ -55,7 +55,7 @@ namespace Robot.Robot
         /// <summary>
         /// Vypne robota
         /// </summary>
-        /// <param name="savePosition">true pokud uložit pozice motoru</param>
+        /// <param name="savePosition">příznak, zda uložit pozici</param>
         void disable(bool savePosition);
 
         /// <summary>

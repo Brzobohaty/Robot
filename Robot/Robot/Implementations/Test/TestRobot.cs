@@ -91,7 +91,7 @@ namespace Robot.Robot.Implementations.Test
         /// <summary>
         /// Vypne motor
         /// </summary>
-        /// <param name="savePosition">true pokud uložit pozice motoru</param>
+        /// <param name="savePosition">příznak, zda uložit pozici</param>
         public void disable(bool savePosition)
         {
         }

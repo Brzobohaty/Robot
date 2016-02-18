@@ -98,6 +98,7 @@ namespace Robot.Joystick.Implementations
         private void gamepadHandle(object sender, EventArgs e)
         {
             if (enabled) {
+                Console.WriteLine("asdasdasdasdasdasd");
                 JoystickState stateNow = new JoystickState();
                 stateNow = gamepad.GetCurrentState();
                 bool[] buttons = stateNow.GetButtons();

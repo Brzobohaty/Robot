@@ -108,6 +108,7 @@ namespace Robot.Robot.Implementations.Epos
                 changeMode(mode);
 
                 setStateObserver();
+                state = MotorState.enabled;
                 stateObserver.motorStateChanged(MotorState.enabled, "", id, 0, 0, 0, 0);
             }
             catch (DeviceException e)
@@ -190,19 +191,19 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="position">absolutní pozice</param>
         public void moveToPosition(int position)
         {
-            if (hasPositionLimit && position <= minPosition)
+            if (limitEnable && hasPositionLimit && position <= minPosition)
             {
                 position = minPosition;
                 SystemSounds.Beep.Play();
             }
-            if (hasPositionLimit && position >= maxPosition)
+            if (limitEnable && hasPositionLimit && position >= maxPosition)
             {
                 position = maxPosition;
                 SystemSounds.Beep.Play();
             }
             try
             {
-                positionHandler.MoveToPosition(Convert.ToInt32(position), true, false);
+                positionHandler.MoveToPosition(Convert.ToInt32(position), true, true);
             }
             catch (DeviceException e)
             {
@@ -216,6 +217,20 @@ namespace Robot.Robot.Implementations.Epos
                 stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
                 motorErrorOccuredObserver();
             }
+            
+        }
+        
+        /// <summary>
+        /// Indikace, zda již motor dorazil do stanovené polohy
+        /// </summary>
+        /// <returns>true pokud se motor již dostal do cíle</returns>
+        public bool isTargetReached() {
+            if (stateHandler != null) {
+                bool targetReached = false;
+                stateHandler.GetMovementState(ref targetReached);
+                return targetReached;
+            }
+            return false;
         }
 
         /// <summary>

@@ -87,7 +87,6 @@ namespace Robot
                 widenPeriodHandler = getPeriodHandler();
                 narrowPeriodHandler = getPeriodHandler();
                 defaultPositionPeriodHandler = getPeriodHandler();
-                checkHoming();
                 controllOnOff(true);
             }
         }
@@ -108,6 +107,7 @@ namespace Robot
             else
             {
                 diagnosticView.showDisgnosticMessage(MessageTypeEnum.success, "Připojení ke sběrnici proběhlo v pořádku.");
+                checkHoming();
             }
         }
 
@@ -119,6 +119,7 @@ namespace Robot
             controllView.showControlMessage(MessageTypeEnum.progress, "Probíhá inicializace ovládacího zařízení.");
             JoystickBridge joystickBridge = new JoystickBridge();
             joystick = joystickBridge.getJoystick();
+            joystick.onOff(false);
             joystick.subscribeStickObserver(joystickChanged);
             joystick.subscribeButtonMoveUpObserver(joystickButtonMoveUpChanged);
             joystick.subscribeButtonMoveDownObserver(joystickButtonMoveDownChanged);
@@ -158,7 +159,7 @@ namespace Robot
         {
             System.Timers.Timer aTimer = new System.Timers.Timer();
             aTimer.Elapsed += new ElapsedEventHandler(periodiclyAction);
-            aTimer.Interval = 500;
+            aTimer.Interval = 200;
             aTimer.Stop();
             return aTimer;
         }
@@ -453,6 +454,7 @@ namespace Robot
             {
                 joystick.onOff(on);
             }
+            controllView.onOff(on);
             absoluteControllView.onOff(on);
         }
 
@@ -471,7 +473,7 @@ namespace Robot
         private void motorErrorOccured()
         {
             diagnosticView.showDisgnosticMessage(MessageTypeEnum.error, "Na některých motorech došlo k chybě. Motory byly preventivně vypnuty. Pro pokračování je potřeba reinicializovat obvod (menu - nastavení).");
-            robot.disable(false);
+            robot.disable(true);
         }
     }
 }
