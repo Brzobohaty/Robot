@@ -123,13 +123,6 @@ namespace Robot.Robot.Implementations.Epos
                 state = MotorState.error;
                 stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
             }
-            catch (Exception e)
-            {
-                sm = null;
-                disableStateObserver();
-                state = MotorState.error;
-                stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
-            }
         }
 
         /// <summary>
@@ -141,11 +134,20 @@ namespace Robot.Robot.Implementations.Epos
             this.mode = mode;
             if (velocityHandler != null && positionHandler != null && homingHandler != null)
             {
-                switch (mode)
+                try
                 {
-                    case MotorMode.velocity: velocityHandler.ActivateProfileVelocityMode(); break;
-                    case MotorMode.position: positionHandler.ActivateProfilePositionMode(); break;
-                    case MotorMode.homing: homingHandler.ActivateHomingMode(); break;
+                    switch (mode)
+                    {
+                        case MotorMode.velocity: velocityHandler.ActivateProfileVelocityMode(); break;
+                        case MotorMode.position: positionHandler.ActivateProfilePositionMode(); break;
+                        case MotorMode.homing: homingHandler.ActivateHomingMode(); break;
+                    }
+                }
+                catch (DeviceException e)
+                {
+                    state = MotorState.error;
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    motorErrorOccuredObserver();
                 }
             }
         }
@@ -168,12 +170,6 @@ namespace Robot.Robot.Implementations.Epos
                     stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                     motorErrorOccuredObserver();
                 }
-                catch (Exception e)
-                {
-                    state = MotorState.error;
-                    stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
-                    motorErrorOccuredObserver();
-                }
             }
         }
 
@@ -185,8 +181,17 @@ namespace Robot.Robot.Implementations.Epos
         {
             if (positionHandler != null && stateHandler != null)
             {
-                int position = stateHandler.GetPositionIs() + (step * rev * multiplier);
-                moveToPosition(position);
+                try
+                {
+                    int position = stateHandler.GetPositionIs() + (step * rev * multiplier);
+                    moveToPosition(position);
+                }
+                catch (DeviceException e)
+                {
+                    state = MotorState.error;
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    motorErrorOccuredObserver();
+                }
             }
         }
 
@@ -216,12 +221,6 @@ namespace Robot.Robot.Implementations.Epos
                 stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                 motorErrorOccuredObserver();
             }
-            catch (Exception e)
-            {
-                state = MotorState.error;
-                stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
-                motorErrorOccuredObserver();
-            }
         }
 
         /// <summary>
@@ -230,7 +229,8 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="angle">úhel do kter0ho se m8 motor nastavit vyhledem k jeho 0</param>
         public void moveToAngle(int angle)
         {
-            if (!hasPositionLimit) {
+            if (!hasPositionLimit)
+            {
                 return;
             }
             if (angle <= minAngle)
@@ -248,11 +248,22 @@ namespace Robot.Robot.Implementations.Epos
         /// Indikace, zda již motor dorazil do stanovené polohy
         /// </summary>
         /// <returns>true pokud se motor již dostal do cíle</returns>
-        public bool isTargetReached() {
-            if (stateHandler != null) {
-                bool targetReached = false;
-                stateHandler.GetMovementState(ref targetReached);
-                return targetReached;
+        public bool isTargetReached()
+        {
+            if (stateHandler != null)
+            {
+                try
+                {
+                    bool targetReached = false;
+                    stateHandler.GetMovementState(ref targetReached);
+                    return targetReached;
+                }
+                catch (DeviceException e)
+                {
+                    state = MotorState.error;
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    motorErrorOccuredObserver();
+                }
             }
             return false;
         }
@@ -266,12 +277,18 @@ namespace Robot.Robot.Implementations.Epos
         {
             if (stateHandler != null)
             {
-                return stateHandler.GetPositionIs();
+                try
+                {
+                    return stateHandler.GetPositionIs();
+                }
+                catch (DeviceException e)
+                {
+                    state = MotorState.error;
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    motorErrorOccuredObserver();
+                }
             }
-            else
-            {
-                throw new DeviceException("No handler");
-            }
+            throw new DeviceException("No handler");
         }
 
         /// <summary>
@@ -279,49 +296,67 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void disable()
         {
-            if (timerObserver != null)
+            try
             {
-                timerObserver.Stop();
-            }
-            if (sm != null)
-            {
-                if (sm.GetFaultState())
-                    sm.ClearFault();
-
-                if (!sm.GetDisableState())
-                    sm.SetDisableState();
-            }
-            if (stateObserver != null)
-            {
-                if (state != MotorState.error)
+                if (timerObserver != null)
                 {
-                    stateObserver.motorStateChanged(MotorState.disabled, "", id, 0, 0, 0, 0);
+                    timerObserver.Stop();
                 }
+                if (sm != null)
+                {
+                    if (sm.GetFaultState())
+                        sm.ClearFault();
+
+                    if (!sm.GetDisableState())
+                        sm.SetDisableState();
+                }
+                if (stateObserver != null)
+                {
+                    if (state != MotorState.error)
+                    {
+                        stateObserver.motorStateChanged(MotorState.disabled, "", id, 0, 0, 0, 0);
+                    }
+                }
+            }
+            catch (DeviceException e)
+            {
+                state = MotorState.error;
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
             }
         }
 
         /// <summary>
         /// Zapne motor
         /// </summary>
-        public void enable() {
-            if (timerObserver != null)
+        public void enable()
+        {
+            try
             {
-                timerObserver.Start();
-            }
-            if (sm != null)
-            {
-                if (sm.GetFaultState())
-                    sm.ClearFault();
-
-                if (!sm.GetEnableState())
-                    sm.SetEnableState();
-            }
-            if (stateObserver != null)
-            {
-                if (state != MotorState.error)
+                if (timerObserver != null)
                 {
-                    stateObserver.motorStateChanged(MotorState.enabled, "", id, 0, 0, 0, 0);
+                    timerObserver.Start();
                 }
+                if (sm != null)
+                {
+                    if (sm.GetFaultState())
+                        sm.ClearFault();
+
+                    if (!sm.GetEnableState())
+                        sm.SetEnableState();
+                }
+                if (stateObserver != null)
+                {
+                    if (state != MotorState.error)
+                    {
+                        stateObserver.motorStateChanged(MotorState.enabled, "", id, 0, 0, 0, 0);
+                    }
+                }
+            }
+            catch (DeviceException e)
+            {
+                state = MotorState.error;
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                motorErrorOccuredObserver();
             }
         }
 
@@ -365,7 +400,16 @@ namespace Robot.Robot.Implementations.Epos
             {
                 MotorMode previouseMode = mode;
                 changeMode(MotorMode.homing);
-                homingHandler.DefinePosition(position);
+                try
+                {
+                    homingHandler.DefinePosition(position);
+                }
+                catch (DeviceException e)
+                {
+                    state = MotorState.error;
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    motorErrorOccuredObserver();
+                }
                 changeMode(previouseMode);
             }
         }
@@ -377,7 +421,16 @@ namespace Robot.Robot.Implementations.Epos
         {
             MotorMode previouseMode = mode;
             changeMode(MotorMode.position);
-            moveToPosition((int)Properties.Settings.Default[id.ToString() + "_default"]);
+            try
+            {
+                moveToPosition((int)Properties.Settings.Default[id.ToString() + "_default"]);
+            }
+            catch (DeviceException e)
+            {
+                state = MotorState.error;
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                motorErrorOccuredObserver();
+            }
             changeMode(previouseMode);
         }
 
@@ -388,8 +441,17 @@ namespace Robot.Robot.Implementations.Epos
         {
             if (stateHandler != null)
             {
-                Properties.Settings.Default[id.ToString() + "_default"] = stateHandler.GetPositionIs();
-                Properties.Settings.Default.Save();
+                try
+                {
+                    Properties.Settings.Default[id.ToString() + "_default"] = stateHandler.GetPositionIs();
+                    Properties.Settings.Default.Save();
+                }
+                catch (DeviceException e)
+                {
+                    state = MotorState.error;
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    motorErrorOccuredObserver();
+                }
             }
         }
 
@@ -407,14 +469,23 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void halt()
         {
-            switch (mode)
+            try
             {
-                case MotorMode.position:
-                    positionHandler.HaltPositionMovement();
-                    break;
-                case MotorMode.velocity:
-                    velocityHandler.HaltVelocityMovement();
-                    break;
+                switch (mode)
+                {
+                    case MotorMode.position:
+                        positionHandler.HaltPositionMovement();
+                        break;
+                    case MotorMode.velocity:
+                        velocityHandler.HaltVelocityMovement();
+                        break;
+                }
+            }
+            catch (DeviceException e)
+            {
+                state = MotorState.error;
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                motorErrorOccuredObserver();
             }
         }
 
@@ -450,12 +521,8 @@ namespace Robot.Robot.Implementations.Epos
                     {
                         int velocity = stateHandler.GetVelocityIs();
                         int position = stateHandler.GetPositionIs();
-                        
+
                         angle = MathLibrary.changeScale(position, minPosition, maxPosition, minAngle, maxAngle);
-                        //if (id == MotorId.LP_ZK)
-                        //{
-                        //    Console.WriteLine(angle);
-                        //}
                         if (Math.Abs(velocity) > 50)
                         {
                             state = MotorState.running;

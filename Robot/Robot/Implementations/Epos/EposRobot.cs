@@ -144,6 +144,12 @@ namespace Robot.Robot.Implementations.Epos
             motors[MotorId.PZ_P].moving(speed);
         }
 
+        /// <summary>
+        /// Otočí kolo nohy ve směru pohybu
+        /// </summary>
+        /// <param name="direction">směr ve stupních 0 až 359</param>
+        /// <param name="motorZK">motor pro otáčení nohy</param>
+        /// <param name="motorR">motor pro otáčení kola nohy</param>
         private void rotateWheelForMove(int direction, EposMotor motorZK, EposMotor motorR) {
             Console.WriteLine("direction " + direction);
             int kartezLegAngle = MathLibrary.changeScale(motorZK.angle, motorZK.minAngle, motorZK.maxAngle, 0, 90);
@@ -156,17 +162,6 @@ namespace Robot.Robot.Implementations.Epos
             int wheelAngle = MathLibrary.changeScale(180-kartezWheelAngle, 180, 0, motorR.minAngle, motorR.maxAngle);
             Console.WriteLine("wheelAngle " + wheelAngle);
             motorR.moveToAngle(wheelAngle);
-
-            //int kartezLegAngle = MathLibrary.changeScale(motorZK.angle,motorZK.minAngle, motorZK.maxAngle, 0, 90);
-            //Console.WriteLine("kartezLegAngle " + kartezLegAngle);
-            //int kartezWheelAngle = 180 - 90 - (direction - kartezLegAngle);
-            //if (kartezWheelAngle < 0) {
-            //    kartezWheelAngle += 180;
-            //}
-            //Console.WriteLine("kartezWheelAngle " + kartezWheelAngle);
-            //int wheelAngle = MathLibrary.changeScale(kartezWheelAngle, 180, 0, motorR.minAngle, motorR.maxAngle);
-            //Console.WriteLine("wheelAngle " + wheelAngle);
-            //motorR.moveToAngle(wheelAngle);
         }
 
         /// <summary>
