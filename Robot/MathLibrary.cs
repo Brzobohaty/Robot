@@ -70,7 +70,7 @@ namespace Robot
         }
 
         /// <summary>
-        /// Vrátí úhel určený třemi body
+        /// Vrátí levotočivý úhel určený třemi body
         /// </summary>
         /// <param name="xV">x souřadnice vrcholu</param>
         /// <param name="yV">y souřadnice vrcholu</param>
@@ -89,6 +89,10 @@ namespace Robot
             }
             double angle = Math.Acos(((VAdistance * VAdistance) + (VBdistance * VBdistance) - (ABdistance * ABdistance)) / temp);
             double degreeAngle = angle * 180 / Math.PI;
+            double position = Math.Sign((xB - xA) * (yV - yA) - (yB - yA) * (xV - xA));
+            if (position > 0) {
+                degreeAngle = 360- degreeAngle;
+            }
             return degreeAngle;
         }
 
@@ -103,6 +107,28 @@ namespace Robot
         public static Point getPointOnLine(int x, int y, int angle, int distance) {
             double anglee = (angle * (Math.PI / 180));
             return new Point((int)Math.Round((x + (distance * Math.Cos(anglee)))), (int)Math.Round((y + (distance * Math.Sin(anglee)))));
+        }
+
+        /// <summary>
+        /// Přepočítá hodnotu z jednoho číselného rozsahu do druhého
+        /// </summary>
+        /// <param name="oldValue">hodnota ve starém rozsahu, kterou chceme přepočítat do nového</param>
+        /// <param name="oldMin">minimum starého rozsahu</param>
+        /// <param name="oldMax">maximum starého rozsahu</param>
+        /// <param name="newMin">minimum nového rozsahu</param>
+        /// <param name="newMax">maximum nového rozsahu</param>
+        /// <returns></returns>
+        public static int changeScale(int oldValue,int oldMin,int oldMax,int newMin,int newMax)
+        {
+            int oldRange = (oldMax - oldMin);
+            if (oldRange == 0)
+                return newMin;
+            else
+            {
+                int newRange = (newMax - newMin);
+                int newValue = (((oldValue - oldMin) * newRange) / oldRange) + newMin;
+                return newValue;
+            }
         }
     }
 }

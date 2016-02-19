@@ -80,7 +80,8 @@ namespace Robot
         /// <param name="ev"></param>
         private void finishInicialization(object sender, EventArgs ev)
         {
-            if (!inicializeRobotThread.IsAlive && !inicializeJoystickThread.IsAlive) {
+            if (!inicializeRobotThread.IsAlive && !inicializeJoystickThread.IsAlive)
+            {
                 finishInicializationObserver.Stop();
                 moveUpPeriodHandler = getPeriodHandler();
                 moveDownPeriodHandler = getPeriodHandler();
@@ -289,11 +290,7 @@ namespace Robot
         /// <param name="y">y souřadnice od -100 do 100</param>
         private void moveRobot(int x, int y)
         {
-            int angle = (int)MathLibrary.getAngle(0, 0, 0, -100, x, y);
-            if (x < 0)
-            {
-                angle = -angle;
-            }
+            int angle = (int)MathLibrary.getAngle(0, 0, 100, 0, x, y);
             robot.move(angle, (int)MathLibrary.getPointsDistance(0, 0, x, y));
         }
 
@@ -450,10 +447,18 @@ namespace Robot
         /// <param name="on">true pokud připojit</param>
         private void controllOnOff(bool on)
         {
-            if (joystick != null)
+            if (recalibrationInProgrress && joystick != null)
             {
-                joystick.onOff(on);
+                joystick.onOff(false);
             }
+            else
+            {
+                if (joystick != null)
+                {
+                    joystick.onOff(on);
+                }
+            }
+
             controllView.onOff(on);
             absoluteControllView.onOff(on);
         }

@@ -30,7 +30,7 @@ namespace Robot.Robot.Implementations.Test
         /// <summary>
         /// Pohne s robotem v daném směru a danou rychlostí
         /// </summary>
-        /// <param name="direction">směr pohybu v úhlech -180 až 180</param>
+        /// <param name="direction">směr pohybu v úhlech 0 až 359</param>
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         public void move(int direction, int speed)
         {

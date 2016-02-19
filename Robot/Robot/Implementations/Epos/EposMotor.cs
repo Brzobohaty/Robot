@@ -17,6 +17,9 @@ namespace Robot.Robot.Implementations.Epos
     class EposMotor
     {
         public MotorState state { get; private set; } //aktuální stav motoru
+        public int angle { get; private set; } //aktuální úhel natočení motoru
+        public int minAngle { get; private set; } //minimální úhel natočení motoru
+        public int maxAngle { get; private set; } //maximální úhel natočení motoru
         private Device motor; //ovladač motoru
         private StateMachine sm; //ovladač stavu motoru
         private MotorMode mode; //mód ve kterém se zrovna nachází handler motoru
@@ -57,11 +60,13 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="positionDeceleration">zpomalení motoru v otáčkách při pozicování</param>
         /// <param name="minPosition">minimální pozice motoru</param>
         /// <param name="maxPosition">maximální pozice motoru</param>
-        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, int minPosition, int maxPosition)
+        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, int minPosition, int maxPosition, int minAngle, int maxAngle)
         {
             hasPositionLimit = true;
             this.maxPosition = maxPosition;
             this.minPosition = minPosition;
+            this.minAngle = minAngle;
+            this.maxAngle = maxAngle;
             inicialize(connector, stateObserver, motorErrorOccuredObserver, nodeNumber, id, mode, reverse, multiplier, positionVelocity, positionAceleration, positionDeceleration);
         }
 
@@ -217,9 +222,28 @@ namespace Robot.Robot.Implementations.Epos
                 stateObserver.motorStateChanged(MotorState.error, e.Message, id, 0, 0, 0, 0);
                 motorErrorOccuredObserver();
             }
-            
         }
-        
+
+        /// <summary>
+        /// Pohnutí s motorem do daného úhlu
+        /// </summary>
+        /// <param name="angle">úhel do kter0ho se m8 motor nastavit vyhledem k jeho 0</param>
+        public void moveToAngle(int angle)
+        {
+            if (!hasPositionLimit) {
+                return;
+            }
+            if (angle <= minAngle)
+            {
+                angle = minAngle;
+            }
+            if (angle >= maxAngle)
+            {
+                angle = maxAngle;
+            }
+            moveToPosition(MathLibrary.changeScale(angle, minAngle, maxAngle, minPosition, maxPosition));
+        }
+
         /// <summary>
         /// Indikace, zda již motor dorazil do stanovené polohy
         /// </summary>
@@ -419,13 +443,19 @@ namespace Robot.Robot.Implementations.Epos
                     if (sm.GetFaultState())
                     {
                         state = MotorState.error;
-                        stateObserver.motorStateChanged(state, "", id, 0, 0, 0, 0);
+                        stateObserver.motorStateChanged(state, "Motor is in fault state", id, 0, 0, 0, 0);
                         motorErrorOccuredObserver();
                     }
                     else
                     {
                         int velocity = stateHandler.GetVelocityIs();
                         int position = stateHandler.GetPositionIs();
+                        
+                        angle = MathLibrary.changeScale(position, minPosition, maxPosition, minAngle, maxAngle);
+                        //if (id == MotorId.LP_ZK)
+                        //{
+                        //    Console.WriteLine(angle);
+                        //}
                         if (Math.Abs(velocity) > 50)
                         {
                             state = MotorState.running;
