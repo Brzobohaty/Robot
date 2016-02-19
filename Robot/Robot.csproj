@@ -62,8 +62,6 @@
     <Compile Include="Robot\Implementations\Epos\EposRobot.cs" />
     <Compile Include="Robot\MotorsModesEnum.cs" />
     <Compile Include="Robot\Implementations\Test\TestMotor.cs" />
-    <Compile Include="Robot\Implementations\Test\TestRobot.cs" />
-    <Compile Include="Robot\RobotBridge.cs" />
     <Compile Include="StateObserver.cs" />
     <Compile Include="Views\AbsoluteControllView.cs">
       <SubType>UserControl</SubType>

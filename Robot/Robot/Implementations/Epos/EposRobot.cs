@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using EposCmd.Net;
 using EposCmd.Net.DeviceCmdSet.Initialization;
 using System.Threading;
+using Robot.Robot.Implementations.Test;
 
 namespace Robot.Robot.Implementations.Epos
 {
@@ -12,7 +13,7 @@ namespace Robot.Robot.Implementations.Epos
     class EposRobot : IRobot
     {
         private DeviceManager connector; // handler pro přopojení motorů
-        private Dictionary<MotorId, EposMotor> motors = new Dictionary<MotorId, EposMotor>(); //mapa motorů
+        private Dictionary<MotorId, IMotor> motors = new Dictionary<MotorId, IMotor>(); //mapa motorů
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
         private Action motorErrorOccuredObserver; //Posluchač chyb motorů
         private System.Timers.Timer periodicChecker; //periodický vyvolávač určitých funkcí
@@ -46,51 +47,31 @@ namespace Robot.Robot.Implementations.Epos
                 {
                     connector = new DeviceManager("EPOS2", "CANopen", "IXXAT_USB-to-CAN compact 0", "CAN0");
                 }
-                motors[MotorId.PP_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 4, MotorId.PP_P, MotorMode.velocity, true, 1, 5000, 2000, 2000);
-                motors[MotorId.LP_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 8, MotorId.LP_P, MotorMode.velocity, false, 1, 5000, 2000, 2000);
-                motors[MotorId.LZ_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 12, MotorId.LZ_P, MotorMode.velocity, false, 1, 5000, 2000, 2000);
-                motors[MotorId.PZ_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 16, MotorId.PZ_P, MotorMode.velocity, true, 1, 5000, 2000, 2000);
-                motors[MotorId.PP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 3, MotorId.PP_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502, -90, 90);
-                motors[MotorId.LP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 7, MotorId.LP_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502, -90, 90);
-                motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 11, MotorId.LZ_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502, -90, 90);
-                motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 15, MotorId.PZ_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502, -90, 90);
-                motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 2, MotorId.PP_Z, MotorMode.position, false, 4, 1000, 2000, 2000, -160000, 158000, -40, 40);
-                motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 6, MotorId.LP_Z, MotorMode.position, false, 4, 1000, 2000, 2000, -160000, 158000, -40, 40);
-                motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 10, MotorId.LZ_Z, MotorMode.position, false, 4, 1000, 2000, 2000, -160000, 158000, -40, 40);
-                motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 14, MotorId.PZ_Z, MotorMode.position, false, 4, 1000, 2000, 2000, -160000, 158000, -40, 40);
-                motors[MotorId.PP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 1, MotorId.PP_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 108000, -45, 45);
-                motors[MotorId.LP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 5, MotorId.LP_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 108000, -45, 45);
-                motors[MotorId.LZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 9, MotorId.LZ_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 108000, -45, 45);
-                motors[MotorId.PZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 13, MotorId.PZ_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 108000, -45, 45);
-
-                foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
-                {
-                    motor.Value.enableStateObserver();
-                }
-
-                this.motorErrorOccuredObserver = motorErrorOccuredObserver;
-                foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
-                {
-                    if (motor.Value.state == MotorState.error)
-                    {
-                        Thread thread = new Thread(motorErrorOccuredObserverFunction);
-                        thread.Start();
-                        break;
-                    }
-                }
-
-                return "";
+                inicializeMotors(motorStateObserver, motorErrorOccuredObserver);
             }
             catch (DeviceException e)
             {
-                disable(true);
-                return String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode));
+                inicializeSimulation(motorStateObserver, motorErrorOccuredObserver); //odkomentovat pro softwarovou simulaci (a zakomentovat následující řádek)
+                //return String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode));
             }
-            catch (Exception e)
+
+            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
             {
-                disable(true);
-                return e.Message;
+                motor.Value.enableStateObserver();
             }
+
+            this.motorErrorOccuredObserver = motorErrorOccuredObserver;
+            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+            {
+                if (motor.Value.state == MotorState.error)
+                {
+                    Thread thread = new Thread(motorErrorOccuredObserverFunction);
+                    thread.Start();
+                    break;
+                }
+            }
+
+            return "";
         }
 
         /// <summary>
@@ -101,8 +82,8 @@ namespace Robot.Robot.Implementations.Epos
         public void move(int direction, int speed)
         {
             rotateWheelForMove(direction, motors[MotorId.LP_ZK], motors[MotorId.LP_R]);
-            rotateWheelForMove(180-direction, motors[MotorId.PP_ZK], motors[MotorId.PP_R]);
-            rotateWheelForMove(180-direction, motors[MotorId.LZ_ZK], motors[MotorId.LZ_R]);
+            rotateWheelForMove(180 - direction, motors[MotorId.PP_ZK], motors[MotorId.PP_R]);
+            rotateWheelForMove(180 - direction, motors[MotorId.LZ_ZK], motors[MotorId.LZ_R]);
             rotateWheelForMove(direction, motors[MotorId.PZ_ZK], motors[MotorId.PZ_R]);
 
             if (speed != 0)
@@ -150,7 +131,8 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="direction">směr ve stupních 0 až 359</param>
         /// <param name="motorZK">motor pro otáčení nohy</param>
         /// <param name="motorR">motor pro otáčení kola nohy</param>
-        private void rotateWheelForMove(int direction, EposMotor motorZK, EposMotor motorR) {
+        private void rotateWheelForMove(int direction, IMotor motorZK, IMotor motorR)
+        {
             Console.WriteLine("direction " + direction);
             int kartezLegAngle = MathLibrary.changeScale(motorZK.angle, motorZK.minAngle, motorZK.maxAngle, 0, 90);
             int kartezWheelAngle = 180 - (90 - (180 - direction - kartezLegAngle));
@@ -159,7 +141,7 @@ namespace Robot.Robot.Implementations.Epos
                 kartezWheelAngle += 180;
             }
             Console.WriteLine("kartezWheelAngle " + kartezWheelAngle);
-            int wheelAngle = MathLibrary.changeScale(180-kartezWheelAngle, 180, 0, motorR.minAngle, motorR.maxAngle);
+            int wheelAngle = MathLibrary.changeScale(180 - kartezWheelAngle, 180, 0, motorR.minAngle, motorR.maxAngle);
             Console.WriteLine("wheelAngle " + wheelAngle);
             motorR.moveToAngle(wheelAngle);
         }
@@ -205,7 +187,7 @@ namespace Robot.Robot.Implementations.Epos
             motors[MotorId.LP_P].disable();
             motors[MotorId.LZ_P].disable();
             motors[MotorId.PZ_P].disable();
-            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
             {
                 motor.Value.setDefaultPosition();
             }
@@ -236,12 +218,12 @@ namespace Robot.Robot.Implementations.Epos
                 saveCurrentPositions();
             }
 
-            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
             {
                 motor.Value.disableStateObserver();
             }
 
-            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
             {
                 motor.Value.disable();
             }
@@ -274,7 +256,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void homing()
         {
-            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
             {
                 motor.Value.setActualPositionAsHoming();
             }
@@ -292,7 +274,7 @@ namespace Robot.Robot.Implementations.Epos
                 {
                     Properties.Settings.Default.correctlyEnded = false;
                     Properties.Settings.Default.Save();
-                    foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+                    foreach (KeyValuePair<MotorId, IMotor> motor in motors)
                     {
                         motor.Value.setHomingPosition((int)Properties.Settings.Default[motor.Key.ToString()]);
                     }
@@ -314,7 +296,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void setCurrentPositionAsDefault()
         {
-            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
             {
                 motor.Value.setCurrentPositionAsDefault();
             }
@@ -326,7 +308,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="on">true pokud zapnout</param>
         public void limitProtectionEnable(bool on)
         {
-            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
             {
                 motor.Value.limitProtectionOnOff(on);
             }
@@ -337,10 +319,51 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void haltAll()
         {
-            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
             {
                 motor.Value.halt();
             }
+        }
+
+        /// <summary>
+        /// Inicializuje softwarovou simulaci robota
+        /// </summary>
+        /// <param name="motorStateObserver">posluchač stavu motoru</param>
+        /// <param name="motorErrorOccuredObserver">posluchač jakéhokoli eroru motoru</param>
+        private void inicializeSimulation(StateObserver motorStateObserver, Action motorErrorOccuredObserver)
+        {
+            motors.Clear();
+            var motorsIds = MotorId.GetValues(typeof(MotorId));
+            foreach (MotorId motorId in motorsIds)
+            {
+                motors.Add(motorId, new TestMotor());
+            }
+            inicializeMotors(motorStateObserver, motorErrorOccuredObserver);
+        }
+
+        /// <summary>
+        /// Inicializace motorů
+        /// </summary>
+        /// <param name="motorStateObserver">posluchač stavu motoru</param>
+        /// <param name="motorErrorOccuredObserver">posluchač jakéhokoli eroru motoru</param>
+        private void inicializeMotors(StateObserver motorStateObserver, Action motorErrorOccuredObserver)
+        {
+            motors[MotorId.PP_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 4, MotorId.PP_P, MotorMode.velocity, true, 1, 5000, 2000, 2000);
+            motors[MotorId.LP_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 8, MotorId.LP_P, MotorMode.velocity, false, 1, 5000, 2000, 2000);
+            motors[MotorId.LZ_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 12, MotorId.LZ_P, MotorMode.velocity, false, 1, 5000, 2000, 2000);
+            motors[MotorId.PZ_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 16, MotorId.PZ_P, MotorMode.velocity, true, 1, 5000, 2000, 2000);
+            motors[MotorId.PP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 3, MotorId.PP_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502, -90, 90);
+            motors[MotorId.LP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 7, MotorId.LP_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502, -90, 90);
+            motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 11, MotorId.LZ_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502, -90, 90);
+            motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 15, MotorId.PZ_R, MotorMode.position, false, 4, 4000, 4000, 4000, -241562, 216502, -90, 90);
+            motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 2, MotorId.PP_Z, MotorMode.position, false, 4, 1000, 2000, 2000, -160000, 158000, -40, 40);
+            motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 6, MotorId.LP_Z, MotorMode.position, false, 4, 1000, 2000, 2000, -160000, 158000, -40, 40);
+            motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 10, MotorId.LZ_Z, MotorMode.position, false, 4, 1000, 2000, 2000, -160000, 158000, -40, 40);
+            motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 14, MotorId.PZ_Z, MotorMode.position, false, 4, 1000, 2000, 2000, -160000, 158000, -40, 40);
+            motors[MotorId.PP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 1, MotorId.PP_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 108000, -45, 45);
+            motors[MotorId.LP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 5, MotorId.LP_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 108000, -45, 45);
+            motors[MotorId.LZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 9, MotorId.LZ_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 108000, -45, 45);
+            motors[MotorId.PZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 13, MotorId.PZ_ZK, MotorMode.position, false, 4, 5000, 2500, 2500, -110000, 108000, -45, 45);
         }
 
         /// <summary>
@@ -453,7 +476,7 @@ namespace Robot.Robot.Implementations.Epos
         private void saveCurrentPositions()
         {
             bool allMotorsOk = true;
-            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
             {
                 try
                 {
@@ -476,7 +499,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <returns>true pokud josu</returns>
         private bool allMotorsOK()
         {
-            foreach (KeyValuePair<MotorId, EposMotor> motor in motors)
+            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
             {
                 if (motor.Value.state == MotorState.error || motor.Value.state == MotorState.disabled)
                 {

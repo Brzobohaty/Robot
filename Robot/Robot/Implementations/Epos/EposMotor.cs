@@ -14,7 +14,7 @@ namespace Robot.Robot.Implementations.Epos
     /// <summary>
     /// Motor v HW implementací od firmy EPOS
     /// </summary>
-    class EposMotor
+    class EposMotor : IMotor
     {
         public MotorState state { get; private set; } //aktuální stav motoru
         public int angle { get; private set; } //aktuální úhel natočení motoru

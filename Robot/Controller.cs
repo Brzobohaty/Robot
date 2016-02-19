@@ -1,5 +1,6 @@
 ﻿using Robot.Joystick;
 using Robot.Robot;
+using Robot.Robot.Implementations.Epos;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -99,11 +100,11 @@ namespace Robot
         private void inicializeRobot(bool withChooseOfBus)
         {
             diagnosticView.showDisgnosticMessage(MessageTypeEnum.progress, "Probíhá inicializace robota.");
-            RobotBridge robotBridge = new RobotBridge();
-            robot = robotBridge.getRobot(diagnosticView, withChooseOfBus, motorErrorOccured);
-            if (robotBridge.errorMessage.Length > 0)
+            robot = new EposRobot();
+            string errorMessage = robot.inicialize(diagnosticView, withChooseOfBus, motorErrorOccured);
+            if (errorMessage.Length > 0)
             {
-                diagnosticView.showDisgnosticMessage(MessageTypeEnum.error, robotBridge.errorMessage);
+                diagnosticView.showDisgnosticMessage(MessageTypeEnum.error, errorMessage);
             }
             else
             {
