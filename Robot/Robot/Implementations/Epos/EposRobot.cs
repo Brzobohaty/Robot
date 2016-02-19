@@ -17,6 +17,7 @@ namespace Robot.Robot.Implementations.Epos
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
         private Action motorErrorOccuredObserver; //Posluchač chyb motorů
         private System.Timers.Timer periodicChecker; //periodický vyvolávač určitých funkcí
+        private bool test = false; //příznak, že se jedná o simulaci robota
 
         public EposRobot()
         {
@@ -82,8 +83,8 @@ namespace Robot.Robot.Implementations.Epos
         public void move(int direction, int speed)
         {
             rotateWheelForMove(direction, motors[MotorId.LP_ZK], motors[MotorId.LP_R]);
-            rotateWheelForMove(180 - direction, motors[MotorId.PP_ZK], motors[MotorId.PP_R]);
-            rotateWheelForMove(180 - direction, motors[MotorId.LZ_ZK], motors[MotorId.LZ_R]);
+            rotateWheelForMove(direction, motors[MotorId.PP_ZK], motors[MotorId.PP_R]);
+            rotateWheelForMove(direction, motors[MotorId.LZ_ZK], motors[MotorId.LZ_R]);
             rotateWheelForMove(direction, motors[MotorId.PZ_ZK], motors[MotorId.PZ_R]);
 
             if (speed != 0)
@@ -213,7 +214,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="savePosition">příznak, zda uložit pozici</param>
         public void disable(bool savePosition)
         {
-            if (connector != null && savePosition)
+            if ((connector != null || test) && savePosition)
             {
                 saveCurrentPositions();
             }
@@ -332,6 +333,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="motorErrorOccuredObserver">posluchač jakéhokoli eroru motoru</param>
         private void inicializeSimulation(StateObserver motorStateObserver, Action motorErrorOccuredObserver)
         {
+            test = true;
             motors.Clear();
             var motorsIds = MotorId.GetValues(typeof(MotorId));
             foreach (MotorId motorId in motorsIds)

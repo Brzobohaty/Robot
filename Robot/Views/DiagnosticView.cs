@@ -110,69 +110,69 @@ namespace Robot
         /// <param name="motorId">id motoru</param>
         /// <param name="speed">aktuální rychlost motoru</param>
         /// <param name="position">aktuální pozice motoru</param>
-        /// <param name="speedRelative">relativní rychlost (0 až 100)</param>
-        /// <param name="positionRelative">relativní pozice (-100 až 100)</param>
-        public void motorStateChanged(MotorState state, string message, MotorId motorId, int speed, int position, int speedRelative, int positionRelative)
+        /// <param name="speedRelative">relativní rychlost (-100 až 100)</param>
+        /// <param name="angle">poloha motoru jako úhel</param>
+        public void motorStateChanged(MotorState state, string message, MotorId motorId, int speed, int position, int speedRelative, int angle)
         {
             showMotorState(motorViews[motorId], state, message, motorId, speed, position);
-            changeVisualization(motorId, speedRelative, positionRelative);
+            changeVisualization(motorId, speedRelative, angle);
         }
 
         /// <summary>
         /// Změní parametry pro vizualizaci
         /// </summary>
         /// <param name="motorId">id motoru jehož parametry byly změněny</param>
-        /// <param name="speed">rychlost motoru (0 až 100)</param>
-        /// <param name="position">pozice motoru (-100 až 100)</param>
-        private void changeVisualization(MotorId motorId, int speed, int position) {
+        /// <param name="speed">rychlost motoru (-100 až 100)</param>
+        /// <param name="angle">poloha motoru jako úhel</param>
+        private void changeVisualization(MotorId motorId, int speed, int angle) {
             switch (motorId) {
                 case MotorId.LP_P:
                     LP_P = speed;
                     break;
                 case MotorId.LP_R:
-                    LP_R = position;
+                    LP_R = angle;
                     break;
                 case MotorId.LP_Z:
-                    LP_Z = position;
+                    LP_Z = angle;
                     break;
                 case MotorId.LP_ZK:
-                    LP_ZK = position;
+                    LP_ZK = angle;
                     break;
                 case MotorId.PP_P:
-                    PP_P = speed;
+                    PP_P = -speed;
                     break;
                 case MotorId.PP_R:
-                    PP_R = position;
+                    PP_R = -angle;
                     break;
                 case MotorId.PP_Z:
-                    PP_Z = position;
+                    PP_Z = angle;
                     break;
                 case MotorId.PP_ZK:
-                    PP_ZK = position;
+                    PP_ZK = -angle;
                     break;
                 case MotorId.LZ_P:
                     LZ_P = speed;
                     break;
                 case MotorId.LZ_R:
-                    LZ_R = position;
+                    LZ_R = -angle;
                     break;
                 case MotorId.LZ_Z:
-                    LZ_Z = position;
+                    LZ_Z = angle;
                     break;
                 case MotorId.LZ_ZK:
-                    LZ_ZK = position;
+                    LZ_ZK = -angle;
                     break;
                 case MotorId.PZ_P:
-                    PZ_P = speed;
+                    PZ_P = -speed;
                     break;
                 case MotorId.PZ_R:
-                    PZ_R = position;
+                    PZ_R = angle;
                     break;
                 case MotorId.PZ_Z:
-                    PZ_Z = position;
+                    PZ_Z = angle;
                     break;
                 case MotorId.PZ_ZK:
-                    PZ_ZK = position;
+                    PZ_ZK = angle;
                     break;
             }
             robotCanvas.Invalidate();
@@ -296,11 +296,11 @@ namespace Robot
             Point firstPoint = new Point(canvasMid.X + ((baseWidth / 2)*xC), canvasMid.Y + ((baseWidth / 2)*yC));
             Point secondPoint = MathLibrary.getPointOnLine(canvasMid.X + ((baseWidth / 2) * xC), canvasMid.Y + ((baseWidth / 2) * yC), ZK + rC, baseWidth);
             g.DrawLine(pen, firstPoint, secondPoint);
-            wheelPaint(g, secondPoint, ZK + rC - R, P);
-            legLimitLinePaint(g, firstPoint, rC-70);
-            legLimitLinePaint(g, firstPoint, rC+70);
-            wheelLimitLinePaint(g, secondPoint, rC-150);
-            wheelLimitLinePaint(g, secondPoint, rC+150);
+            wheelPaint(g, secondPoint, ZK + rC - R + 93, P);
+            legLimitLinePaint(g, firstPoint, rC-45);
+            legLimitLinePaint(g, firstPoint, rC+45);
+            wheelLimitLinePaint(g, secondPoint, ZK + rC - 180);
+            wheelLimitLinePaint(g, secondPoint, ZK + rC);
         }
 
         /// <summary>
@@ -339,11 +339,12 @@ namespace Robot
         /// <param name="g">grafika</param>
         /// <param name="mid">střed kola</param>
         /// <param name="rotation">rotace kola ve stupnich</param>
-        /// <param name="speed">rychlost táčení kola</param>
+        /// <param name="speed">rychlost otáčení kola</param>
         private void wheelPaint(Graphics g, Point mid, int rotation, int speed)
         {
             g.FillEllipse(Brushes.LightSlateGray, mid.X - (baseWidth / 6), mid.Y - (baseWidth / 6), baseWidth/3, baseWidth / 3);
             arrowPaint(g, mid, rotation, baseWidth / 6, speed);
+            arrowPaint(g, mid, rotation+180, baseWidth / 6, -speed);
         }
 
         /// <summary>

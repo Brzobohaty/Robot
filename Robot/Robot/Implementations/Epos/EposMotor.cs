@@ -39,6 +39,7 @@ namespace Robot.Robot.Implementations.Epos
         private bool limitEnable = true; //příznak, zda má motor zaplou kontrolu limitů
         private const int maxSpeed = 5000; //maximální rychlost motoru
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
+        private int lastPosition = 0; //poslední pozice motoru
 
         public EposMotor()
         {
@@ -521,7 +522,6 @@ namespace Robot.Robot.Implementations.Epos
                     {
                         int velocity = stateHandler.GetVelocityIs();
                         int position = stateHandler.GetPositionIs();
-
                         angle = MathLibrary.changeScale(position, minPosition, maxPosition, minAngle, maxAngle);
                         if (Math.Abs(velocity) > 50)
                         {
@@ -531,17 +531,13 @@ namespace Robot.Robot.Implementations.Epos
                         {
                             state = MotorState.enabled;
                         }
-                        int speedRelative = velocity / (maxSpeed / 100);
-                        int positionRelative;
-                        if (position == 0 || (maxPosition - minPosition) == 0)
+                        int speedRelative = MathLibrary.changeScale(velocity, 0, maxSpeed, 0, 100);
+                        if (lastPosition > position)
                         {
-                            positionRelative = 0;
+                            speedRelative = -speedRelative;
                         }
-                        else
-                        {
-                            positionRelative = ((position + (minPosition * (-1))) / (maxPosition - minPosition)) * 200 - 100;
-                        }
-                        stateObserver.motorStateChanged(state, "", id, velocity, position, speedRelative, positionRelative);
+                        stateObserver.motorStateChanged(state, "", id, velocity, position, speedRelative, angle);
+                        lastPosition = position;
                     }
                 }
                 else

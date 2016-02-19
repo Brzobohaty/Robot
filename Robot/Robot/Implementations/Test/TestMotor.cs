@@ -30,6 +30,7 @@ namespace Robot.Robot.Implementations.Test
         private bool hasPositionLimit = false; //příznak, zda má motor maximální a minimální hranici pohybu
         private bool limitEnable = true; //příznak, zda má motor zaplou kontrolu limitů
         private const int maxSpeed = 5000; //maximální rychlost motoru
+        private int lastPosition = 0; //poslední pozice motoru
         private Timer simulateTicker;
 
         //simulovací proměnné
@@ -256,6 +257,10 @@ namespace Robot.Robot.Implementations.Test
         /// <param name="position">aktuální pozice motoru</param>
         public void setHomingPosition(int position)
         {
+            MotorMode previouseMode = mode;
+            changeMode(MotorMode.homing);
+            this.position = position;
+            changeMode(previouseMode);
         }
 
         /// <summary>
@@ -323,17 +328,13 @@ namespace Robot.Robot.Implementations.Test
             {
                 state = MotorState.enabled;
             }
-            int speedRelative = velocity / (maxSpeed / 100);
-            int positionRelative;
-            if (position == 0 || (maxPosition - minPosition) == 0)
+            int speedRelative = MathLibrary.changeScale(velocity, 0, maxSpeed, 0, 100);
+            if (lastPosition > position)
             {
-                positionRelative = 0;
+                speedRelative = -speedRelative;
             }
-            else
-            {
-                positionRelative = ((position + (minPosition * (-1))) / (maxPosition - minPosition)) * 200 - 100;
-            }
-            stateObserver.motorStateChanged(state, "", id, velocity, position, speedRelative, positionRelative);
+            stateObserver.motorStateChanged(state, "", id, velocity, position, speedRelative, angle);
+            lastPosition = position;
         }
 
         /// <summary>
@@ -342,6 +343,7 @@ namespace Robot.Robot.Implementations.Test
         private void createSimulateTicker()
         {
             disposeSimulateTicker();
+            targetReached = false;
             simulateTicker = new Timer();
             simulateTicker.Interval = 80;
             simulateTicker.Enabled = true;
@@ -366,9 +368,14 @@ namespace Robot.Robot.Implementations.Test
         /// <param name="direction">směr pohybu 1 nebo -1</param>
         private void simulateMove(int direction)
         {
+
             targetReached = false;
-            speed = 2000 * rev * 10;
+            speed = 2000 * 10 * multiplier;
             position += 3000 * direction;
+            if (speed > maxSpeed)
+            {
+                speed = maxSpeed;
+            }
         }
 
         /// <summary>
