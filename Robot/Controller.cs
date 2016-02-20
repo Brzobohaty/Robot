@@ -27,6 +27,7 @@ namespace Robot
         private Thread inicializeRobotThread; //vlákno pro inicializaci robota
         private Thread inicializeJoystickThread; //vlákno pro inicializaci joysticku
         private System.Timers.Timer finishInicializationObserver; // posluchač ukončení vláken inicializace
+        private System.Timers.Timer gamePadChecker; // kontrololor připojeného externího ovladače
 
         //timery obstarávající periodické spouštění při držění tlačítka
         private System.Timers.Timer moveUpPeriodHandler;
@@ -48,7 +49,6 @@ namespace Robot
             mainWindow.subscribeButtonForRecalibrClickObserver(buttonForRecalibrClicked);
             mainWindow.subscribeButtonForConnectionSettingsClickObserver(buttonForConnectionSettingsClicked);
             mainWindow.subscribeButtonForReinicializeClickObserver(buttonForReinicializeClicked);
-            mainWindow.subscribeButtonForSearchGamepadClickObserver(buttonForSearchGamepadClicked);
             controllView.subscribeAbsolutePositioningObserver(buttonForChangeControllModePressed);
             absoluteControllView.subscribeJoystickPositioningObserver(buttonForChangeControllModePressed);
             absoluteControllView.subscribeButtonForAbsoluteMoveClickObserver(buttonForAbsoluteMoveClicked);
@@ -56,6 +56,8 @@ namespace Robot
             absoluteControllView.subscribeButtonForCalibrClickObserver(buttonForCalibrClicked);
             absoluteControllView.subscribeButtonForCancelCalibrationClickObserver(buttonForCancelCalibrationClicked);
             absoluteControllView.subscribecheckBoxLimitProtectionObserver(checkBoxLimitProtectionChanged);
+
+            createGamePadChecker();
         }
 
         /// <summary>
@@ -134,8 +136,10 @@ namespace Robot
             joystick.subscribeButtonRotateLeftObserver(joystickButtonRotateLeftChanged);
             joystick.subscribeButtonRotateRightObserver(joystickButtonRotateRightChanged);
             joystick.subscribeButtonStopObserver(joystickButtonStopChanged);
+            joystick.subscribeErrorObserver(refindJoystick);
             if (!joystickBridge.success)
             {
+                gamePadChecker.Enabled = true;
                 controllView.showControlMessage(MessageTypeEnum.error, joystickBridge.message);
             }
             else
@@ -213,11 +217,11 @@ namespace Robot
             }
             if (sender == rotateLeftPeriodHandler)
             {
-                //robot.rotate(-1);
+                robot.rotate(true);
             }
             if (sender == rotateRightPeriodHandler)
             {
-                //robot.rotate(1);
+                robot.rotate(false);
             }
         }
 
@@ -494,23 +498,6 @@ namespace Robot
         }
 
         /// <summary>
-        /// Callback při stisknutí tačítka pro vyhledání gamepadu
-        /// </summary>
-        private void buttonForSearchGamepadClicked()
-        {
-            controllOnOff(false);
-
-            if (joystick != null)
-            {
-                joystick.unsibscribeAllObservers();
-                joystick.onOff(true);
-            }
-            inicializeJoystick();
-
-            controllOnOff(true);
-        }
-
-        /// <summary>
         /// Callback při stisknutí tačítka pro zrušení kalibrace
         /// </summary>
         private void buttonForCancelCalibrationClicked()
@@ -559,6 +546,32 @@ namespace Robot
         {
             diagnosticView.showDisgnosticMessage(MessageTypeEnum.error, "Na některých motorech došlo k chybě. Motory byly preventivně vypnuty. Pro pokračování je potřeba reinicializovat obvod (menu - nastavení).");
             robot.disable(true);
+        }
+
+        /// <summary>
+        /// Znovu vyhledá externí ovládací zařízení
+        /// </summary>
+        private void refindJoystick() {
+            controllOnOff(false);
+            gamePadChecker.Enabled = false;
+            if (joystick != null)
+            {
+                joystick.unsibscribeAllObservers();
+                joystick.onOff(true);
+            }
+            inicializeJoystick();
+
+            controllOnOff(true);
+        }
+        
+        /// <summary>
+        /// Vytvoření periodického kontrolora připojeného gamepadu
+        /// </summary>
+        private void createGamePadChecker() {
+            gamePadChecker = new System.Timers.Timer();
+            gamePadChecker.Elapsed += delegate { refindJoystick(); };
+            gamePadChecker.Interval = 5000;
+            gamePadChecker.Enabled = false;
         }
     }
 }

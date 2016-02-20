@@ -21,6 +21,7 @@ namespace Robot.Joystick
         protected Action<bool> buttonRotateRightObserver; //callback pro změnu stavu tlačítka pro rotaci vpravo (bool stisknuto)
         protected Action<bool> buttonDefaultPositionObserver; //callback pro změnu stavu tlačítka pro defaultní pozici (bool defaultní pozice)
         protected Action<bool> buttonStopObserver; //callback pro změnu stavu tlačítka pro zastavení všeho (bool stisknuto)
+        protected Action errorObserver; //callback když nastane chyba
         protected bool enabled = true; //příznak vypnutého/zapnutého ovládání
 
         /// <summary>
@@ -124,6 +125,15 @@ namespace Robot.Joystick
         /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
         public void subscribeButtonStopObserver(Action<bool> observer) {
             buttonStopObserver = observer;
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače, když nastane chyba
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu</param>
+        public void subscribeErrorObserver(Action observer)
+        {
+            errorObserver = observer;
         }
 
         /// <summary>

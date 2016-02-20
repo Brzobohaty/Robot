@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SlimDX.DirectInput;
 using System.Timers;
+using SlimDX;
 
 namespace Robot.Joystick.Implementations
 {
@@ -16,12 +17,14 @@ namespace Robot.Joystick.Implementations
         private SlimDX.DirectInput.Joystick gamepad; //připojený gamepad
         private GamePadeState state = new GamePadeState(); //stav gamepadu
         private const int sensitivity = 5; //citlivost joysticku
+        private Timer periodicChecker; //periodický kontorler stavu gamepadu
 
         /// <summary>
         /// Inicializace gamepad
         /// </summary>
         /// <returns>true pokud se inicializace povedla</returns>
-        public override bool inicialize() {
+        public override bool inicialize()
+        {
             onOff(false);
             try
             {
@@ -75,10 +78,10 @@ namespace Robot.Joystick.Implementations
         /// </summary>
         private void setJoystickObserver()
         {
-            Timer aTimer = new Timer();
-            aTimer.Elapsed += new ElapsedEventHandler(gamepadHandle);
-            aTimer.Interval = 200;
-            aTimer.Enabled = true;
+            periodicChecker = new Timer();
+            periodicChecker.Elapsed += new ElapsedEventHandler(gamepadHandle);
+            periodicChecker.Interval = 200;
+            periodicChecker.Enabled = true;
         }
 
         /// <summary>
@@ -88,11 +91,20 @@ namespace Robot.Joystick.Implementations
         /// <param name="e"></param>
         private void gamepadHandle(object sender, EventArgs e)
         {
-            if (enabled) {
+            if (enabled)
+            {
+                try
+                {
+                    gamepad.Acquire();
+                }
+                catch (DirectInputException)
+                {
+                    periodicChecker.Dispose();
+                    errorObserver();
+                }
                 JoystickState stateNow = new JoystickState();
                 stateNow = gamepad.GetCurrentState();
                 bool[] buttons = stateNow.GetButtons();
-
                 if ((Math.Abs(state.stickDirectMoveX - stateNow.X) > sensitivity || Math.Abs(state.stickDirectMoveY - stateNow.Y) > sensitivity) && stickDirectMoveObserver != null)
                 {
                     state.stickDirectMoveX = stateNow.X;
@@ -135,6 +147,24 @@ namespace Robot.Joystick.Implementations
                 {
                     buttonDefaultPositionObserver(buttons[7]);
                     state.defaultPosition = buttons[7];
+                }
+
+                if (state.rotateLeft != buttons[8] && buttonRotateLeftObserver != null)
+                {
+                    buttonRotateLeftObserver(buttons[8]);
+                    state.rotateLeft = buttons[8];
+                }
+
+                if (state.rotateRight != buttons[9] && buttonRotateRightObserver != null)
+                {
+                    buttonRotateRightObserver(buttons[9]);
+                    state.rotateRight = buttons[9];
+                }
+
+                if (state.stop != buttons[10] && buttonStopObserver != null)
+                {
+                    buttonStopObserver(buttons[10]);
+                    state.stop = buttons[10];
                 }
             }
         }

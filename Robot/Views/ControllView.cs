@@ -231,6 +231,12 @@ namespace Robot
         }
 
         /// <summary>
+        /// Přiřazení posluchače, když nastane chyba
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu</param>
+        public void subscribeErrorObserver(Action observer){}
+
+        /// <summary>
         /// Pohne se softwarovým joystickem pro přímý pohyb na dané souřadnice
         /// </summary>
         /// <param name="x">x souřadnice od -100 do 100</param>

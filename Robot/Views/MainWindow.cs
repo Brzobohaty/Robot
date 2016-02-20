@@ -25,7 +25,6 @@ namespace Robot
         private Action buttonForRecalibrClickedObserver; //calback pro stisknutí tačítka pro rekalibraci
         private Action buttonForConnectionSettingsClickedObserver; //calback pro stisknutí tačítka pro nastavení připojení
         private Action buttonForReinicializeClickedObserver; //calback pro stisknutí tačítka pro reinicializaci robota
-        private Action buttonForSearchGamepadClickedObserver; //calback pro stisknutí tačítka pro znovuvyhledání gamepadu
 
         private MainWindow()
         {
@@ -152,15 +151,6 @@ namespace Robot
             buttonForReinicializeClickedObserver = observer;
         }
 
-        /// <summary>
-        /// Přiřazení posluchače pro stisknutí tačítka pro znovuvyhledání gamepadu
-        /// </summary>
-        /// <param name="observer">metoda vykonaná při eventu</param>
-        public void subscribeButtonForSearchGamepadClickObserver(Action observer)
-        {
-            buttonForSearchGamepadClickedObserver = observer;
-        }
-
         //event listenery ================================================================
 
         private void MainWindow_Shown(object sender, EventArgs e)
@@ -200,11 +190,6 @@ namespace Robot
             {
                 buttonForReinicializeClickedObserver();
             }
-        }
-
-        private void menuFindGamepadItem_Click(object sender, EventArgs e)
-        {
-            buttonForSearchGamepadClickedObserver();
         }
     }
 }

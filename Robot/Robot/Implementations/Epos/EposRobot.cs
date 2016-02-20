@@ -363,9 +363,28 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void haltAll()
         {
+            if (periodicChecker!=null) {
+                periodicChecker.Dispose();
+            }
             foreach (KeyValuePair<MotorId, IMotor> motor in motors)
             {
                 motor.Value.halt();
+            }
+        }
+
+        /// <summary>
+        /// Rotuje robota kolem jeho středu
+        /// </summary>
+        /// <param name="left">příznak, zda rotovat doleva</param>
+        public void rotate(bool left)
+        {
+            //TODO
+            if (left)
+            {
+                Console.WriteLine("rotace vlevo");
+            }
+            else {
+                Console.WriteLine("rotace vpravo");
             }
         }
 

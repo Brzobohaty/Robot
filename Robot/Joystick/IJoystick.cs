@@ -78,6 +78,12 @@ namespace Robot.Joystick
         void subscribeButtonStopObserver(Action<bool> observer);
 
         /// <summary>
+        /// Přiřazení posluchače, když nastane chyba
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu</param>
+        void subscribeErrorObserver(Action observer);
+
+        /// <summary>
         /// Vypne/zapne ovládání pomocí ovladače
         /// </summary>
         /// <param name="on">true pokud zapnout</param>

@@ -97,5 +97,11 @@ namespace Robot.Robot
         /// Zastaví všechny motory.
         /// </summary>
         void haltAll();
+
+        /// <summary>
+        /// Rotuje robota kolem jeho středu
+        /// </summary>
+        /// <param name="left">příznak, zda rotovat doleva</param>
+        void rotate(bool left);
     }
 }

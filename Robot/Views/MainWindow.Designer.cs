@@ -37,7 +37,6 @@ namespace Robot
             this.menuConnectionItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRekalibrItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuReinicializeItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuFindGamepadItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -81,8 +80,7 @@ namespace Robot
             this.nastaveníToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuConnectionItem,
             this.menuRekalibrItem,
-            this.menuReinicializeItem,
-            this.menuFindGamepadItem});
+            this.menuReinicializeItem});
             this.nastaveníToolStripMenuItem.Name = "nastaveníToolStripMenuItem";
             this.nastaveníToolStripMenuItem.Size = new System.Drawing.Size(86, 24);
             this.nastaveníToolStripMenuItem.Text = "Nastavení";
@@ -90,30 +88,23 @@ namespace Robot
             // menuConnectionItem
             // 
             this.menuConnectionItem.Name = "menuConnectionItem";
-            this.menuConnectionItem.Size = new System.Drawing.Size(198, 26);
+            this.menuConnectionItem.Size = new System.Drawing.Size(181, 26);
             this.menuConnectionItem.Text = "Připojení";
             this.menuConnectionItem.Click += new System.EventHandler(this.menuConnectionItem_Click);
             // 
             // menuRekalibrItem
             // 
             this.menuRekalibrItem.Name = "menuRekalibrItem";
-            this.menuRekalibrItem.Size = new System.Drawing.Size(198, 26);
+            this.menuRekalibrItem.Size = new System.Drawing.Size(181, 26);
             this.menuRekalibrItem.Text = "Rekalibrace";
             this.menuRekalibrItem.Click += new System.EventHandler(this.menuRekalibrItem_Click);
             // 
             // menuReinicializeItem
             // 
             this.menuReinicializeItem.Name = "menuReinicializeItem";
-            this.menuReinicializeItem.Size = new System.Drawing.Size(198, 26);
+            this.menuReinicializeItem.Size = new System.Drawing.Size(181, 26);
             this.menuReinicializeItem.Text = "Reinicializace";
             this.menuReinicializeItem.Click += new System.EventHandler(this.menuReinicializeItem_Click);
-            // 
-            // menuFindGamepadItem
-            // 
-            this.menuFindGamepadItem.Name = "menuFindGamepadItem";
-            this.menuFindGamepadItem.Size = new System.Drawing.Size(198, 26);
-            this.menuFindGamepadItem.Text = "Vyhledat ovladač";
-            this.menuFindGamepadItem.Click += new System.EventHandler(this.menuFindGamepadItem_Click);
             // 
             // MainWindow
             // 
@@ -147,7 +138,6 @@ namespace Robot
         private System.Windows.Forms.ToolStripMenuItem menuConnectionItem;
         private System.Windows.Forms.ToolStripMenuItem menuRekalibrItem;
         private System.Windows.Forms.ToolStripMenuItem menuReinicializeItem;
-        private System.Windows.Forms.ToolStripMenuItem menuFindGamepadItem;
     }
 }
 
