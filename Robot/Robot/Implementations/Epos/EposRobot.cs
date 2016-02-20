@@ -82,10 +82,10 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         public void move(int direction, int speed)
         {
-            moveWithWheelInDirection(motors[MotorId.LP_ZK], motors[MotorId.LP_R], motors[MotorId.LP_P], direction, speed);
-            moveWithWheelInDirection(motors[MotorId.PP_ZK], motors[MotorId.PP_R], motors[MotorId.PP_P], 180 - direction, speed);
-            moveWithWheelInDirection(motors[MotorId.LZ_ZK], motors[MotorId.LZ_R], motors[MotorId.LZ_P], 180 - direction, speed);
-            moveWithWheelInDirection(motors[MotorId.PZ_ZK], motors[MotorId.PZ_R], motors[MotorId.PZ_P], direction, speed);
+            moveWithWheelInDirection(motors[MotorId.LP_ZK], motors[MotorId.LP_R], motors[MotorId.LP_P], direction, speed, 360-90);
+            moveWithWheelInDirection(motors[MotorId.PP_ZK], motors[MotorId.PP_R], motors[MotorId.PP_P], 180 - direction, speed, -90);
+            moveWithWheelInDirection(motors[MotorId.LZ_ZK], motors[MotorId.LZ_R], motors[MotorId.LZ_P], 180 - direction, speed, -90);
+            moveWithWheelInDirection(motors[MotorId.PZ_ZK], motors[MotorId.PZ_R], motors[MotorId.PZ_P], direction, speed, 360 - 90);
 
             //if (speed != 0)
             //{
@@ -135,9 +135,10 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="motorP">motor pro pohon kola</param>
         /// <param name="direction">směrm kterým se má pohybovat 0 až 359</param>
         /// <param name="speed">rychlost jakou se má pohybovat -100 až 100</param>
-        private void moveWithWheelInDirection(IMotor motorZK, IMotor motorR, IMotor motorP, int direction, int speed)
+        /// <param name="angleCorection">korekce úhlu nohy...</param>
+        private void moveWithWheelInDirection(IMotor motorZK, IMotor motorR, IMotor motorP, int direction, int speed, int angleCorection)
         {
-            bool reverseWheelSpeed = rotateWheelForMove(direction, motorZK, motorR);
+            bool reverseWheelSpeed = rotateWheelForMove(direction, motorZK, motorR, angleCorection);
             int rev = 1;
             if (reverseWheelSpeed)
             {
@@ -152,33 +153,38 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="direction">směr ve stupních 0 až 359</param>
         /// <param name="motorZK">motor pro otáčení nohy</param>
         /// <param name="motorR">motor pro otáčení kola nohy</param>
+        /// <param name="angleCorection">korekce úhlu nohy...</param>
         /// <returns>true pokud obrátit směr pohybu kola</returns>
-        private bool rotateWheelForMove(int direction, IMotor motorZK, IMotor motorR)
+        private bool rotateWheelForMove(int direction, IMotor motorZK, IMotor motorR, int angleCorection)
         {
             bool reverseWheelSpeed = false;
-            //bool reverse = false;
             int kartezLegAngle = MathLibrary.changeScale(motorZK.angle, motorZK.minAngle, motorZK.maxAngle, 0, 90);
+            if (angleCorection < 0)
+            {
+                if (direction - (angleCorection - kartezLegAngle) < 0)
+                {
+                    reverseWheelSpeed = !reverseWheelSpeed;
+                }
+            }
+            else {
+                if (direction - (angleCorection - kartezLegAngle) > 0)
+                {
+                    reverseWheelSpeed = !reverseWheelSpeed;
+                }
+            }
+            
             int kartezWheelAngle = 180 - 90 - (180 - direction - kartezLegAngle);
             kartezWheelAngle = kartezWheelAngle % 180;
             if (kartezWheelAngle < 0)
             {
                 kartezWheelAngle += 180;
-                //reverse = true;
+                reverseWheelSpeed = !reverseWheelSpeed;
             }
             int wheelAngle = kartezWheelAngle;
             if (kartezWheelAngle > 90)
             {
-                //if (!reverse)
-                //{
-                //    reverseWheelSpeed = true;
-                //}
+                reverseWheelSpeed = !reverseWheelSpeed;
                 wheelAngle = MathLibrary.changeScale(kartezWheelAngle, 180, 90, 0, motorR.minAngle);
-            }
-            else {
-                //if (reverse)
-                //{
-                //    reverseWheelSpeed = true;
-                //}
             }
             motorR.moveToAngle(wheelAngle);
             return reverseWheelSpeed;
