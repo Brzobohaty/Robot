@@ -35,18 +35,23 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.buttonWiden = new System.Windows.Forms.Button();
-            this.buttonDefaultPosition = new System.Windows.Forms.Button();
             this.buttonNarrow = new System.Windows.Forms.Button();
             this.buttonMoveUp = new System.Windows.Forms.Button();
             this.buttonMoveDown = new System.Windows.Forms.Button();
+            this.buttonRotateLeft = new System.Windows.Forms.Button();
+            this.buttonRotateRight = new System.Windows.Forms.Button();
+            this.buttonDefaultPosition = new System.Windows.Forms.Button();
+            this.buttonStop = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.panelForJoystick = new System.Windows.Forms.PictureBox();
+            this.panelForMoveJoystick = new System.Windows.Forms.PictureBox();
+            this.panelForDirectMoveJoystick = new System.Windows.Forms.PictureBox();
             this.panel2.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelForJoystick)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelForMoveJoystick)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelForDirectMoveJoystick)).BeginInit();
             this.SuspendLayout();
             // 
             // messageLabelControl
@@ -57,7 +62,7 @@
             this.messageLabelControl.ForeColor = System.Drawing.Color.Red;
             this.messageLabelControl.Location = new System.Drawing.Point(0, 567);
             this.messageLabelControl.Name = "messageLabelControl";
-            this.messageLabelControl.Size = new System.Drawing.Size(468, 55);
+            this.messageLabelControl.Size = new System.Drawing.Size(724, 55);
             this.messageLabelControl.TabIndex = 14;
             this.messageLabelControl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -68,7 +73,7 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(468, 55);
+            this.label1.Size = new System.Drawing.Size(724, 55);
             this.label1.TabIndex = 11;
             this.label1.Text = "Ovládání";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -80,7 +85,7 @@
             this.buttonAbsolutPositioning.ForeColor = System.Drawing.Color.Black;
             this.buttonAbsolutPositioning.Location = new System.Drawing.Point(0, 517);
             this.buttonAbsolutPositioning.Name = "buttonAbsolutPositioning";
-            this.buttonAbsolutPositioning.Size = new System.Drawing.Size(468, 50);
+            this.buttonAbsolutPositioning.Size = new System.Drawing.Size(724, 50);
             this.buttonAbsolutPositioning.TabIndex = 15;
             this.buttonAbsolutPositioning.Text = "Absolutní pozicování robota";
             this.buttonAbsolutPositioning.UseVisualStyleBackColor = true;
@@ -94,20 +99,25 @@
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(0, 55);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(468, 462);
+            this.panel2.Size = new System.Drawing.Size(724, 462);
             this.panel2.TabIndex = 16;
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.ColumnCount = 3;
+            this.tableLayoutPanel1.ColumnCount = 4;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 75F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 313F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 509F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Controls.Add(this.buttonWiden, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.buttonDefaultPosition, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.buttonNarrow, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.buttonMoveUp, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.buttonMoveDown, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.buttonRotateLeft, 2, 1);
+            this.tableLayoutPanel1.Controls.Add(this.buttonRotateRight, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.buttonDefaultPosition, 3, 0);
+            this.tableLayoutPanel1.Controls.Add(this.buttonStop, 3, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 220);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -115,7 +125,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(468, 150);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(724, 150);
             this.tableLayoutPanel1.TabIndex = 15;
             // 
             // buttonWiden
@@ -130,19 +140,6 @@
             this.buttonWiden.Size = new System.Drawing.Size(69, 52);
             this.buttonWiden.TabIndex = 4;
             this.buttonWiden.UseVisualStyleBackColor = true;
-            // 
-            // buttonDefaultPosition
-            // 
-            this.buttonDefaultPosition.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonDefaultPosition.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.buttonDefaultPosition.Location = new System.Drawing.Point(158, 23);
-            this.buttonDefaultPosition.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.buttonDefaultPosition.Name = "buttonDefaultPosition";
-            this.buttonDefaultPosition.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.buttonDefaultPosition.Size = new System.Drawing.Size(190, 50);
-            this.buttonDefaultPosition.TabIndex = 6;
-            this.buttonDefaultPosition.Text = "Výchozí pozice";
-            this.buttonDefaultPosition.UseVisualStyleBackColor = true;
             // 
             // buttonNarrow
             // 
@@ -183,6 +180,65 @@
             this.buttonMoveDown.TabIndex = 2;
             this.buttonMoveDown.UseVisualStyleBackColor = true;
             // 
+            // buttonRotateLeft
+            // 
+            this.buttonRotateLeft.AutoSize = true;
+            this.buttonRotateLeft.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.buttonRotateLeft.Image = ((System.Drawing.Image)(resources.GetObject("buttonRotateLeft.Image")));
+            this.buttonRotateLeft.Location = new System.Drawing.Point(158, 77);
+            this.buttonRotateLeft.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonRotateLeft.Name = "buttonRotateLeft";
+            this.buttonRotateLeft.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonRotateLeft.Size = new System.Drawing.Size(54, 52);
+            this.buttonRotateLeft.TabIndex = 16;
+            this.buttonRotateLeft.UseVisualStyleBackColor = false;
+            this.buttonRotateLeft.MouseDown += new System.Windows.Forms.MouseEventHandler(this.buttonRotateLeft_MouseDown);
+            this.buttonRotateLeft.MouseUp += new System.Windows.Forms.MouseEventHandler(this.buttonRotateLeft_MouseUp);
+            // 
+            // buttonRotateRight
+            // 
+            this.buttonRotateRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonRotateRight.AutoSize = true;
+            this.buttonRotateRight.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.buttonRotateRight.Image = ((System.Drawing.Image)(resources.GetObject("buttonRotateRight.Image")));
+            this.buttonRotateRight.Location = new System.Drawing.Point(158, 21);
+            this.buttonRotateRight.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonRotateRight.Name = "buttonRotateRight";
+            this.buttonRotateRight.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonRotateRight.Size = new System.Drawing.Size(54, 52);
+            this.buttonRotateRight.TabIndex = 16;
+            this.buttonRotateRight.UseVisualStyleBackColor = false;
+            this.buttonRotateRight.MouseDown += new System.Windows.Forms.MouseEventHandler(this.buttonRotateRight_MouseDown);
+            this.buttonRotateRight.MouseUp += new System.Windows.Forms.MouseEventHandler(this.buttonRotateRight_MouseUp);
+            // 
+            // buttonDefaultPosition
+            // 
+            this.buttonDefaultPosition.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonDefaultPosition.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.buttonDefaultPosition.Location = new System.Drawing.Point(218, 23);
+            this.buttonDefaultPosition.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonDefaultPosition.Name = "buttonDefaultPosition";
+            this.buttonDefaultPosition.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonDefaultPosition.Size = new System.Drawing.Size(190, 50);
+            this.buttonDefaultPosition.TabIndex = 6;
+            this.buttonDefaultPosition.Text = "Výchozí pozice";
+            this.buttonDefaultPosition.UseVisualStyleBackColor = true;
+            // 
+            // buttonStop
+            // 
+            this.buttonStop.AutoSize = true;
+            this.buttonStop.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.buttonStop.Image = ((System.Drawing.Image)(resources.GetObject("buttonStop.Image")));
+            this.buttonStop.Location = new System.Drawing.Point(218, 77);
+            this.buttonStop.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonStop.Name = "buttonStop";
+            this.buttonStop.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonStop.Size = new System.Drawing.Size(56, 52);
+            this.buttonStop.TabIndex = 16;
+            this.buttonStop.UseVisualStyleBackColor = false;
+            this.buttonStop.MouseDown += new System.Windows.Forms.MouseEventHandler(this.buttonStop_MouseDown);
+            this.buttonStop.MouseUp += new System.Windows.Forms.MouseEventHandler(this.buttonStop_MouseUp);
+            // 
             // panel1
             // 
             this.panel1.Controls.Add(this.tableLayoutPanel2);
@@ -191,16 +247,18 @@
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(0, 20, 0, 0);
-            this.panel1.Size = new System.Drawing.Size(468, 220);
+            this.panel1.Size = new System.Drawing.Size(724, 220);
             this.panel1.TabIndex = 14;
             // 
             // tableLayoutPanel2
             // 
-            this.tableLayoutPanel2.ColumnCount = 3;
+            this.tableLayoutPanel2.ColumnCount = 4;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Controls.Add(this.panelForJoystick, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.panelForMoveJoystick, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.panelForDirectMoveJoystick, 1, 0);
             this.tableLayoutPanel2.Cursor = System.Windows.Forms.Cursors.Default;
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 20);
@@ -208,19 +266,33 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(468, 200);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(724, 200);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
-            // panelForJoystick
+            // panelForMoveJoystick
             // 
-            this.panelForJoystick.Cursor = System.Windows.Forms.Cursors.Cross;
-            this.panelForJoystick.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelForJoystick.Location = new System.Drawing.Point(134, 0);
-            this.panelForJoystick.Margin = new System.Windows.Forms.Padding(0);
-            this.panelForJoystick.Name = "panelForJoystick";
-            this.panelForJoystick.Size = new System.Drawing.Size(200, 200);
-            this.panelForJoystick.TabIndex = 10;
-            this.panelForJoystick.TabStop = false;
+            this.panelForMoveJoystick.Cursor = System.Windows.Forms.Cursors.Cross;
+            this.panelForMoveJoystick.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelForMoveJoystick.Location = new System.Drawing.Point(362, 0);
+            this.panelForMoveJoystick.Margin = new System.Windows.Forms.Padding(0);
+            this.panelForMoveJoystick.Name = "panelForMoveJoystick";
+            this.panelForMoveJoystick.Size = new System.Drawing.Size(200, 200);
+            this.panelForMoveJoystick.TabIndex = 11;
+            this.panelForMoveJoystick.TabStop = false;
+            this.panelForMoveJoystick.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelForJoystick_MouseDown);
+            this.panelForMoveJoystick.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelForJoystick_MouseMove);
+            this.panelForMoveJoystick.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panelForJoystick_MouseUp);
+            // 
+            // panelForDirectMoveJoystick
+            // 
+            this.panelForDirectMoveJoystick.Cursor = System.Windows.Forms.Cursors.Cross;
+            this.panelForDirectMoveJoystick.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelForDirectMoveJoystick.Location = new System.Drawing.Point(162, 0);
+            this.panelForDirectMoveJoystick.Margin = new System.Windows.Forms.Padding(0);
+            this.panelForDirectMoveJoystick.Name = "panelForDirectMoveJoystick";
+            this.panelForDirectMoveJoystick.Size = new System.Drawing.Size(200, 200);
+            this.panelForDirectMoveJoystick.TabIndex = 10;
+            this.panelForDirectMoveJoystick.TabStop = false;
             // 
             // ControllView
             // 
@@ -231,13 +303,14 @@
             this.Controls.Add(this.messageLabelControl);
             this.Controls.Add(this.label1);
             this.Name = "ControllView";
-            this.Size = new System.Drawing.Size(468, 622);
+            this.Size = new System.Drawing.Size(724, 622);
             this.panel2.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelForJoystick)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelForMoveJoystick)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelForDirectMoveJoystick)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -256,6 +329,10 @@
         private System.Windows.Forms.Button buttonMoveDown;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        private System.Windows.Forms.PictureBox panelForJoystick;
+        private System.Windows.Forms.PictureBox panelForDirectMoveJoystick;
+        private System.Windows.Forms.Button buttonRotateLeft;
+        private System.Windows.Forms.Button buttonRotateRight;
+        private System.Windows.Forms.Button buttonStop;
+        private System.Windows.Forms.PictureBox panelForMoveJoystick;
     }
 }

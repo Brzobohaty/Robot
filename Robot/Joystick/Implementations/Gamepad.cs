@@ -15,33 +15,24 @@ namespace Robot.Joystick.Implementations
     {
         private SlimDX.DirectInput.Joystick gamepad; //připojený gamepad
         private GamePadeState state = new GamePadeState(); //stav gamepadu
-        private const int sensitivity = 10; //citlivost joysticku 
-        private bool enabled = true; //příznak vypnutého/zapnutého ovládání
+        private const int sensitivity = 5; //citlivost joysticku
 
         /// <summary>
         /// Inicializace gamepad
         /// </summary>
-        /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public override string inicialize() {
+        /// <returns>true pokud se inicializace povedla</returns>
+        public override bool inicialize() {
             onOff(false);
             try
             {
                 gamepad = getGamepad();
                 setJoystickObserver();
-                return "";
+                return true;
             }
             catch (Exception e)
             {
-                return e.Message;
+                return false;
             }
-        }
-
-        /// <summary>
-        /// Vypne/zapne ovládání pomocí ovladače
-        /// </summary>
-        /// <param name="on">true pokud zapnout</param>
-        public override void onOff(bool on) {
-            enabled = on;
         }
 
         /// <summary>
@@ -102,18 +93,18 @@ namespace Robot.Joystick.Implementations
                 stateNow = gamepad.GetCurrentState();
                 bool[] buttons = stateNow.GetButtons();
 
-                if ((Math.Abs(state.x - stateNow.X) > sensitivity || Math.Abs(state.y - stateNow.Y) > sensitivity) && stickObserver != null)
+                if ((Math.Abs(state.stickDirectMoveX - stateNow.X) > sensitivity || Math.Abs(state.stickDirectMoveY - stateNow.Y) > sensitivity) && stickDirectMoveObserver != null)
                 {
-                    state.x = stateNow.X;
-                    state.y = stateNow.Y;
-                    int x = state.x;
-                    int y = state.y;
+                    state.stickDirectMoveX = stateNow.X;
+                    state.stickDirectMoveY = stateNow.Y;
+                    int x = state.stickDirectMoveX;
+                    int y = state.stickDirectMoveY;
                     if (Math.Abs(x) < 10 && Math.Abs(y) < 10)
                     {
                         x = 0;
                         y = 0;
                     }
-                    stickObserver(x, y);
+                    stickDirectMoveObserver(x, y);
                 }
 
                 if (state.moveDown != buttons[0] && buttonMoveDownObserver != null)
@@ -146,16 +137,6 @@ namespace Robot.Joystick.Implementations
                     state.defaultPosition = buttons[7];
                 }
             }
-        }
-
-        private class GamePadeState {
-            public int x = 0;
-            public int y = 0;
-            public bool moveDown = false;
-            public bool moveUp = false;
-            public bool narrow = false;
-            public bool widen = false;
-            public bool defaultPosition = false;
         }
     }
 }

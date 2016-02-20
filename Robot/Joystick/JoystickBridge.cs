@@ -12,7 +12,8 @@ namespace Robot.Joystick
     /// </summary>
     class JoystickBridge
     {
-        public string errorMessage { get; private set; } //chybová hláška, která nastala při řipojová vnějšího ovládacího zařízení
+        public string message { get; private set; } //success nebo chybová hláška
+        public bool success { get; private set; } //příznak, zda se povedlo připojit externí ovladač
 
         /// <summary>
         /// Vrátí první nejlépe vyhovující vnější ovládací prvek a pokud nenalezne žádný, tak vrátí softwarovou simulaci
@@ -20,11 +21,24 @@ namespace Robot.Joystick
         /// <returns>instanci představujícíc joystick</returns>
         public IJoystick getJoystick()
         {
-            IJoystick joystick = new Gamepad();
-            errorMessage = joystick.inicialize();
-            if (errorMessage.Length > 0)
+            message = "";
+            IJoystick joystick = new Xbox360Controller();
+            success = joystick.inicialize();
+            if (!success)
             {
+                joystick = new Gamepad();
+                success = joystick.inicialize();
+            }
+            else {
+                message = "Byl úspěšně připojen plně kompatibilní externí ovladač.";
+            }
+            if (!success)
+            {
+                message = "Nepovedlo se najít žádné kompatibilní externí ovládací zařízení. Robota je možné ovládat pomocí softwarového ovladače.";
                 joystick = ControllView.getInstance();
+            }
+            else if(message == ""){
+                message = "Byl úspěšně připojen částečně kompatibilní externí ovladač. Některé funkce mohou být omezeny.";
             }
             return joystick;
         }

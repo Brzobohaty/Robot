@@ -14,14 +14,20 @@ namespace Robot.Joystick
         /// <summary>
         /// Inicializace gamepad
         /// </summary>
-        /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        string inicialize();
+        /// <returns>true pokud se inicializace povedla</returns>
+        bool inicialize();
 
         /// <summary>
-        /// Přiřazení posluchače pro změnu stavu joysticku
+        /// Přiřazení posluchače pro změnu stavu joysticku pro přímý pohyb
         /// </summary>
         /// <param name="observer">metoda vykonaná při eventu s parametry (int x souřadnice páčky, int y souřadnice páčky)</param>
-        void subscribeStickObserver(Action<int, int> observer);
+        void subscribeDirectMoveStickObserver(Action<int, int> observer);
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu joysticku pro rádiusový pohyb
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (int x souřadnice páčky, int y souřadnice páčky)</param>
+        void subscribeMoveStickObserver(Action<int, int> observer);
 
         /// <summary>
         /// Přiřazení posluchače pro změnu stavu tlačítka pro pohyb nahoru
@@ -52,6 +58,24 @@ namespace Robot.Joystick
         /// </summary>
         /// <param name="observer">metoda vykonaná při eventu s parametry (bool defaultní pozice)</param>
         void subscribeButtonDefaultPositionObserver(Action<bool> observer);
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro rotaci vlevo
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        void subscribeButtonRotateLeftObserver(Action<bool> observer);
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro rotaci vpravo
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        void subscribeButtonRotateRightObserver(Action<bool> observer);
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro zastavení všeho
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        void subscribeButtonStopObserver(Action<bool> observer);
 
         /// <summary>
         /// Vypne/zapne ovládání pomocí ovladače
