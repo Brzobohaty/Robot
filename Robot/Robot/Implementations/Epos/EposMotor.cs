@@ -161,9 +161,10 @@ namespace Robot.Robot.Implementations.Epos
         {
             if (velocityHandler != null && stateHandler != null && !hasPositionLimit)
             {
+                MathLibrary.changeScale(speed, -100, 100, -5000, 5000);
                 try
                 {
-                    velocityHandler.MoveWithVelocity(speed * rev * 10);
+                    velocityHandler.MoveWithVelocity(speed * rev);
                 }
                 catch (DeviceException e)
                 {
