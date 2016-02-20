@@ -82,48 +82,68 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         public void move(int direction, int speed)
         {
-            rotateWheelForMove(direction, motors[MotorId.LP_ZK], motors[MotorId.LP_R]);
-            rotateWheelForMove(direction, motors[MotorId.PP_ZK], motors[MotorId.PP_R]);
-            rotateWheelForMove(direction, motors[MotorId.LZ_ZK], motors[MotorId.LZ_R]);
-            rotateWheelForMove(direction, motors[MotorId.PZ_ZK], motors[MotorId.PZ_R]);
+            moveWithWheelInDirection(motors[MotorId.LP_ZK], motors[MotorId.LP_R], motors[MotorId.LP_P], direction, speed);
+            moveWithWheelInDirection(motors[MotorId.PP_ZK], motors[MotorId.PP_R], motors[MotorId.PP_P], 180 - direction, speed);
+            moveWithWheelInDirection(motors[MotorId.LZ_ZK], motors[MotorId.LZ_R], motors[MotorId.LZ_P], 180 - direction, speed);
+            moveWithWheelInDirection(motors[MotorId.PZ_ZK], motors[MotorId.PZ_R], motors[MotorId.PZ_P], direction, speed);
 
-            if (speed != 0)
+            //if (speed != 0)
+            //{
+            //    if (Math.Abs(direction) > 90)
+            //    {
+            //        speed = -speed;
+            //        //        //motors[MotorId.LZ_P].disable();
+            //        //        //motors[MotorId.PZ_P].disable();
+            //        //        //motors[MotorId.PP_P].enable();
+            //        //        //motors[MotorId.LP_P].enable();
+            //        //        //motors[MotorId.PP_P].moving(speed);
+            //        //        //motors[MotorId.LP_P].moving(speed);
+            //    }
+            //    else
+            //    {
+            //        //        //motors[MotorId.PP_P].disable();
+            //        //        //motors[MotorId.LP_P].disable();
+            //        //        //motors[MotorId.LZ_P].enable();
+            //        //        //motors[MotorId.PZ_P].enable();
+            //        //        //motors[MotorId.LZ_P].moving(speed);
+            //        //        //motors[MotorId.PZ_P].moving(speed);
+            //    }
+            //    motors[MotorId.PP_P].moving(speed);
+            //    motors[MotorId.LP_P].moving(speed);
+            //    motors[MotorId.LZ_P].moving(speed);
+            //    motors[MotorId.PZ_P].moving(speed);
+            //}
+            //else
+            //{
+            //    motors[MotorId.PP_P].halt();
+            //    motors[MotorId.LP_P].halt();
+            //    motors[MotorId.LZ_P].halt();
+            //    motors[MotorId.PZ_P].halt();
+            //    motors[MotorId.PP_P].enable();
+            //    motors[MotorId.LP_P].enable();
+            //    motors[MotorId.LZ_P].enable();
+            //    motors[MotorId.PZ_P].enable();
+            //}
+
+        }
+
+        /// <summary>
+        /// Bude pohybovat kolem v daném směru a s danou rychlostí
+        /// </summary>
+        /// <param name="motorZK">motor pro otáčení nohy kola</param>
+        /// <param name="motorR">motor pro otáčení kola</param>
+        /// <param name="motorP">motor pro pohon kola</param>
+        /// <param name="direction">směrm kterým se má pohybovat 0 až 359</param>
+        /// <param name="speed">rychlost jakou se má pohybovat -100 až 100</param>
+        private void moveWithWheelInDirection(IMotor motorZK, IMotor motorR, IMotor motorP, int direction, int speed)
+        {
+            bool reverseWheelSpeed = rotateWheelForMove(direction, motorZK, motorR);
+            int rev = 1;
+            if (reverseWheelSpeed)
             {
-                if (Math.Abs(direction) > 90)
-                {
-                    speed = -speed;
-                    //motors[MotorId.LZ_P].disable();
-                    //motors[MotorId.PZ_P].disable();
-                    //motors[MotorId.PP_P].enable();
-                    //motors[MotorId.LP_P].enable();
-                    //motors[MotorId.PP_P].moving(speed);
-                    //motors[MotorId.LP_P].moving(speed);
-                }
-                else
-                {
-                    //motors[MotorId.PP_P].disable();
-                    //motors[MotorId.LP_P].disable();
-                    //motors[MotorId.LZ_P].enable();
-                    //motors[MotorId.PZ_P].enable();
-                    //motors[MotorId.LZ_P].moving(speed);
-                    //motors[MotorId.PZ_P].moving(speed);
-                }
+                rev = -1;
             }
-            else
-            {
-                //motors[MotorId.PP_P].halt();
-                //motors[MotorId.LP_P].halt();
-                //motors[MotorId.LZ_P].halt();
-                //motors[MotorId.PZ_P].halt();
-                //motors[MotorId.PP_P].enable();
-                //motors[MotorId.LP_P].enable();
-                //motors[MotorId.LZ_P].enable();
-                //motors[MotorId.PZ_P].enable();
-            }
-            motors[MotorId.PP_P].moving(speed);
-            motors[MotorId.LP_P].moving(speed);
-            motors[MotorId.LZ_P].moving(speed);
-            motors[MotorId.PZ_P].moving(speed);
+            motorP.moving(speed * rev);
         }
 
         /// <summary>
@@ -132,19 +152,36 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="direction">směr ve stupních 0 až 359</param>
         /// <param name="motorZK">motor pro otáčení nohy</param>
         /// <param name="motorR">motor pro otáčení kola nohy</param>
-        private void rotateWheelForMove(int direction, IMotor motorZK, IMotor motorR)
+        /// <returns>true pokud obrátit směr pohybu kola</returns>
+        private bool rotateWheelForMove(int direction, IMotor motorZK, IMotor motorR)
         {
-            Console.WriteLine("direction " + direction);
+            bool reverseWheelSpeed = false;
+            //bool reverse = false;
             int kartezLegAngle = MathLibrary.changeScale(motorZK.angle, motorZK.minAngle, motorZK.maxAngle, 0, 90);
-            int kartezWheelAngle = 180 - (90 - (180 - direction - kartezLegAngle));
+            int kartezWheelAngle = 180 - 90 - (180 - direction - kartezLegAngle);
+            kartezWheelAngle = kartezWheelAngle % 180;
             if (kartezWheelAngle < 0)
             {
                 kartezWheelAngle += 180;
+                //reverse = true;
             }
-            Console.WriteLine("kartezWheelAngle " + kartezWheelAngle);
-            int wheelAngle = MathLibrary.changeScale(180 - kartezWheelAngle, 180, 0, motorR.minAngle, motorR.maxAngle);
-            Console.WriteLine("wheelAngle " + wheelAngle);
+            int wheelAngle = kartezWheelAngle;
+            if (kartezWheelAngle > 90)
+            {
+                //if (!reverse)
+                //{
+                //    reverseWheelSpeed = true;
+                //}
+                wheelAngle = MathLibrary.changeScale(kartezWheelAngle, 180, 90, 0, motorR.minAngle);
+            }
+            else {
+                //if (reverse)
+                //{
+                //    reverseWheelSpeed = true;
+                //}
+            }
             motorR.moveToAngle(wheelAngle);
+            return reverseWheelSpeed;
         }
 
         /// <summary>
