@@ -103,5 +103,10 @@ namespace Robot.Robot
         /// </summary>
         /// <param name="left">příznak, zda rotovat doleva</param>
         void rotate(bool left);
+
+        /// <summary>
+        /// Nastaví motorům prametry podle aktuálně nastavených hodnot v settings
+        /// </summary>
+        void refreshMototrsParameters();
     }
 }

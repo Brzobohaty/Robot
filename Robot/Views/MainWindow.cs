@@ -191,5 +191,10 @@ namespace Robot
                 buttonForReinicializeClickedObserver();
             }
         }
+
+        private void menuItemMotorsSettings_Click(object sender, EventArgs e)
+        {
+            MotorsSettings.getInstance().ShowDialog();
+        }
     }
 }

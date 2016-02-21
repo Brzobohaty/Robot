@@ -421,13 +421,181 @@ namespace Robot.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int Setting {
+        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
+        public uint P_maxVelocity {
             get {
-                return ((int)(this["Setting"]));
+                return ((uint)(this["P_maxVelocity"]));
             }
             set {
-                this["Setting"] = value;
+                this["P_maxVelocity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2500")]
+        public uint P_aceleration {
+            get {
+                return ((uint)(this["P_aceleration"]));
+            }
+            set {
+                this["P_aceleration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2500")]
+        public uint P_deceleration {
+            get {
+                return ((uint)(this["P_deceleration"]));
+            }
+            set {
+                this["P_deceleration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
+        public uint P_positionVelocity {
+            get {
+                return ((uint)(this["P_positionVelocity"]));
+            }
+            set {
+                this["P_positionVelocity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
+        public uint P_positionAceleration {
+            get {
+                return ((uint)(this["P_positionAceleration"]));
+            }
+            set {
+                this["P_positionAceleration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
+        public uint P_positionDeceleration {
+            get {
+                return ((uint)(this["P_positionDeceleration"]));
+            }
+            set {
+                this["P_positionDeceleration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4000")]
+        public uint R_positionVelocity {
+            get {
+                return ((uint)(this["R_positionVelocity"]));
+            }
+            set {
+                this["R_positionVelocity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4000")]
+        public uint R_positionAceleration {
+            get {
+                return ((uint)(this["R_positionAceleration"]));
+            }
+            set {
+                this["R_positionAceleration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4000")]
+        public uint R_positionDeceleration {
+            get {
+                return ((uint)(this["R_positionDeceleration"]));
+            }
+            set {
+                this["R_positionDeceleration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        public uint Z_positionVelocity {
+            get {
+                return ((uint)(this["Z_positionVelocity"]));
+            }
+            set {
+                this["Z_positionVelocity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
+        public uint Z_positionAceleration {
+            get {
+                return ((uint)(this["Z_positionAceleration"]));
+            }
+            set {
+                this["Z_positionAceleration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
+        public uint Z_positionDeceleration {
+            get {
+                return ((uint)(this["Z_positionDeceleration"]));
+            }
+            set {
+                this["Z_positionDeceleration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
+        public uint ZK_positionVelocity {
+            get {
+                return ((uint)(this["ZK_positionVelocity"]));
+            }
+            set {
+                this["ZK_positionVelocity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2500")]
+        public uint ZK_positionAceleration {
+            get {
+                return ((uint)(this["ZK_positionAceleration"]));
+            }
+            set {
+                this["ZK_positionAceleration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2500")]
+        public uint ZK_positionDeceleration {
+            get {
+                return ((uint)(this["ZK_positionDeceleration"]));
+            }
+            set {
+                this["ZK_positionDeceleration"] = value;
             }
         }
     }

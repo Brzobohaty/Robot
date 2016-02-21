@@ -37,6 +37,7 @@ namespace Robot
             this.menuConnectionItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRekalibrItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuReinicializeItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItemMotorsSettings = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -80,7 +81,8 @@ namespace Robot
             this.nastaveníToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuConnectionItem,
             this.menuRekalibrItem,
-            this.menuReinicializeItem});
+            this.menuReinicializeItem,
+            this.menuItemMotorsSettings});
             this.nastaveníToolStripMenuItem.Name = "nastaveníToolStripMenuItem";
             this.nastaveníToolStripMenuItem.Size = new System.Drawing.Size(86, 24);
             this.nastaveníToolStripMenuItem.Text = "Nastavení";
@@ -88,23 +90,30 @@ namespace Robot
             // menuConnectionItem
             // 
             this.menuConnectionItem.Name = "menuConnectionItem";
-            this.menuConnectionItem.Size = new System.Drawing.Size(181, 26);
+            this.menuConnectionItem.Size = new System.Drawing.Size(202, 26);
             this.menuConnectionItem.Text = "Připojení";
             this.menuConnectionItem.Click += new System.EventHandler(this.menuConnectionItem_Click);
             // 
             // menuRekalibrItem
             // 
             this.menuRekalibrItem.Name = "menuRekalibrItem";
-            this.menuRekalibrItem.Size = new System.Drawing.Size(181, 26);
+            this.menuRekalibrItem.Size = new System.Drawing.Size(202, 26);
             this.menuRekalibrItem.Text = "Rekalibrace";
             this.menuRekalibrItem.Click += new System.EventHandler(this.menuRekalibrItem_Click);
             // 
             // menuReinicializeItem
             // 
             this.menuReinicializeItem.Name = "menuReinicializeItem";
-            this.menuReinicializeItem.Size = new System.Drawing.Size(181, 26);
+            this.menuReinicializeItem.Size = new System.Drawing.Size(202, 26);
             this.menuReinicializeItem.Text = "Reinicializace";
             this.menuReinicializeItem.Click += new System.EventHandler(this.menuReinicializeItem_Click);
+            // 
+            // menuItemMotorsSettings
+            // 
+            this.menuItemMotorsSettings.Name = "menuItemMotorsSettings";
+            this.menuItemMotorsSettings.Size = new System.Drawing.Size(202, 26);
+            this.menuItemMotorsSettings.Text = "Nastavení motorů";
+            this.menuItemMotorsSettings.Click += new System.EventHandler(this.menuItemMotorsSettings_Click);
             // 
             // MainWindow
             // 
@@ -138,6 +147,7 @@ namespace Robot
         private System.Windows.Forms.ToolStripMenuItem menuConnectionItem;
         private System.Windows.Forms.ToolStripMenuItem menuRekalibrItem;
         private System.Windows.Forms.ToolStripMenuItem menuReinicializeItem;
+        private System.Windows.Forms.ToolStripMenuItem menuItemMotorsSettings;
     }
 }
 

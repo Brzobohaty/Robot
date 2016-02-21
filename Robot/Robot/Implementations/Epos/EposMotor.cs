@@ -37,7 +37,7 @@ namespace Robot.Robot.Implementations.Epos
         private int minPosition; //minimální pozice na motoru
         private bool hasPositionLimit = false; //příznak, zda má motor maximální a minimální hranici pohybu
         private bool limitEnable = true; //příznak, zda má motor zaplou kontrolu limitů
-        private const int maxSpeed = 5000; //maximální rychlost motoru
+        private uint maxSpeed; //maximální rychlost motoru
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
         private int lastPosition = 0; //poslední pozice motoru
 
@@ -59,16 +59,19 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="positionVeocity">rychlost motoru v otáčkách při pozicování</param>
         /// <param name="positionAceleration">zrychlení motoru v otáčkách při pozicování</param>
         /// <param name="positionDeceleration">zpomalení motoru v otáčkách při pozicování</param>
+        /// <param name="velocity">maximální rychlost motoru při rychlostním řízení</param>
+        /// <param name="aceleration">zrychlení motoru při rychlostním řízení</param>
+        /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
         /// <param name="minPosition">minimální pozice motoru</param>
         /// <param name="maxPosition">maximální pozice motoru</param>
-        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, int minPosition, int maxPosition, int minAngle, int maxAngle)
+        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int minPosition, int maxPosition, int minAngle, int maxAngle)
         {
             hasPositionLimit = true;
             this.maxPosition = maxPosition;
             this.minPosition = minPosition;
             this.minAngle = minAngle;
             this.maxAngle = maxAngle;
-            inicialize(connector, stateObserver, motorErrorOccuredObserver, nodeNumber, id, mode, reverse, multiplier, positionVelocity, positionAceleration, positionDeceleration);
+            inicialize(connector, stateObserver, motorErrorOccuredObserver, nodeNumber, id, mode, reverse, multiplier, positionVelocity, positionAceleration, positionDeceleration, velocity, aceleration, deceleration);
         }
 
         /// <summary>
@@ -84,7 +87,10 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="positionVeocity">rychlost motoru v otáčkách při pozicování</param>
         /// <param name="positionAceleration">zrychlení motoru v otáčkách při pozicování</param>
         /// <param name="positionDeceleration">zpomalení motoru v otáčkách při pozicování</param>
-        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration)
+        /// <param name="velocity">maximální rychlost motoru při rychlostním řízení</param>
+        /// <param name="aceleration">zrychlení motoru při rychlostním řízení</param>
+        /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
+        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration)
         {
             try
             {
@@ -107,7 +113,9 @@ namespace Robot.Robot.Implementations.Epos
                     sm.ClearFault();
                 sm.SetEnableState();
 
+                maxSpeed = velocity;
                 velocityHandler = motor.Operation.ProfileVelocityMode;
+                velocityHandler.SetVelocityProfile(aceleration, deceleration);
                 positionHandler = motor.Operation.ProfilePositionMode;
                 positionHandler.SetPositionProfile(positionVelocity, positionAceleration, positionDeceleration);
                 homingHandler = motor.Operation.HomingMode;
@@ -123,6 +131,25 @@ namespace Robot.Robot.Implementations.Epos
                 disableStateObserver();
                 state = MotorState.error;
                 stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+            }
+        }
+
+        /// <summary>
+        /// Nastavení parametrů motoru
+        /// </summary>
+        /// <param name="positionVeocity">rychlost motoru v otáčkách při pozicování</param>
+        /// <param name="positionAceleration">zrychlení motoru v otáčkách při pozicování</param>
+        /// <param name="positionDeceleration">zpomalení motoru v otáčkách při pozicování</param>
+        /// <param name="velocity">maximální rychlost motoru při rychlostním řízení</param>
+        /// <param name="aceleration">zrychlení motoru při rychlostním řízení</param>
+        /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
+        public void setParameters(uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration) {
+            if (velocityHandler != null) {
+                velocityHandler.SetVelocityProfile(aceleration, deceleration);
+            }
+            if (positionHandler != null)
+            {
+                positionHandler.SetPositionProfile(positionVelocity, positionAceleration, positionDeceleration);
             }
         }
 
@@ -532,7 +559,7 @@ namespace Robot.Robot.Implementations.Epos
                         {
                             state = MotorState.enabled;
                         }
-                        int speedRelative = MathLibrary.changeScale(velocity, 0, maxSpeed, 0, 100);
+                        int speedRelative = MathLibrary.changeScale(velocity, 0, (int)maxSpeed, 0, 100);
                         if (lastPosition > position)
                         {
                             speedRelative = -speedRelative;

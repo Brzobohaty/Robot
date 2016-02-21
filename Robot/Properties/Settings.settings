@@ -101,8 +101,50 @@
     <Setting Name="PZ_P_default" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="Setting" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+    <Setting Name="P_maxVelocity" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">5000</Value>
+    </Setting>
+    <Setting Name="P_aceleration" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">2500</Value>
+    </Setting>
+    <Setting Name="P_deceleration" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">2500</Value>
+    </Setting>
+    <Setting Name="P_positionVelocity" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">5000</Value>
+    </Setting>
+    <Setting Name="P_positionAceleration" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">2000</Value>
+    </Setting>
+    <Setting Name="P_positionDeceleration" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">2000</Value>
+    </Setting>
+    <Setting Name="R_positionVelocity" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">4000</Value>
+    </Setting>
+    <Setting Name="R_positionAceleration" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">4000</Value>
+    </Setting>
+    <Setting Name="R_positionDeceleration" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">4000</Value>
+    </Setting>
+    <Setting Name="Z_positionVelocity" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">1000</Value>
+    </Setting>
+    <Setting Name="Z_positionAceleration" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">2000</Value>
+    </Setting>
+    <Setting Name="Z_positionDeceleration" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">2000</Value>
+    </Setting>
+    <Setting Name="ZK_positionVelocity" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">5000</Value>
+    </Setting>
+    <Setting Name="ZK_positionAceleration" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">2500</Value>
+    </Setting>
+    <Setting Name="ZK_positionDeceleration" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">2500</Value>
     </Setting>
   </Settings>
 </SettingsFile>

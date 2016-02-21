@@ -1,6 +1,7 @@
 ﻿using Robot.Joystick;
 using Robot.Robot;
 using Robot.Robot.Implementations.Epos;
+using Robot.Views;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -56,7 +57,7 @@ namespace Robot
             absoluteControllView.subscribeButtonForCalibrClickObserver(buttonForCalibrClicked);
             absoluteControllView.subscribeButtonForCancelCalibrationClickObserver(buttonForCancelCalibrationClicked);
             absoluteControllView.subscribecheckBoxLimitProtectionObserver(checkBoxLimitProtectionChanged);
-
+            MotorsSettings.getInstance().subscribeMotorsSetingsChanged(refreshMotorsParameters);
             createGamePadChecker();
         }
 
@@ -563,7 +564,7 @@ namespace Robot
 
             controllOnOff(true);
         }
-        
+
         /// <summary>
         /// Vytvoření periodického kontrolora připojeného gamepadu
         /// </summary>
@@ -572,6 +573,13 @@ namespace Robot
             gamePadChecker.Elapsed += delegate { refindJoystick(); };
             gamePadChecker.Interval = 5000;
             gamePadChecker.Enabled = false;
+        }
+
+        /// <summary>
+        /// Nastaví motorům prametry podle aktuálně nastavených hodnot v settings
+        /// </summary>
+        private void refreshMotorsParameters() {
+            robot.refreshMototrsParameters();
         }
     }
 }

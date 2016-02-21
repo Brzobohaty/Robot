@@ -51,16 +51,19 @@ namespace Robot.Robot.Implementations.Test
         /// <param name="positionVeocity">rychlost motoru v otáčkách při pozicování</param>
         /// <param name="positionAceleration">zrychlení motoru v otáčkách při pozicování</param>
         /// <param name="positionDeceleration">zpomalení motoru v otáčkách při pozicování</param>
+        /// <param name="velocity">maximální rychlost motoru při rychlostním řízení</param>
+        /// <param name="aceleration">zrychlení motoru při rychlostním řízení</param>
+        /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
         /// <param name="minPosition">minimální pozice motoru</param>
         /// <param name="maxPosition">maximální pozice motoru</param>
-        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, int minPosition, int maxPosition, int minAngle, int maxAngle)
+        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int minPosition, int maxPosition, int minAngle, int maxAngle)
         {
             hasPositionLimit = true;
             this.maxPosition = maxPosition;
             this.minPosition = minPosition;
             this.minAngle = minAngle;
             this.maxAngle = maxAngle;
-            inicialize(connector, stateObserver, motorErrorOccuredObserver, nodeNumber, id, mode, reverse, multiplier, positionVelocity, positionAceleration, positionDeceleration);
+            inicialize(connector, stateObserver, motorErrorOccuredObserver, nodeNumber, id, mode, reverse, multiplier, positionVelocity, positionAceleration, positionDeceleration, velocity, aceleration, deceleration);
         }
 
         /// <summary>
@@ -76,7 +79,10 @@ namespace Robot.Robot.Implementations.Test
         /// <param name="positionVeocity">rychlost motoru v otáčkách při pozicování</param>
         /// <param name="positionAceleration">zrychlení motoru v otáčkách při pozicování</param>
         /// <param name="positionDeceleration">zpomalení motoru v otáčkách při pozicování</param>
-        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration)
+        /// <param name="velocity">maximální rychlost motoru při rychlostním řízení</param>
+        /// <param name="aceleration">zrychlení motoru při rychlostním řízení</param>
+        /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
+        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration)
         {
             this.mode = mode;
             this.stateObserver = stateObserver;
@@ -94,6 +100,20 @@ namespace Robot.Robot.Implementations.Test
             setStateObserver();
             state = MotorState.enabled;
             stateObserver.motorStateChanged(MotorState.enabled, "", id, 0, 0, 0, 0);
+        }
+
+        /// <summary>
+        /// Nastavení parametrů motoru
+        /// </summary>
+        /// <param name="positionVeocity">rychlost motoru v otáčkách při pozicování</param>
+        /// <param name="positionAceleration">zrychlení motoru v otáčkách při pozicování</param>
+        /// <param name="positionDeceleration">zpomalení motoru v otáčkách při pozicování</param>
+        /// <param name="velocity">maximální rychlost motoru při rychlostním řízení</param>
+        /// <param name="aceleration">zrychlení motoru při rychlostním řízení</param>
+        /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
+        public void setParameters(uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration)
+        {
+            
         }
 
         /// <summary>
