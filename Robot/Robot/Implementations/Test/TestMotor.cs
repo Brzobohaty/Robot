@@ -228,6 +228,19 @@ namespace Robot.Robot.Implementations.Test
         }
 
         /// <summary>
+        /// Zjistí, zda je motor vypnutý
+        /// </summary>
+        /// <returns>true pokud je vypnutý</returns>
+        public bool isDisabled()
+        {
+            if (state == MotorState.disabled)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Zapne motor
         /// </summary>
         public void enable()

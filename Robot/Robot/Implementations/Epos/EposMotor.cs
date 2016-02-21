@@ -336,8 +336,10 @@ namespace Robot.Robot.Implementations.Epos
                     if (sm.GetFaultState())
                         sm.ClearFault();
 
-                    if (!sm.GetDisableState())
+                    if (!sm.GetDisableState()) {
+                        state = MotorState.disabled;
                         sm.SetDisableState();
+                    }
                 }
                 if (stateObserver != null)
                 {
@@ -352,6 +354,18 @@ namespace Robot.Robot.Implementations.Epos
                 state = MotorState.error;
                 stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
             }
+        }
+
+        /// <summary>
+        /// Zjistí, zda je motor vypnutý
+        /// </summary>
+        /// <returns>true pokud je vypnutý</returns>
+        public bool isDisabled() {
+            if (state == MotorState.disabled)
+            {
+                return true;
+            }
+            return false; 
         }
 
         /// <summary>

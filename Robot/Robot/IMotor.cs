@@ -115,6 +115,12 @@ namespace Robot.Robot
         void disable();
 
         /// <summary>
+        /// Zjistí, zda je motor vypnutý
+        /// </summary>
+        /// <returns>true pokud je vypnutý</returns>
+        bool isDisabled();
+
+        /// <summary>
         /// Zapne motor
         /// </summary>
         void enable();

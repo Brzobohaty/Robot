@@ -82,10 +82,20 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         public void move(int direction, int speed)
         {
-            moveWithWheelInDirection(motors[MotorId.LP_ZK], motors[MotorId.LP_R], motors[MotorId.LP_P], direction, speed, 360-90);
-            moveWithWheelInDirection(motors[MotorId.PP_ZK], motors[MotorId.PP_R], motors[MotorId.PP_P], 180 - direction, speed, -90);
-            moveWithWheelInDirection(motors[MotorId.LZ_ZK], motors[MotorId.LZ_R], motors[MotorId.LZ_P], 180 - direction, speed, -90);
-            moveWithWheelInDirection(motors[MotorId.PZ_ZK], motors[MotorId.PZ_R], motors[MotorId.PZ_P], direction, speed, 360 - 90);
+            if (speed == 0) {
+                haltAll();
+                return;
+            }
+            if (isHeightOk())
+            {
+                directMove(direction, speed);
+            }
+            else {
+                setManipulativHeight();
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { directMovePeriodic(direction, speed); };
+            }
+
 
             //if (speed != 0)
             //{
@@ -125,69 +135,6 @@ namespace Robot.Robot.Implementations.Epos
             //    motors[MotorId.PZ_P].enable();
             //}
 
-        }
-
-        /// <summary>
-        /// Bude pohybovat kolem v daném směru a s danou rychlostí
-        /// </summary>
-        /// <param name="motorZK">motor pro otáčení nohy kola</param>
-        /// <param name="motorR">motor pro otáčení kola</param>
-        /// <param name="motorP">motor pro pohon kola</param>
-        /// <param name="direction">směrm kterým se má pohybovat 0 až 359</param>
-        /// <param name="speed">rychlost jakou se má pohybovat -100 až 100</param>
-        /// <param name="angleCorection">korekce úhlu nohy...</param>
-        private void moveWithWheelInDirection(IMotor motorZK, IMotor motorR, IMotor motorP, int direction, int speed, int angleCorection)
-        {
-            bool reverseWheelSpeed = rotateWheelForMove(direction, motorZK, motorR, angleCorection);
-            int rev = 1;
-            if (reverseWheelSpeed)
-            {
-                rev = -1;
-            }
-            motorP.moving(speed * rev);
-        }
-
-        /// <summary>
-        /// Otočí kolo nohy ve směru pohybu
-        /// </summary>
-        /// <param name="direction">směr ve stupních 0 až 359</param>
-        /// <param name="motorZK">motor pro otáčení nohy</param>
-        /// <param name="motorR">motor pro otáčení kola nohy</param>
-        /// <param name="angleCorection">korekce úhlu nohy...</param>
-        /// <returns>true pokud obrátit směr pohybu kola</returns>
-        private bool rotateWheelForMove(int direction, IMotor motorZK, IMotor motorR, int angleCorection)
-        {
-            bool reverseWheelSpeed = false;
-            int kartezLegAngle = MathLibrary.changeScale(motorZK.angle, motorZK.minAngle, motorZK.maxAngle, 0, 90);
-            if (angleCorection < 0)
-            {
-                if (direction - (angleCorection - kartezLegAngle) < 0)
-                {
-                    reverseWheelSpeed = !reverseWheelSpeed;
-                }
-            }
-            else {
-                if (direction - (angleCorection - kartezLegAngle) > 0)
-                {
-                    reverseWheelSpeed = !reverseWheelSpeed;
-                }
-            }
-            
-            int kartezWheelAngle = 180 - 90 - (180 - direction - kartezLegAngle);
-            kartezWheelAngle = kartezWheelAngle % 180;
-            if (kartezWheelAngle < 0)
-            {
-                kartezWheelAngle += 180;
-                reverseWheelSpeed = !reverseWheelSpeed;
-            }
-            int wheelAngle = kartezWheelAngle;
-            if (kartezWheelAngle > 90)
-            {
-                reverseWheelSpeed = !reverseWheelSpeed;
-                wheelAngle = MathLibrary.changeScale(kartezWheelAngle, 180, 90, 0, motorR.minAngle);
-            }
-            motorR.moveToAngle(wheelAngle);
-            return reverseWheelSpeed;
         }
 
         /// <summary>
@@ -408,6 +355,162 @@ namespace Robot.Robot.Implementations.Epos
             motors[MotorId.LP_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 0, 0, 0);
             motors[MotorId.LZ_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 0, 0, 0);
             motors[MotorId.PZ_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 0, 0, 0);
+        }
+
+        /// <summary>
+        /// Nastaví robotoj výšku, v které se s ním  dá libovolně manipulovat.
+        /// </summary>
+        private void setManipulativHeight(){
+            motors[MotorId.PP_Z].moveToAngle(-39);
+            motors[MotorId.LP_Z].moveToAngle(-39);
+            motors[MotorId.LZ_Z].moveToAngle(-39);
+            motors[MotorId.PZ_Z].moveToAngle(-39);
+        }
+
+        /// <summary>
+        /// Zjistí, zda je robot ve výšce, v které je možné s ním libovolně manipulovat
+        /// </summary>
+        /// <returns>true pokud je v manipulační výšce</returns>
+        private bool isHeightOk() {
+            if (motors[MotorId.PP_Z].angle > -40 && motors[MotorId.LP_Z].angle >-40 && motors[MotorId.LZ_Z].angle > -40 && motors[MotorId.PZ_Z].angle > -40) {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Přímý pohyb kol krok 0 - kontrola výšky robota
+        /// </summary>
+        private void directMovePeriodic(int direction, int speed)
+        {
+            if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
+            {
+                periodicChecker.Dispose();
+                directMove(direction, speed);
+            }
+        }
+
+        /// <summary>
+        /// Přímý pohyb kol krok 1 - natočení kol
+        /// </summary>
+        /// <param name="direction">směr pohybu v úhlech 0 až 359</param>
+        /// <param name="speed">rychlost pohybu od -100 do 100</param>
+        private void directMove(int direction, int speed)
+        {
+            int speedLP = setWheelToDirection(motors[MotorId.LP_ZK], motors[MotorId.LP_R], motors[MotorId.LP_P], direction, speed, 360 - 90);
+            int speedPP = setWheelToDirection(motors[MotorId.PP_ZK], motors[MotorId.PP_R], motors[MotorId.PP_P], 180 - direction, speed, -90);
+            int speedLZ = setWheelToDirection(motors[MotorId.LZ_ZK], motors[MotorId.LZ_R], motors[MotorId.LZ_P], 180 - direction, speed, -90);
+            int speedPZ = setWheelToDirection(motors[MotorId.PZ_ZK], motors[MotorId.PZ_R], motors[MotorId.PZ_P], direction, speed, 360 - 90);
+
+            if (!motors[MotorId.LP_P].isDisabled() && !motors[MotorId.PP_P].isDisabled() && !motors[MotorId.LZ_P].isDisabled() && !motors[MotorId.PZ_P].isDisabled())
+            {
+                motors[MotorId.LP_P].moving(speedLP);
+                motors[MotorId.PP_P].moving(speedPP);
+                motors[MotorId.LZ_P].moving(speedLZ);
+                motors[MotorId.PZ_P].moving(speedPZ);
+            }
+            else
+            {
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { directMovePeriodic(speedLP, speedPP, speedLZ, speedPZ); };
+            }
+        }
+
+        /// <summary>
+        /// Přímý pohyb kol krok 2 - pohon kol
+        /// </summary>
+        /// <param name="speedLP">rychlost kola (-100 až 100)</param>
+        /// <param name="speedPP">rychlost kola (-100 až 100)</param>
+        /// <param name="speedLZ">rychlost kola (-100 až 100)</param>
+        /// <param name="speedPZ">rychlost kola (-100 až 100)</param>
+        private void directMovePeriodic(int speedLP, int speedPP, int speedLZ, int speedPZ)
+        {
+            if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
+            {
+                periodicChecker.Dispose();
+
+                motors[MotorId.LP_P].enable();
+                motors[MotorId.PP_P].enable();
+                motors[MotorId.LZ_P].enable();
+                motors[MotorId.PZ_P].enable();
+
+                motors[MotorId.LP_P].moving(speedLP);
+                motors[MotorId.PP_P].moving(speedPP);
+                motors[MotorId.LZ_P].moving(speedLZ);
+                motors[MotorId.PZ_P].moving(speedPZ);
+
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { enablePAfterZPeriodic(); };
+            }
+        }
+
+        /// <summary>
+        /// Bude pohybovat kolem v daném směru a vrátí rychlost ve správném směru
+        /// </summary>
+        /// <param name="motorZK">motor pro otáčení nohy kola</param>
+        /// <param name="motorR">motor pro otáčení kola</param>
+        /// <param name="motorP">motor pro pohon kola</param>
+        /// <param name="direction">směrm kterým se má pohybovat 0 až 359</param>
+        /// <param name="speed">rychlost jakou se má pohybovat -100 až 100</param>
+        /// <param name="angleCorection">korekce úhlu nohy...</param>
+        /// <return>rychlost, jakou se má motor pohybovat</return>
+        private int setWheelToDirection(IMotor motorZK, IMotor motorR, IMotor motorP, int direction, int speed, int angleCorection)
+        {
+            bool reverseWheelSpeed = rotateWheelForMove(direction, motorZK, motorR, motorP, angleCorection);
+            int rev = 1;
+            if (reverseWheelSpeed)
+            {
+                rev = -1;
+            }
+            return speed * rev;
+        }
+
+        /// <summary>
+        /// Otočí kolo nohy ve směru pohybu
+        /// </summary>
+        /// <param name="direction">směr ve stupních 0 až 359</param>
+        /// <param name="motorZK">motor pro otáčení nohy</param>
+        /// <param name="motorR">motor pro otáčení kola nohy</param>
+        /// <param name="angleCorection">korekce úhlu nohy...</param>
+        /// <returns>true pokud obrátit směr pohybu kola</returns>
+        private bool rotateWheelForMove(int direction, IMotor motorZK, IMotor motorR, IMotor motorP, int angleCorection)
+        {
+            bool reverseWheelSpeed = false;
+            int kartezLegAngle = MathLibrary.changeScale(motorZK.angle, motorZK.minAngle, motorZK.maxAngle, 0, 90);
+            if (angleCorection < 0)
+            {
+                if (direction - (angleCorection - kartezLegAngle) < 0)
+                {
+                    reverseWheelSpeed = !reverseWheelSpeed;
+                }
+            }
+            else
+            {
+                if (direction - (angleCorection - kartezLegAngle) > 0)
+                {
+                    reverseWheelSpeed = !reverseWheelSpeed;
+                }
+            }
+
+            int kartezWheelAngle = 180 - 90 - (180 - direction - kartezLegAngle);
+            kartezWheelAngle = kartezWheelAngle % 180;
+            if (kartezWheelAngle < 0)
+            {
+                kartezWheelAngle += 180;
+                reverseWheelSpeed = !reverseWheelSpeed;
+            }
+            int wheelAngle = kartezWheelAngle;
+            if (kartezWheelAngle > 90)
+            {
+                reverseWheelSpeed = !reverseWheelSpeed;
+                wheelAngle = MathLibrary.changeScale(kartezWheelAngle, 180, 90, 0, motorR.minAngle);
+            }
+            if (wheelAngle != motorR.angle)
+            {
+                motorP.disable();
+            }
+            motorR.moveToAngle(wheelAngle);
+            return reverseWheelSpeed;
         }
 
         /// <summary>
