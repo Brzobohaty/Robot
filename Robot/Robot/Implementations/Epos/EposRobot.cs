@@ -4,6 +4,7 @@ using EposCmd.Net;
 using EposCmd.Net.DeviceCmdSet.Initialization;
 using System.Threading;
 using Robot.Robot.Implementations.Test;
+using System.Windows.Forms;
 
 namespace Robot.Robot.Implementations.Epos
 {
@@ -82,7 +83,8 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         public void move(int direction, int speed)
         {
-            if (speed == 0) {
+            if (speed == 0)
+            {
                 haltAll();
                 return;
             }
@@ -90,7 +92,8 @@ namespace Robot.Robot.Implementations.Epos
             {
                 directMove(direction, speed);
             }
-            else {
+            else
+            {
                 setManipulativHeight();
                 createPeriodicChecker();
                 periodicChecker.Elapsed += delegate { directMovePeriodic(direction, speed); };
@@ -158,7 +161,16 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void widen()
         {
-            narrowWiden(1);
+            if (isHeightOk())
+            {
+                narrowWiden(1);
+            }
+            else
+            {
+                setManipulativHeight();
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { narrowWiden(1); };
+            }
         }
 
         /// <summary>
@@ -166,7 +178,16 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void narrow()
         {
-            narrowWiden(-1);
+            if (isHeightOk())
+            {
+                narrowWiden(-1);
+            }
+            else
+            {
+                setManipulativHeight();
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { narrowWiden(-1); };
+            }
         }
 
         /// <summary>
@@ -174,18 +195,16 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void setDefaultPosition()
         {
-            motors[MotorId.PP_P].disable();
-            motors[MotorId.LP_P].disable();
-            motors[MotorId.LZ_P].disable();
-            motors[MotorId.PZ_P].disable();
-            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+            if (isHeightOk())
             {
-                motor.Value.setDefaultPosition();
+                setDefaultPositionStep1();
             }
-            motors[MotorId.PP_P].enable();
-            motors[MotorId.LP_P].enable();
-            motors[MotorId.LZ_P].enable();
-            motors[MotorId.PZ_P].enable();
+            else
+            {
+                setManipulativHeight();
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { setDefaultPositionStep1(); };
+            }
         }
 
         /// <summary>
@@ -287,9 +306,15 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void setCurrentPositionAsDefault()
         {
-            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+            if (!isHeightOk())
             {
-                motor.Value.setCurrentPositionAsDefault();
+                DialogResult dialogResult = MessageBox.Show("Výška jedné nebo více nohou je nastavena příliš vysoko (nad 40 °) a takovou polohu nelze z manipulačních důvodů nastavit jako výchozí.", "Zakázaná výška", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else {
+                foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+                {
+                    motor.Value.setCurrentPositionAsDefault();
+                }
             }
         }
 
@@ -310,7 +335,8 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void haltAll()
         {
-            if (periodicChecker!=null) {
+            if (periodicChecker != null)
+            {
                 periodicChecker.Dispose();
             }
             foreach (KeyValuePair<MotorId, IMotor> motor in motors)
@@ -325,20 +351,23 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="left">příznak, zda rotovat doleva</param>
         public void rotate(bool left)
         {
-            //TODO
-            if (left)
+            if (isHeightOk())
             {
-                Console.WriteLine("rotace vlevo");
+                rotateStep1(left);
             }
-            else {
-                Console.WriteLine("rotace vpravo");
+            else
+            {
+                setManipulativHeight();
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { rotateStep1(left); };
             }
         }
 
         /// <summary>
         /// Nastaví motorům prametry podle aktuálně nastavených hodnot v settings
         /// </summary>
-        public void refreshMototrsParameters() {
+        public void refreshMototrsParameters()
+        {
             motors[MotorId.PP_P].setParameters((uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
             motors[MotorId.LP_P].setParameters((uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
             motors[MotorId.LZ_P].setParameters((uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
@@ -358,9 +387,136 @@ namespace Robot.Robot.Implementations.Epos
         }
 
         /// <summary>
+        /// Rotuje robota kolem jeho středu (krok 1 - natočení kol)
+        /// </summary>
+        /// <param name="left">příznak, zda rotovat doleva</param>
+        private void rotateStep1(bool left) {
+            if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
+            {
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+
+                //TODO
+                if (left)
+                {
+                    Console.WriteLine("rotace vlevo");
+                }
+                else
+                {
+                    Console.WriteLine("rotace vpravo");
+                }
+
+                //createPeriodicChecker();
+                //periodicChecker.Elapsed += delegate { setDefaultPositionStep2(); };
+            }
+        }
+
+        /// <summary>
+        /// Nastaví robota do defaultní pozice (krok 1 - nastavení výšky)
+        /// </summary>
+        private void setDefaultPositionStep1()
+        {
+            if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
+            {
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+
+                motors[MotorId.PP_P].disable();
+                motors[MotorId.LP_P].disable();
+                motors[MotorId.LZ_P].disable();
+                motors[MotorId.PZ_P].disable();
+
+                motors[MotorId.LP_Z].setDefaultPosition();
+                motors[MotorId.PP_Z].setDefaultPosition();
+                motors[MotorId.LZ_Z].setDefaultPosition();
+                motors[MotorId.PZ_Z].setDefaultPosition();
+
+                
+            }
+        }
+
+        /// <summary>
+        /// Nastaví robota do defaultní pozice (krok 2 - nastavení rotace kol pro pohyb nohou do stran)
+        /// </summary>
+        private void setDefaultPositionStep2()
+        {
+            if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
+            {
+                periodicChecker.Dispose();
+
+                motors[MotorId.LP_R].moveToPosition(0);
+                motors[MotorId.PP_R].moveToPosition(0);
+                motors[MotorId.LZ_R].moveToPosition(0);
+                motors[MotorId.PZ_R].moveToPosition(0);
+
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { setDefaultPositionStep3(); };
+            }
+        }
+
+        /// <summary>
+        /// Nastaví robota do defaultní pozice (krok 3 - nastavení otočení nohou)
+        /// </summary>
+        private void setDefaultPositionStep3()
+        {
+            if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
+            {
+                periodicChecker.Dispose();
+
+                motors[MotorId.LP_ZK].setDefaultPosition();
+                motors[MotorId.PP_ZK].setDefaultPosition();
+                motors[MotorId.LZ_ZK].setDefaultPosition();
+                motors[MotorId.PZ_ZK].setDefaultPosition();
+
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { setDefaultPositionStep4(); };
+            }
+        }
+
+        /// <summary>
+        /// Nastaví robota do defaultní pozice (krok 4 - nastavení otočení kol)
+        /// </summary>
+        private void setDefaultPositionStep4()
+        {
+            if (motors[MotorId.PP_ZK].isTargetReached() && motors[MotorId.LP_ZK].isTargetReached() && motors[MotorId.LZ_ZK].isTargetReached() && motors[MotorId.PZ_ZK].isTargetReached())
+            {
+                periodicChecker.Dispose();
+
+                motors[MotorId.LP_R].setDefaultPosition();
+                motors[MotorId.PP_R].setDefaultPosition();
+                motors[MotorId.LZ_R].setDefaultPosition();
+                motors[MotorId.PZ_R].setDefaultPosition();
+
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { setDefaultPositionStep5(); };
+            }
+        }
+
+        /// <summary>
+        /// Nastaví robota do defaultní pozice (krok 5 - zapnutí pohonu)
+        /// </summary>
+        private void setDefaultPositionStep5()
+        {
+            if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
+            {
+                periodicChecker.Dispose();
+
+                motors[MotorId.PP_P].enable();
+                motors[MotorId.LP_P].enable();
+                motors[MotorId.LZ_P].enable();
+                motors[MotorId.PZ_P].enable();
+            }
+        }
+
+        /// <summary>
         /// Nastaví robotoj výšku, v které se s ním  dá libovolně manipulovat.
         /// </summary>
-        private void setManipulativHeight(){
+        private void setManipulativHeight()
+        {
             motors[MotorId.PP_Z].moveToAngle(-39);
             motors[MotorId.LP_Z].moveToAngle(-39);
             motors[MotorId.LZ_Z].moveToAngle(-39);
@@ -371,8 +527,10 @@ namespace Robot.Robot.Implementations.Epos
         /// Zjistí, zda je robot ve výšce, v které je možné s ním libovolně manipulovat
         /// </summary>
         /// <returns>true pokud je v manipulační výšce</returns>
-        private bool isHeightOk() {
-            if (motors[MotorId.PP_Z].angle > -40 && motors[MotorId.LP_Z].angle >-40 && motors[MotorId.LZ_Z].angle > -40 && motors[MotorId.PZ_Z].angle > -40) {
+        private bool isHeightOk()
+        {
+            if (motors[MotorId.PP_Z].angle > -40 && motors[MotorId.LP_Z].angle > -40 && motors[MotorId.LZ_Z].angle > -40 && motors[MotorId.PZ_Z].angle > -40)
+            {
                 return true;
             }
             return false;
@@ -613,17 +771,24 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="direction">-1 = zůžit, 1 = rozšířit</param>
         private void narrowWiden(int direction)
         {
-            motors[MotorId.PP_P].disable();
-            motors[MotorId.LP_P].disable();
-            motors[MotorId.LZ_P].disable();
-            motors[MotorId.PZ_P].disable();
-            motors[MotorId.PP_R].moveToPosition(0);
-            motors[MotorId.LP_R].moveToPosition(0);
-            motors[MotorId.LZ_R].moveToPosition(0);
-            motors[MotorId.PZ_R].moveToPosition(0);
-            createPeriodicChecker();
-            periodicChecker.Elapsed += delegate { narrowWidenPeriodic(direction); };
+            if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
+            {
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
 
+                motors[MotorId.PP_P].disable();
+                motors[MotorId.LP_P].disable();
+                motors[MotorId.LZ_P].disable();
+                motors[MotorId.PZ_P].disable();
+                motors[MotorId.PP_R].moveToPosition(0);
+                motors[MotorId.LP_R].moveToPosition(0);
+                motors[MotorId.LZ_R].moveToPosition(0);
+                motors[MotorId.PZ_R].moveToPosition(0);
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { narrowWidenPeriodic(direction); };
+            }
         }
 
         /// <summary>

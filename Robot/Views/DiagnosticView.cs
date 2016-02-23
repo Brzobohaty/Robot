@@ -292,11 +292,11 @@ namespace Robot
         private void legPaint(PaintEventArgs e, int Z, int ZK, int R, int P, int xC, int yC, int rC) {
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            Pen pen = new Pen(Color.LightSlateGray, 5 + (Z / 40));
+            Pen pen = new Pen(Color.LightSlateGray, 8 + ((-1)*Z / 10));
             Point firstPoint = new Point(canvasMid.X + ((baseWidth / 2)*xC), canvasMid.Y + ((baseWidth / 2)*yC));
             Point secondPoint = MathLibrary.getPointOnLine(canvasMid.X + ((baseWidth / 2) * xC), canvasMid.Y + ((baseWidth / 2) * yC), ZK + rC, baseWidth);
             g.DrawLine(pen, firstPoint, secondPoint);
-            wheelPaint(g, secondPoint, ZK + rC - R + 93, P);
+            wheelPaint(g, secondPoint, ZK + rC - R + 93, P, Z);
             legLimitLinePaint(g, firstPoint, rC-45);
             legLimitLinePaint(g, firstPoint, rC+45);
             wheelLimitLinePaint(g, secondPoint, ZK + rC - 180);
@@ -340,9 +340,9 @@ namespace Robot
         /// <param name="mid">střed kola</param>
         /// <param name="rotation">rotace kola ve stupnich</param>
         /// <param name="speed">rychlost otáčení kola</param>
-        private void wheelPaint(Graphics g, Point mid, int rotation, int speed)
+        private void wheelPaint(Graphics g, Point mid, int rotation, int speed, int Z)
         {
-            g.FillEllipse(Brushes.LightSlateGray, mid.X - (baseWidth / 6), mid.Y - (baseWidth / 6), baseWidth/3, baseWidth / 3);
+            g.FillEllipse(Brushes.LightSlateGray, mid.X - (baseWidth / 6), mid.Y - (baseWidth / 6), (baseWidth/3), (baseWidth / 3));
             arrowPaint(g, mid, rotation, baseWidth / 6, speed);
             arrowPaint(g, mid, rotation+180, baseWidth / 6, -speed);
         }
