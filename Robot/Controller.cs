@@ -188,7 +188,7 @@ namespace Robot
         {
             System.Timers.Timer aTimer = new System.Timers.Timer();
             aTimer.Elapsed += new ElapsedEventHandler(periodiclyAction);
-            aTimer.Interval = 100;
+            aTimer.Interval = 200;
             aTimer.Stop();
             return aTimer;
         }

@@ -151,8 +151,8 @@ namespace Robot
         /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
         public void subscribeButtonRotateLeftObserver(Action<bool> observer) {
             buttonRotateLeftObserver = observer;
-            buttonMoveUp.MouseDown += new MouseEventHandler(buttonRotateLeft_MouseDown);
-            buttonMoveUp.MouseUp += new MouseEventHandler(buttonRotateLeft_MouseUp);
+            buttonRotateLeft.MouseDown += new MouseEventHandler(buttonRotateLeft_MouseDown);
+            buttonRotateLeft.MouseUp += new MouseEventHandler(buttonRotateLeft_MouseUp);
         }
 
         /// <summary>
@@ -161,8 +161,8 @@ namespace Robot
         /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
         public void subscribeButtonRotateRightObserver(Action<bool> observer) {
             buttonRotateRightObserver = observer;
-            buttonMoveUp.MouseDown += new MouseEventHandler(buttonRotateRight_MouseDown);
-            buttonMoveUp.MouseUp += new MouseEventHandler(buttonRotateRight_MouseUp);
+            buttonRotateRight.MouseDown += new MouseEventHandler(buttonRotateRight_MouseDown);
+            buttonRotateRight.MouseUp += new MouseEventHandler(buttonRotateRight_MouseUp);
         }
 
         /// <summary>
@@ -171,8 +171,8 @@ namespace Robot
         /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
         public void subscribeButtonStopObserver(Action<bool> observer) {
             buttonStopObserver = observer;
-            buttonMoveUp.MouseDown += new MouseEventHandler(buttonStop_MouseDown);
-            buttonMoveUp.MouseUp += new MouseEventHandler(buttonStop_MouseUp);
+            buttonStop.MouseDown += new MouseEventHandler(buttonStop_MouseDown);
+            buttonStop.MouseUp += new MouseEventHandler(buttonStop_MouseUp);
         }
 
         /// <summary>

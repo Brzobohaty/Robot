@@ -132,6 +132,7 @@
             // 
             this.buttonWiden.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonWiden.AutoSize = true;
+            this.buttonWiden.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.buttonWiden.Image = ((System.Drawing.Image)(resources.GetObject("buttonWiden.Image")));
             this.buttonWiden.Location = new System.Drawing.Point(83, 21);
             this.buttonWiden.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -139,11 +140,12 @@
             this.buttonWiden.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonWiden.Size = new System.Drawing.Size(69, 52);
             this.buttonWiden.TabIndex = 4;
-            this.buttonWiden.UseVisualStyleBackColor = true;
+            this.buttonWiden.UseVisualStyleBackColor = false;
             // 
             // buttonNarrow
             // 
             this.buttonNarrow.AutoSize = true;
+            this.buttonNarrow.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.buttonNarrow.Image = ((System.Drawing.Image)(resources.GetObject("buttonNarrow.Image")));
             this.buttonNarrow.Location = new System.Drawing.Point(83, 77);
             this.buttonNarrow.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -151,7 +153,7 @@
             this.buttonNarrow.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonNarrow.Size = new System.Drawing.Size(69, 52);
             this.buttonNarrow.TabIndex = 5;
-            this.buttonNarrow.UseVisualStyleBackColor = true;
+            this.buttonNarrow.UseVisualStyleBackColor = false;
             // 
             // buttonMoveUp
             // 
@@ -171,6 +173,7 @@
             // 
             this.buttonMoveDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonMoveDown.AutoSize = true;
+            this.buttonMoveDown.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.buttonMoveDown.Image = ((System.Drawing.Image)(resources.GetObject("buttonMoveDown.Image")));
             this.buttonMoveDown.Location = new System.Drawing.Point(21, 77);
             this.buttonMoveDown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -178,7 +181,7 @@
             this.buttonMoveDown.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonMoveDown.Size = new System.Drawing.Size(56, 52);
             this.buttonMoveDown.TabIndex = 2;
-            this.buttonMoveDown.UseVisualStyleBackColor = true;
+            this.buttonMoveDown.UseVisualStyleBackColor = false;
             // 
             // buttonRotateLeft
             // 
@@ -214,6 +217,7 @@
             // buttonDefaultPosition
             // 
             this.buttonDefaultPosition.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonDefaultPosition.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.buttonDefaultPosition.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.buttonDefaultPosition.Location = new System.Drawing.Point(218, 23);
             this.buttonDefaultPosition.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -222,7 +226,7 @@
             this.buttonDefaultPosition.Size = new System.Drawing.Size(190, 50);
             this.buttonDefaultPosition.TabIndex = 6;
             this.buttonDefaultPosition.Text = "Výchozí pozice";
-            this.buttonDefaultPosition.UseVisualStyleBackColor = true;
+            this.buttonDefaultPosition.UseVisualStyleBackColor = false;
             // 
             // buttonStop
             // 
