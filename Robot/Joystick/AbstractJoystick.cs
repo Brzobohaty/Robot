@@ -13,6 +13,8 @@ namespace Robot.Joystick
     {
         protected Action<int, int> stickDirectMoveObserver; //callback pro změnu stavu páčky pro přímý pohyb (int x souřadnice páčky, int y souřadnice páčky)
         protected Action<int, int> stickMoveObserver; //callback pro změnu stavu páčky pro rádiusový pohyb (int x souřadnice páčky, int y souřadnice páčky)
+        protected Action<int> frontNarrowObserver; //callback pro změnu stavu analogového tlačítka pro zůžení předku (míra zůžení)
+        protected Action<int> backNarrowObserver; //callback pro změnu stavu analogového tlačítka pro zůžení zadku (míra zůžení)
         protected Action<bool> buttonMoveUpObserver; //callback pro změnu stavu tlačítka pro pohyb nahoru (bool pohyb nahoru)
         protected Action<bool> buttonMoveDownObserver; //callback pro změnu stavu tlačítka pro pohyb dolu (bool pohyb dolu)
         protected Action<bool> buttonNarrowObserver; //callback pro změnu stavu tlačítka pro zůžení (bool zůžit)
@@ -21,6 +23,10 @@ namespace Robot.Joystick
         protected Action<bool> buttonRotateRightObserver; //callback pro změnu stavu tlačítka pro rotaci vpravo (bool stisknuto)
         protected Action<bool> buttonDefaultPositionObserver; //callback pro změnu stavu tlačítka pro defaultní pozici (bool defaultní pozice)
         protected Action<bool> buttonStopObserver; //callback pro změnu stavu tlačítka pro zastavení všeho (bool stisknuto)
+        protected Action<bool> buttonTiltLeftObserver; //callback pro změnu stavu tlačítka pro naklonění vlevo (bool stisknuto)
+        protected Action<bool> buttonTiltRightObserver; //callback pro změnu stavu tlačítka pro naklonění vpravo (bool stisknuto)
+        protected Action<bool> buttonTiltFrontObserver; //callback pro změnu stavu tlačítka pro naklonění dopředu (bool stisknuto)
+        protected Action<bool> buttonTiltBackObserver; //callback pro změnu stavu tlačítka pro naklonění dozadu (bool stisknuto)
         protected Action errorObserver; //callback když nastane chyba
         protected bool enabled = true; //příznak vypnutého/zapnutého ovládání
 
@@ -54,6 +60,24 @@ namespace Robot.Joystick
         /// <param name="observer">metoda vykonaná při eventu s parametry (int x souřadnice páčky, int y souřadnice páčky)</param>
         public void subscribeMoveStickObserver(Action<int, int> observer) {
             stickMoveObserver = observer;
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu analogového tlačítka zůžení předku
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (int míra zůžení)</param>
+        public void subscribeFrontNarrowObserver(Action<int> observer)
+        {
+            frontNarrowObserver = observer;
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu analogového tlačítka zůžení zadku
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (int míra zůžení)</param>
+        public void subscribeBackNarrowObserver(Action<int> observer)
+        {
+            backNarrowObserver = observer;
         }
 
         /// <summary>
@@ -128,6 +152,42 @@ namespace Robot.Joystick
         }
 
         /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro naklonění dopředu
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        public void subscribeButtonTiltFrontObserver(Action<bool> observer)
+        {
+            buttonTiltFrontObserver = observer;
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro naklonění dozadu
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        public void subscribeButtonTiltBackObserver(Action<bool> observer)
+        {
+            buttonTiltBackObserver = observer;
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro naklonění doprava
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        public void subscribeButtonTiltRightObserver(Action<bool> observer)
+        {
+            buttonTiltRightObserver = observer;
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro naklonění doleva
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        public void subscribeButtonTiltLeftObserver(Action<bool> observer)
+        {
+            buttonTiltLeftObserver = observer;
+        }
+
+        /// <summary>
         /// Přiřazení posluchače, když nastane chyba
         /// </summary>
         /// <param name="observer">metoda vykonaná při eventu</param>
@@ -151,7 +211,13 @@ namespace Robot.Joystick
             buttonRotateRightObserver = null;
             stickMoveObserver = null;
             buttonStopObserver = null;
-        }
+            frontNarrowObserver = null;
+            backNarrowObserver = null;
+            buttonTiltLeftObserver = null;
+            buttonTiltRightObserver = null;
+            buttonTiltFrontObserver = null;
+            buttonTiltBackObserver = null;
+    }
 
         /// <summary>
         /// Přepravka pro zapamatování stavu
@@ -162,6 +228,8 @@ namespace Robot.Joystick
             public int stickDirectMoveY = 0; //souřadnice Y joysticku pro přímý pohyb
             public int stickMoveX = 0; //souřadnice X joysticku pro pohyb v rádiusu
             public int stickMoveY = 0; //souřadnice Y joysticku pro pohyb v rádiusu
+            public int frontNarrow = 0; //analogové tlačítko pro zůžení předku
+            public int backNarrow = 0; //analogové tlačítko pro zůžení zadku
             public bool moveDown = false; //tlačítko pro pohyb dolu
             public bool moveUp = false; //tlačítko pro pohyb nahoru
             public bool narrow = false; //tlačítko pro zůžení
@@ -170,6 +238,10 @@ namespace Robot.Joystick
             public bool rotateLeft = false; //tlačítko pro rotaci vlevo
             public bool rotateRight = false; //tlačítko pro rotaci vpravo
             public bool stop = false; //tlačítko pro zastavení všeho
+            public bool tiltLeft = false; //tlačítko pro naklonění robota nalevo
+            public bool tiltRight = false; //tlačítko pro naklonění robota napravo
+            public bool tiltFront = false; //tlačítko pro naklonění robota dopředu
+            public bool tiltBack = false; //tlačítko pro naklonění robota dozadu
         }
     }
 }

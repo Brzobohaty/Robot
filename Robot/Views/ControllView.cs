@@ -17,6 +17,8 @@ namespace Robot
         private static ControllView instance = new ControllView();
         private Action<int, int> stickDirectMoveObserver; //callback pro změnu stavu páčky (int x souřadnice páčky, int y souřadnice páčky)
         private Action<int, int> stickMoveObserver; //callback pro změnu stavu páčky (int x souřadnice páčky, int y souřadnice páčky)
+        private Action<int> frontNarrowObserver; //callback pro změnu stavu analogového tlačítka pro zůžení předku (míra zůžení)
+        private Action<int> backNarrowObserver; //callback pro změnu stavu analogového tlačítka pro zůžení zadku (míra zůžení)
         private Action<bool> buttonMoveUpObserver; //callback pro změnu stavu tlačítka pro pohyb nahoru (bool stisknuto)
         private Action<bool> buttonMoveDownObserver; //callback pro změnu stavu tlačítka pro pohyb dolu (bool stisknuto)
         private Action<bool> buttonNarrowObserver; //callback pro změnu stavu tlačítka pro zůžení (bool stisknuto)
@@ -26,6 +28,10 @@ namespace Robot
         private Action<bool> buttonStopObserver; //callback pro změnu stavu tlačítka pro zastavení všeho (bool stisknuto)
         private Action<bool> buttonDefaultPositionObserver; //callback pro změnu stavu tlačítka pro defaultní pozici (bool stisknuto)
         private Action<bool> buttonAbsolutePositioningObserver; //callback pro stisknutí tačítka pro absolutní pozicování robota
+        protected Action<bool> buttonTiltLeftObserver; //callback pro změnu stavu tlačítka pro naklonění vlevo (bool stisknuto)
+        protected Action<bool> buttonTiltRightObserver; //callback pro změnu stavu tlačítka pro naklonění vpravo (bool stisknuto)
+        protected Action<bool> buttonTiltFrontObserver; //callback pro změnu stavu tlačítka pro naklonění dopředu (bool stisknuto)
+        protected Action<bool> buttonTiltBackObserver; //callback pro změnu stavu tlačítka pro naklonění dozadu (bool stisknuto)
         private bool enabledStick = true; //příznak zapnutí/vypnutí ovládání páčkou
         private const int joystickR = 70; //poloměr kružnice joysticku
         private Point stickDirectMoveLocation = new Point(joystickR, joystickR); //pozice páčky pro přímý pohyb
@@ -109,6 +115,12 @@ namespace Robot
                 buttonRotateLeft.Enabled = on;
                 buttonRotateRight.Enabled = on;
                 buttonStop.Enabled = on;
+                buttonTiltBack.Enabled = on;
+                buttonTiltFront.Enabled = on;
+                buttonTiltLeft.Enabled = on;
+                buttonTiltRight.Enabled = on;
+                trackBarBackNarrow.Enabled = on;
+                trackBarFrontNarrow.Enabled = on;
                 enabledStick = on;
             }
         }
@@ -143,6 +155,26 @@ namespace Robot
             panelForMoveJoystick.MouseMove += new MouseEventHandler(panelForJoystick_MouseMove);
             panelForMoveJoystick.MouseDown += new MouseEventHandler(panelForJoystick_MouseDown);
             panelForMoveJoystick.MouseUp += new MouseEventHandler(panelForJoystick_MouseUp);
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu analogového tlačítka zůžení předku
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (int míra zůžení)</param>
+        public void subscribeFrontNarrowObserver(Action<int> observer)
+        {
+            frontNarrowObserver = observer;
+            trackBarFrontNarrow.Scroll += new EventHandler(this.trackBarFrontNarrow_Scroll);
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu analogového tlačítka zůžení zadku
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (int míra zůžení)</param>
+        public void subscribeBackNarrowObserver(Action<int> observer)
+        {
+            backNarrowObserver = observer;
+            trackBarBackNarrow.Scroll += new EventHandler(this.trackBarBackNarrow_Scroll);
         }
 
         /// <summary>
@@ -231,6 +263,50 @@ namespace Robot
         }
 
         /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro naklonění dopředu
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        public void subscribeButtonTiltFrontObserver(Action<bool> observer)
+        {
+            buttonTiltFrontObserver = observer;
+            buttonTiltFront.MouseDown += new MouseEventHandler(buttonTiltFront_MouseDown);
+            buttonTiltFront.MouseUp += new MouseEventHandler(buttonTiltFront_MouseUp);
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro naklonění dozadu
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        public void subscribeButtonTiltBackObserver(Action<bool> observer)
+        {
+            buttonTiltBackObserver = observer;
+            buttonTiltBack.MouseDown += new MouseEventHandler(buttonTiltBack_MouseDown);
+            buttonTiltBack.MouseUp += new MouseEventHandler(buttonTiltBack_MouseUp);
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro naklonění doprava
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        public void subscribeButtonTiltRightObserver(Action<bool> observer)
+        {
+            buttonTiltRightObserver = observer;
+            buttonTiltRight.MouseDown += new MouseEventHandler(buttonTiltRight_MouseDown);
+            buttonTiltRight.MouseUp += new MouseEventHandler(buttonTiltRight_MouseUp);
+        }
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro naklonění doleva
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        public void subscribeButtonTiltLeftObserver(Action<bool> observer)
+        {
+            buttonTiltLeftObserver = observer;
+            buttonTiltLeft.MouseDown += new MouseEventHandler(buttonTiltLeft_MouseDown);
+            buttonTiltLeft.MouseUp += new MouseEventHandler(buttonTiltLeft_MouseUp);
+        }
+
+        /// <summary>
         /// Přiřazení posluchače, když nastane chyba
         /// </summary>
         /// <param name="observer">metoda vykonaná při eventu</param>
@@ -256,6 +332,24 @@ namespace Robot
         {
             stickMoveLocation = new Point((int)Math.Floor((x + 100) * ((double)joystickR / 100)), (int)Math.Floor((y + 100) * ((double)joystickR / 100)));
             panelForMoveJoystick.Invalidate();
+        }
+
+        /// <summary>
+        /// Nastaví slider pro zůžení zadku na danou hodnotu
+        /// </summary>
+        /// <param name="value">hodnota od 0 do 100</param>
+        public void setBackNarrowSlider(int value)
+        {
+            trackBarBackNarrow.Value = value;
+        }
+
+        /// <summary>
+        /// Nastaví slider pro zůžení p5edku na danou hodnotu
+        /// </summary>
+        /// <param name="value">hodnota od 0 do 100</param>
+        public void setFrontNarrowSlider(int value)
+        {
+            trackBarFrontNarrow.Value = value;
         }
 
         /// <summary>
@@ -331,6 +425,42 @@ namespace Robot
         }
 
         /// <summary>
+        /// Nastaví vzhled tlačítka pro naklonění dopředu jako stiknuté/nestiknuté podle daného parametru
+        /// </summary>
+        /// <param name="pressed">stiknuté/nestiknuté</param>
+        public void buttonTiltFrontPressed(bool pressed)
+        {
+            buttonPressed(buttonTiltFront, pressed);
+        }
+
+        /// <summary>
+        /// Nastaví vzhled tlačítka pro naklonění dozadu jako stiknuté/nestiknuté podle daného parametru
+        /// </summary>
+        /// <param name="pressed">stiknuté/nestiknuté</param>
+        public void buttonTiltBackPressed(bool pressed)
+        {
+            buttonPressed(buttonTiltBack, pressed);
+        }
+
+        /// <summary>
+        /// Nastaví vzhled tlačítka pro naklonění doleva jako stiknuté/nestiknuté podle daného parametru
+        /// </summary>
+        /// <param name="pressed">stiknuté/nestiknuté</param>
+        public void buttonTiltLeftPressed(bool pressed)
+        {
+            buttonPressed(buttonTiltLeft, pressed);
+        }
+
+        /// <summary>
+        /// Nastaví vzhled tlačítka pro naklonění doprava jako stiknuté/nestiknuté podle daného parametru
+        /// </summary>
+        /// <param name="pressed">stiknuté/nestiknuté</param>
+        public void buttonTiltRightPressed(bool pressed)
+        {
+            buttonPressed(buttonTiltRight, pressed);
+        }
+
+        /// <summary>
         /// Odstraní všechny posluchače na joysticku
         /// </summary>
         public void unsibscribeAllObservers()
@@ -345,10 +475,17 @@ namespace Robot
             buttonRotateLeftObserver = emptyMethod;
             buttonRotateRightObserver = emptyMethod;
             buttonStopObserver = emptyMethod;
+            frontNarrowObserver = emptyMethod;
+            backNarrowObserver = emptyMethod;
+            buttonTiltLeftObserver = emptyMethod;
+            buttonTiltRightObserver = emptyMethod;
+            buttonTiltFrontObserver = emptyMethod;
+            buttonTiltBackObserver = emptyMethod;
         }
 
         private void emptyMethod(bool a){}
         private void emptyMethod(int a, int b){}
+        private void emptyMethod(int a) { }
 
         /// <summary>
         /// Udělá vzhled daného tlačítko jako stisknuté nebo nestisknuté podle daného parametru
@@ -599,6 +736,56 @@ namespace Robot
         private void buttonStop_MouseUp(object sender, MouseEventArgs e)
         {
             buttonStopObserver(false);
+        }
+
+        private void buttonTiltFront_MouseDown(object sender, MouseEventArgs e)
+        {
+            buttonTiltFrontObserver(true);
+        }
+
+        private void buttonTiltFront_MouseUp(object sender, MouseEventArgs e)
+        {
+            buttonTiltFrontObserver(false);
+        }
+
+        private void buttonTiltBack_MouseDown(object sender, MouseEventArgs e)
+        {
+            buttonTiltBackObserver(true);
+        }
+
+        private void buttonTiltBack_MouseUp(object sender, MouseEventArgs e)
+        {
+            buttonTiltBackObserver(false);
+        }
+
+        private void buttonTiltLeft_MouseDown(object sender, MouseEventArgs e)
+        {
+            buttonTiltLeftObserver(true);
+        }
+
+        private void buttonTiltLeft_MouseUp(object sender, MouseEventArgs e)
+        {
+            buttonTiltLeftObserver(false);
+        }
+
+        private void buttonTiltRight_MouseDown(object sender, MouseEventArgs e)
+        {
+            buttonTiltRightObserver(true);
+        }
+
+        private void buttonTiltRight_MouseUp(object sender, MouseEventArgs e)
+        {
+            buttonTiltRightObserver(false);
+        }
+
+        private void trackBarFrontNarrow_Scroll(object sender, EventArgs e)
+        {
+            frontNarrowObserver(((TrackBar)sender).Value);
+        }
+
+        private void trackBarBackNarrow_Scroll(object sender, EventArgs e)
+        {
+            backNarrowObserver(((TrackBar)sender).Value);
         }
     }
 }

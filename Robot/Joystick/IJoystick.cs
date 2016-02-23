@@ -30,6 +30,18 @@ namespace Robot.Joystick
         void subscribeMoveStickObserver(Action<int, int> observer);
 
         /// <summary>
+        /// Přiřazení posluchače pro změnu stavu analogového tlačítka zůžení předku
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (int míra zůžení)</param>
+        void subscribeFrontNarrowObserver(Action<int> observer);
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu analogového tlačítka zůžení zadku
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (int míra zůžení)</param>
+        void subscribeBackNarrowObserver(Action<int> observer);
+
+        /// <summary>
         /// Přiřazení posluchače pro změnu stavu tlačítka pro pohyb nahoru
         /// </summary>
         /// <param name="observer">metoda vykonaná při eventu s parametry (bool pohyb nahoru)</param>
@@ -76,6 +88,30 @@ namespace Robot.Joystick
         /// </summary>
         /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
         void subscribeButtonStopObserver(Action<bool> observer);
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro naklonění dopředu
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        void subscribeButtonTiltFrontObserver(Action<bool> observer);
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro naklonění dozadu
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        void subscribeButtonTiltBackObserver(Action<bool> observer);
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro naklonění doprava
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        void subscribeButtonTiltRightObserver(Action<bool> observer);
+
+        /// <summary>
+        /// Přiřazení posluchače pro změnu stavu tlačítka pro naklonění doleva
+        /// </summary>
+        /// <param name="observer">metoda vykonaná při eventu s parametry (bool stisknuto)</param>
+        void subscribeButtonTiltLeftObserver(Action<bool> observer);
 
         /// <summary>
         /// Přiřazení posluchače, když nastane chyba

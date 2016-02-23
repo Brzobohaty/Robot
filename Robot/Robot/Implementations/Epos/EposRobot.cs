@@ -208,6 +208,61 @@ namespace Robot.Robot.Implementations.Epos
         }
 
         /// <summary>
+        /// Nahne robota dozadu
+        /// </summary>
+        public void tiltBack() {
+            //TODO
+            Console.WriteLine("tiltBack");
+        }
+
+        /// <summary>
+        /// Nahne robota dopředu
+        /// </summary>
+        public void tiltFront()
+        {
+            //TODO
+            Console.WriteLine("tiltFront");
+        }
+
+        /// <summary>
+        /// Nahne robota doleva
+        /// </summary>
+        public void tiltLeft()
+        {
+            //TODO
+            Console.WriteLine("tiltLeft");
+        }
+
+        /// <summary>
+        /// Nahne robota doprava
+        /// </summary>
+        public void tiltRight()
+        {
+            //TODO
+            Console.WriteLine("tiltRight");
+        }
+
+        /// <summary>
+        /// Zůžit předek
+        /// </summary>
+        /// <param name="measure">míra zůžení od 0 do 100</param>
+        public void narrowFront(int measure)
+        {
+            //TODO
+            Console.WriteLine("narrowFront "+ measure);
+        }
+
+        /// <summary>
+        /// Zůžit zadek
+        /// </summary>
+        /// <param name="measure">míra zůžení od 0 do 100</param>
+        public void narrowBack(int measure)
+        {
+            //TODO
+            Console.WriteLine("narrowBack " + measure);
+        }
+
+        /// <summary>
         /// Pohne s daným motorem v daném směru o daný krok
         /// </summary>
         /// <param name="motorId">id motoru</param>

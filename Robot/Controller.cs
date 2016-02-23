@@ -37,6 +37,10 @@ namespace Robot
         private System.Timers.Timer narrowPeriodHandler;
         private System.Timers.Timer rotateLeftPeriodHandler;
         private System.Timers.Timer rotateRightPeriodHandler;
+        private System.Timers.Timer tiltFrontPeriodHandler;
+        private System.Timers.Timer tiltBackPeriodHandler;
+        private System.Timers.Timer tiltLeftPeriodHandler;
+        private System.Timers.Timer tiltRightPeriodHandler;
 
         /// <param name="mainWindow">hlavní okno aplikace</param>
         public Controller(MainWindow mainWindow)
@@ -94,6 +98,10 @@ namespace Robot
                 narrowPeriodHandler = getPeriodHandler();
                 rotateLeftPeriodHandler = getPeriodHandler();
                 rotateRightPeriodHandler = getPeriodHandler();
+                tiltFrontPeriodHandler = getPeriodHandler();
+                tiltBackPeriodHandler = getPeriodHandler();
+                tiltLeftPeriodHandler = getPeriodHandler();
+                tiltRightPeriodHandler = getPeriodHandler();
                 controllOnOff(true);
             }
         }
@@ -137,6 +145,12 @@ namespace Robot
             joystick.subscribeButtonRotateLeftObserver(joystickButtonRotateLeftChanged);
             joystick.subscribeButtonRotateRightObserver(joystickButtonRotateRightChanged);
             joystick.subscribeButtonStopObserver(joystickButtonStopChanged);
+            joystick.subscribeButtonTiltBackObserver(joystickButtonTiltBackChanged);
+            joystick.subscribeButtonTiltFrontObserver(joystickButtonTiltFrontChanged);
+            joystick.subscribeButtonTiltLeftObserver(joystickButtonTiltLeftChanged);
+            joystick.subscribeButtonTiltRightObserver(joystickButtonTiltRightChanged);
+            joystick.subscribeFrontNarrowObserver(joysticFrontNarrowChanged);
+            joystick.subscribeBackNarrowObserver(joystickBackNarrowChanged);
             joystick.subscribeErrorObserver(refindJoystick);
             if (!joystickBridge.success)
             {
@@ -147,6 +161,102 @@ namespace Robot
             {
                 controllView.showControlMessage(MessageTypeEnum.success, joystickBridge.message);
             }
+        }
+
+        /// <summary>
+        /// Callback pro změnu stavu analogového tlačítka gamepadu pro zůžení předku
+        /// </summary>
+        /// <param name="measure">míra zůžení od 0 do 100</param>
+        private void joysticFrontNarrowChanged(int measure){
+            robot.narrowFront(measure);
+            if (!(joystick is MainWindow))
+            {
+                controllView.setFrontNarrowSlider(measure);
+            }
+        }
+
+        /// <summary>
+        /// Callback pro změnu stavu analogového tlačítka gamepadu pro zůžení zadku
+        /// </summary>
+        /// <param name="measure">míra zůžení od 0 do 100</param>
+        private void joystickBackNarrowChanged(int measure)
+        {
+            robot.narrowBack(measure);
+            if (!(joystick is MainWindow))
+            {
+                controllView.setBackNarrowSlider(measure);
+            }
+        }
+
+        /// <summary>
+        /// Callback pro změnu stavu tlačítka pro nahnutí dopředu 
+        /// </summary>
+        /// <param name="pressed">příznak stisknutí</param>
+        private void joystickButtonTiltFrontChanged(bool pressed) {
+            if (pressed)
+            {
+                periodiclyAction(tiltFrontPeriodHandler, null);
+                tiltFrontPeriodHandler.Start();
+            }
+            else
+            {
+                tiltFrontPeriodHandler.Stop();
+            }
+            controllView.buttonTiltFrontPressed(pressed);
+        }
+
+        /// <summary>
+        /// Callback pro změnu stavu tlačítka pro nahnutí dozadu 
+        /// </summary>
+        /// <param name="pressed">příznak stisknutí</param>
+        private void joystickButtonTiltBackChanged(bool pressed)
+        {
+            if (pressed)
+            {
+                periodiclyAction(tiltBackPeriodHandler, null);
+                tiltBackPeriodHandler.Start();
+            }
+            else
+            {
+                tiltBackPeriodHandler.Stop();
+            }
+            controllView.buttonTiltBackPressed(pressed);
+        }
+
+        /// <summary>
+        /// Callback pro změnu stavu tlačítka pro nahnutí doleva 
+        /// </summary>
+        /// <param name="pressed">příznak stisknutí</param>
+        private void joystickButtonTiltLeftChanged(bool pressed)
+        {
+            if (pressed)
+            {
+                periodiclyAction(tiltLeftPeriodHandler, null);
+                tiltLeftPeriodHandler.Start();
+            }
+            else
+            {
+                tiltLeftPeriodHandler.Stop();
+            }
+            controllView.buttonTiltLeftPressed(pressed);
+        }
+
+        /// <summary>
+        /// Callback pro změnu stavu tlačítka pro nahnutí doprava 
+        /// </summary>
+        /// <param name="pressed">příznak stisknutí</param>
+        private void joystickButtonTiltRightChanged(bool pressed)
+        {
+            if (pressed)
+            {
+                periodiclyAction(tiltRightPeriodHandler, null);
+                tiltRightPeriodHandler.Start();
+            }
+            else
+            {
+                tiltRightPeriodHandler.Stop();
+            }
+            controllView.buttonTiltRightPressed(pressed);
         }
 
         /// <summary>
@@ -223,6 +333,22 @@ namespace Robot
             if (sender == rotateRightPeriodHandler)
             {
                 robot.rotate(false);
+            }
+            if (sender == tiltBackPeriodHandler)
+            {
+                robot.tiltBack();
+            }
+            if (sender == tiltFrontPeriodHandler)
+            {
+                robot.tiltFront();
+            }
+            if (sender == tiltLeftPeriodHandler)
+            {
+                robot.tiltLeft();
+            }
+            if (sender == tiltRightPeriodHandler)
+            {
+                robot.tiltRight();
             }
         }
 

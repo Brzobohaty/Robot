@@ -108,5 +108,37 @@ namespace Robot.Robot
         /// Nastaví motorům prametry podle aktuálně nastavených hodnot v settings
         /// </summary>
         void refreshMototrsParameters();
+
+        /// <summary>
+        /// Nahne robota dozadu
+        /// </summary>
+        void tiltBack();
+
+        /// <summary>
+        /// Nahne robota dopředu
+        /// </summary>
+        void tiltFront();
+
+        /// <summary>
+        /// Nahne robota doleva
+        /// </summary>
+        void tiltLeft();
+
+        /// <summary>
+        /// Nahne robota doprava
+        /// </summary>
+        void tiltRight();
+
+        /// <summary>
+        /// Zůžit předek
+        /// </summary>
+        /// <param name="measure">míra zůžení od 0 do 100</param>
+        void narrowFront(int measure);
+
+        /// <summary>
+        /// Zůžit zadek
+        /// </summary>
+        /// <param name="measure">míra zůžení od 0 do 100</param>
+        void narrowBack(int measure);
     }
 }

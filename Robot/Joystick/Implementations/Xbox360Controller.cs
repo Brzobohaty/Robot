@@ -12,7 +12,7 @@ namespace Robot.Joystick.Implementations
     {
         private SlimDX.XInput.Controller gamepad = new SlimDX.XInput.Controller(0); //připojený gamepad
         private GamePadeState state = new GamePadeState(); //stav gamepadu
-        private const int sensitivity = 5; //citlivost joysticku 
+        private const int sensitivity = 5; //citlivost joysticku a zadních analogových tlačítek
         private Timer periodicChecker; //periodický kontorler stavu gamepadu
 
         /// <summary>
@@ -101,6 +101,30 @@ namespace Robot.Joystick.Implementations
                         state.stop = buttons.HasFlag(GamepadButtonFlags.Back);
                     }
 
+                    if (state.tiltFront != buttons.HasFlag(GamepadButtonFlags.DPadUp) && buttonTiltFrontObserver != null)
+                    {
+                        buttonTiltFrontObserver(buttons.HasFlag(GamepadButtonFlags.DPadUp));
+                        state.tiltFront = buttons.HasFlag(GamepadButtonFlags.DPadUp);
+                    }
+
+                    if (state.tiltBack != buttons.HasFlag(GamepadButtonFlags.DPadDown) && buttonTiltBackObserver != null)
+                    {
+                        buttonTiltBackObserver(buttons.HasFlag(GamepadButtonFlags.DPadDown));
+                        state.tiltBack = buttons.HasFlag(GamepadButtonFlags.DPadDown);
+                    }
+
+                    if (state.tiltLeft != buttons.HasFlag(GamepadButtonFlags.DPadLeft) && buttonTiltLeftObserver != null)
+                    {
+                        buttonTiltLeftObserver(buttons.HasFlag(GamepadButtonFlags.DPadLeft));
+                        state.tiltLeft = buttons.HasFlag(GamepadButtonFlags.DPadLeft);
+                    }
+
+                    if (state.tiltRight != buttons.HasFlag(GamepadButtonFlags.DPadRight) && buttonTiltRightObserver != null)
+                    {
+                        buttonTiltRightObserver(buttons.HasFlag(GamepadButtonFlags.DPadRight));
+                        state.tiltRight = buttons.HasFlag(GamepadButtonFlags.DPadRight);
+                    }
+
                     if ((Math.Abs(state.stickDirectMoveX - stateNow.Gamepad.LeftThumbX) > sensitivity || Math.Abs(state.stickDirectMoveY - stateNow.Gamepad.LeftThumbY) > sensitivity) && stickDirectMoveObserver != null)
                     {
                         state.stickDirectMoveX = stateNow.Gamepad.LeftThumbX;
@@ -128,7 +152,30 @@ namespace Robot.Joystick.Implementations
                         }
                         stickMoveObserver(x, y);
                     }
-                }catch (XInputException)
+
+                    if ((Math.Abs(state.frontNarrow - stateNow.Gamepad.LeftTrigger) > sensitivity) && frontNarrowObserver != null)
+                    {
+                        state.frontNarrow = stateNow.Gamepad.LeftTrigger;
+                        int frontNarrow = MathLibrary.changeScale(state.frontNarrow, 0, 255, 0, 100);
+                        if (state.frontNarrow < sensitivity)
+                        {
+                            frontNarrow = 0;
+                        }
+                        frontNarrowObserver(frontNarrow);
+                    }
+
+                    if ((Math.Abs(state.backNarrow - stateNow.Gamepad.RightTrigger) > sensitivity) && backNarrowObserver != null)
+                    {
+                        state.backNarrow = stateNow.Gamepad.RightTrigger;
+                        int backNarrow = MathLibrary.changeScale(state.backNarrow, 0, 255, 0, 100);
+                        if (state.backNarrow < sensitivity)
+                        {
+                            backNarrow = 0;
+                        }
+                        backNarrowObserver(backNarrow);
+                    }
+                }
+                catch (XInputException)
                 {
                     periodicChecker.Dispose();
                     errorObserver();
