@@ -310,7 +310,8 @@ namespace Robot.Robot.Implementations.Epos
             {
                 DialogResult dialogResult = MessageBox.Show("Výška jedné nebo více nohou je nastavena příliš vysoko (nad 40 °) a takovou polohu nelze z manipulačních důvodů nastavit jako výchozí.", "Zakázaná výška", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-            else {
+            else
+            {
                 foreach (KeyValuePair<MotorId, IMotor> motor in motors)
                 {
                     motor.Value.setCurrentPositionAsDefault();
@@ -390,7 +391,8 @@ namespace Robot.Robot.Implementations.Epos
         /// Rotuje robota kolem jeho středu (krok 1 - natočení kol)
         /// </summary>
         /// <param name="left">příznak, zda rotovat doleva</param>
-        private void rotateStep1(bool left) {
+        private void rotateStep1(bool left)
+        {
             if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
             {
                 if (periodicChecker != null)
@@ -398,18 +400,36 @@ namespace Robot.Robot.Implementations.Epos
                     periodicChecker.Dispose();
                 }
 
-                //TODO
+                motors[MotorId.LP_R].moveToPosition(0);
+                motors[MotorId.PP_R].moveToPosition(0);
+                motors[MotorId.LZ_R].moveToPosition(0);
+                motors[MotorId.PZ_R].moveToPosition(0);
+
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { rotateStep2(left); };
+            }
+        }
+
+        /// <summary>
+        /// Rotuje robota kolem jeho středu (krok 2 - pohon kol)
+        /// </summary>
+        /// <param name="left">příznak, zda rotovat doleva</param>
+        private void rotateStep2(bool left)
+        {
+            if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
+            {
+                periodicChecker.Dispose();
+
+                int rev = 1;
                 if (left)
                 {
-                    Console.WriteLine("rotace vlevo");
-                }
-                else
-                {
-                    Console.WriteLine("rotace vpravo");
+                    rev = -1;
                 }
 
-                //createPeriodicChecker();
-                //periodicChecker.Elapsed += delegate { setDefaultPositionStep2(); };
+                motors[MotorId.LP_P].move(4000 * rev);
+                motors[MotorId.PP_P].move(4000 * rev);
+                motors[MotorId.LZ_P].move(4000 * rev);
+                motors[MotorId.PZ_P].move(4000 * rev);
             }
         }
 
@@ -435,7 +455,8 @@ namespace Robot.Robot.Implementations.Epos
                 motors[MotorId.LZ_Z].setDefaultPosition();
                 motors[MotorId.PZ_Z].setDefaultPosition();
 
-                
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { setDefaultPositionStep2(); };
             }
         }
 
