@@ -53,16 +53,16 @@ namespace Robot.Joystick.Implementations
                     State stateNow = gamepad.GetState();
                     GamepadButtonFlags buttons = stateNow.Gamepad.Buttons;
 
-                    if (state.moveDown != buttons.HasFlag(GamepadButtonFlags.A) && buttonMoveDownObserver != null)
+                    if (state.moveDown != buttons.HasFlag(GamepadButtonFlags.Y) && buttonMoveDownObserver != null)
                     {
-                        buttonMoveDownObserver(buttons.HasFlag(GamepadButtonFlags.A));
-                        state.moveDown = buttons.HasFlag(GamepadButtonFlags.A);
+                        buttonMoveDownObserver(buttons.HasFlag(GamepadButtonFlags.Y));
+                        state.moveDown = buttons.HasFlag(GamepadButtonFlags.Y);
                     }
 
-                    if (state.moveUp != buttons.HasFlag(GamepadButtonFlags.Y) && buttonMoveUpObserver != null)
+                    if (state.moveUp != buttons.HasFlag(GamepadButtonFlags.A) && buttonMoveUpObserver != null)
                     {
-                        buttonMoveUpObserver(buttons.HasFlag(GamepadButtonFlags.Y));
-                        state.moveUp = buttons.HasFlag(GamepadButtonFlags.Y);
+                        buttonMoveUpObserver(buttons.HasFlag(GamepadButtonFlags.A));
+                        state.moveUp = buttons.HasFlag(GamepadButtonFlags.A);
                     }
 
                     if (state.narrow != buttons.HasFlag(GamepadButtonFlags.X) && buttonNarrowObserver != null)

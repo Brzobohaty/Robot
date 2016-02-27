@@ -694,7 +694,8 @@ namespace Robot
         /// <summary>
         /// Vytvoření periodického kontrolora připojeného gamepadu
         /// </summary>
-        private void createGamePadChecker() {
+        private void createGamePadChecker()
+        {
             gamePadChecker = new System.Timers.Timer();
             gamePadChecker.Elapsed += delegate { refindJoystick(); };
             gamePadChecker.Interval = 5000;

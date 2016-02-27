@@ -18,6 +18,7 @@ namespace Robot.Joystick.Implementations
         private GamePadeState state = new GamePadeState(); //stav gamepadu
         private const int sensitivity = 5; //citlivost joysticku
         private Timer periodicChecker; //periodický kontorler stavu gamepadu
+        DirectInput dinput;
 
         /// <summary>
         /// Inicializace gamepad
@@ -32,7 +33,7 @@ namespace Robot.Joystick.Implementations
                 setJoystickObserver();
                 return true;
             }
-            catch (Exception e)
+            catch (DirectInputException)
             {
                 return false;
             }
@@ -45,7 +46,7 @@ namespace Robot.Joystick.Implementations
         /// <exception>Pokud se nepodařilo najít žádné funkční zařízení</exception>
         private SlimDX.DirectInput.Joystick getGamepad()
         {
-            DirectInput dinput = new DirectInput();
+            dinput = new DirectInput();
             SlimDX.DirectInput.Joystick gamepad;
             string errorMessage = "Nebylo nalezeno žádné vnější ovládací zařízení.";
 
@@ -67,10 +68,12 @@ namespace Robot.Joystick.Implementations
                 }
                 catch (DirectInputException e)
                 {
+                    dinput.Dispose();
                     errorMessage = e.Message;
                 }
             }
-            throw new Exception(errorMessage);
+            dinput.Dispose();
+            throw new DirectInputException(errorMessage);
         }
 
         /// <summary>
@@ -99,6 +102,7 @@ namespace Robot.Joystick.Implementations
                 }
                 catch (DirectInputException)
                 {
+                    dinput.Dispose();
                     periodicChecker.Dispose();
                     errorObserver();
                 }

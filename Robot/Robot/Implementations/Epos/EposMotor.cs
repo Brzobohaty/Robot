@@ -37,7 +37,7 @@ namespace Robot.Robot.Implementations.Epos
         private int minPosition; //minimální pozice na motoru
         private bool hasPositionLimit = false; //příznak, zda má motor maximální a minimální hranici pohybu
         private bool limitEnable = true; //příznak, zda má motor zaplou kontrolu limitů
-        private uint maxSpeed; //maximální rychlost motoru
+        private int maxSpeed; //maximální rychlost motoru
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
         private int lastPosition = 0; //poslední pozice motoru
 
@@ -113,7 +113,7 @@ namespace Robot.Robot.Implementations.Epos
                     sm.ClearFault();
                 sm.SetEnableState();
 
-                maxSpeed = velocity;
+                maxSpeed = (int)velocity;
                 velocityHandler = motor.Operation.ProfileVelocityMode;
                 velocityHandler.SetVelocityProfile(aceleration, deceleration);
                 positionHandler = motor.Operation.ProfilePositionMode;
@@ -144,6 +144,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="aceleration">zrychlení motoru při rychlostním řízení</param>
         /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
         public void setParameters(uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration) {
+            maxSpeed = (int)velocity;
             if (velocityHandler != null) {
                 velocityHandler.SetVelocityProfile(aceleration, deceleration);
             }
@@ -188,7 +189,7 @@ namespace Robot.Robot.Implementations.Epos
         {
             if (velocityHandler != null && stateHandler != null && !hasPositionLimit)
             {
-                MathLibrary.changeScale(speed, -100, 100, -5000, 5000);
+                speed = MathLibrary.changeScale(speed, -100, 100, -maxSpeed, maxSpeed);
                 try
                 {
                     velocityHandler.MoveWithVelocity(speed * rev);
