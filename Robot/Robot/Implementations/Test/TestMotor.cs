@@ -19,7 +19,7 @@ namespace Robot.Robot.Implementations.Test
         public int minAngle { get; private set; } //minimální úhel natočení motoru
         public int maxAngle { get; private set; } //maximální úhel natočení motoru
         private MotorMode mode; //mód ve kterém se zrovna nachází handler motoru
-        private StateObserver stateObserver; //posluchač pro stav motoru
+        private IStateObserver stateObserver; //posluchač pro stav motoru
         private Action motorErrorOccuredObserver; //posluchač chyb na motoru
         private int rev = 1; //modifikátor směru [1, -1]
         private MotorId id; //id motoru
@@ -56,7 +56,7 @@ namespace Robot.Robot.Implementations.Test
         /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
         /// <param name="minPosition">minimální pozice motoru</param>
         /// <param name="maxPosition">maximální pozice motoru</param>
-        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int minPosition, int maxPosition, int minAngle, int maxAngle)
+        public void inicialize(DeviceManager connector, IStateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int minPosition, int maxPosition, int minAngle, int maxAngle)
         {
             hasPositionLimit = true;
             this.maxPosition = maxPosition;
@@ -82,7 +82,7 @@ namespace Robot.Robot.Implementations.Test
         /// <param name="velocity">maximální rychlost motoru při rychlostním řízení</param>
         /// <param name="aceleration">zrychlení motoru při rychlostním řízení</param>
         /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
-        public void inicialize(DeviceManager connector, StateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration)
+        public void inicialize(DeviceManager connector, IStateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration)
         {
             this.mode = mode;
             this.stateObserver = stateObserver;

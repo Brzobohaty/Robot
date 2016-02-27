@@ -9,7 +9,7 @@ namespace Robot
     /// <summary>
     /// Rozhraní pro posluchač stavu motoru 
     /// </summary>
-    public interface StateObserver
+    public interface IStateObserver
     {
         /// <summary>
         /// Nahlásí event změny stavu motoru

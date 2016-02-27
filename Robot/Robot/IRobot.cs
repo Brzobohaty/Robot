@@ -18,7 +18,7 @@ namespace Robot.Robot
         /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
         /// <param name="motorErrorOccuredObserver">posluchač jakéhokoli eroru motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        string inicialize(StateObserver motorStateObserver, bool withChooseOfBus, Action motorErrorOccuredObserver);
+        string inicialize(IStateObserver motorStateObserver, bool withChooseOfBus, Action motorErrorOccuredObserver);
 
         /// <summary>
         /// Pohne s robotem v daném směru a danou rychlostí

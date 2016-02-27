@@ -11,7 +11,7 @@ using System.Drawing.Drawing2D;
 
 namespace Robot
 {
-    public partial class DiagnosticView : UserControl, StateObserver
+    public partial class DiagnosticView : UserControl, IStateObserver
     {
         private static DiagnosticView instance = new DiagnosticView();
         private Dictionary<MotorId, Label> motorViews = new Dictionary<MotorId, Label>(); //mapa view motorů

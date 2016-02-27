@@ -37,7 +37,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="withChooseOfBus">příznak, zda při inicilizaci nechat uživatele nastavit parametry připojení</param>
         /// <param name="motorErrorOccuredObserver">posluchač jakéhokoli eroru motoru</param>
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
-        public string inicialize(StateObserver motorStateObserver, bool withChooseOfBus, Action motorErrorOccuredObserver)
+        public string inicialize(IStateObserver motorStateObserver, bool withChooseOfBus, Action motorErrorOccuredObserver)
         {
             try
             {
@@ -824,7 +824,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <param name="motorErrorOccuredObserver">posluchač jakéhokoli eroru motoru</param>
-        private void inicializeSimulation(StateObserver motorStateObserver, Action motorErrorOccuredObserver)
+        private void inicializeSimulation(IStateObserver motorStateObserver, Action motorErrorOccuredObserver)
         {
             test = true;
             motors.Clear();
@@ -841,7 +841,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         /// <param name="motorStateObserver">posluchač stavu motoru</param>
         /// <param name="motorErrorOccuredObserver">posluchač jakéhokoli eroru motoru</param>
-        private void inicializeMotors(StateObserver motorStateObserver, Action motorErrorOccuredObserver)
+        private void inicializeMotors(IStateObserver motorStateObserver, Action motorErrorOccuredObserver)
         {
             motors[MotorId.PP_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 4, MotorId.PP_P, MotorMode.velocity, true, 1, (uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
             motors[MotorId.LP_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 8, MotorId.LP_P, MotorMode.velocity, false, 1, (uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
