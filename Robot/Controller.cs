@@ -698,7 +698,7 @@ namespace Robot
         {
             gamePadChecker = new System.Timers.Timer();
             gamePadChecker.Elapsed += delegate { refindJoystick(); };
-            gamePadChecker.Interval = 5000;
+            gamePadChecker.Interval = 10000;
             gamePadChecker.Enabled = false;
         }
 

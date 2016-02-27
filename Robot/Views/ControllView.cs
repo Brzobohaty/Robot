@@ -36,6 +36,7 @@ namespace Robot
         private const int joystickR = 70; //poloměr kružnice joysticku
         private Point stickDirectMoveLocation = new Point(joystickR, joystickR); //pozice páčky pro přímý pohyb
         private Point stickMoveLocation = new Point(joystickR, joystickR); //pozice páčky pro rádiusový pohyb
+        private bool trackBarsNarrowEnabled = true; //příznak zapnutí posuvníků pro zůžování zadku/předku
 
         private ControllView()
         {
@@ -119,8 +120,7 @@ namespace Robot
                 buttonTiltFront.Enabled = on;
                 buttonTiltLeft.Enabled = on;
                 buttonTiltRight.Enabled = on;
-                trackBarBackNarrow.Enabled = on;
-                trackBarFrontNarrow.Enabled = on;
+                trackBarsNarrowEnabled = on;
                 enabledStick = on;
             }
         }
@@ -780,12 +780,35 @@ namespace Robot
 
         private void trackBarFrontNarrow_Scroll(object sender, EventArgs e)
         {
-            frontNarrowObserver(((TrackBar)sender).Value);
+            if (trackBarsNarrowEnabled) {
+                frontNarrowObserver(((TrackBar)sender).Value);
+            }
         }
 
         private void trackBarBackNarrow_Scroll(object sender, EventArgs e)
         {
+            if (trackBarsNarrowEnabled)
+            {
+                backNarrowObserver(((TrackBar)sender).Value);
+            }
+        }
+
+        private void trackBarFrontNarrow_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (trackBarsNarrowEnabled)
+            {
+                trackBarFrontNarrow.Value = 0;
+            frontNarrowObserver(((TrackBar)sender).Value);
+            }
+        }
+
+        private void trackBarBackNarrow_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (trackBarsNarrowEnabled)
+            {
+                trackBarBackNarrow.Value = 0;
             backNarrowObserver(((TrackBar)sender).Value);
+            }
         }
     }
 }

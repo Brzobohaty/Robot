@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AbsoluteControllView));
             this.label1 = new System.Windows.Forms.Label();
             this.buttonJoystickPositioning = new System.Windows.Forms.Button();
@@ -73,6 +74,7 @@
             this.panelWithWarrning = new System.Windows.Forms.Panel();
             this.labelWarrning = new System.Windows.Forms.Label();
             this.labelWarningIcon = new System.Windows.Forms.Label();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.panel1.SuspendLayout();
             this.panelWithWarrning.SuspendLayout();
             this.SuspendLayout();
@@ -98,6 +100,7 @@
             this.buttonJoystickPositioning.Size = new System.Drawing.Size(811, 50);
             this.buttonJoystickPositioning.TabIndex = 15;
             this.buttonJoystickPositioning.Text = "Ovládání pomocí joystiku";
+            this.toolTip1.SetToolTip(this.buttonJoystickPositioning, "Přepne ovládací mód na joystick.");
             this.buttonJoystickPositioning.UseVisualStyleBackColor = true;
             this.buttonJoystickPositioning.Click += new System.EventHandler(this.buttonJoystikPositioning_Click);
             // 
@@ -158,6 +161,8 @@
             this.checkBoxLimitProtection.Size = new System.Drawing.Size(139, 21);
             this.checkBoxLimitProtection.TabIndex = 89;
             this.checkBoxLimitProtection.Text = "Ochrana dojezdů";
+            this.toolTip1.SetToolTip(this.checkBoxLimitProtection, "Vypnutí/zapnutí ochrany dojezdů. Pokud je ochrana vypnutá, tak je možné, že se ně" +
+        "které části robota dostanou do kolize.");
             this.checkBoxLimitProtection.UseVisualStyleBackColor = true;
             this.checkBoxLimitProtection.CheckedChanged += new System.EventHandler(this.checkBoxLimitProtection_CheckedChanged);
             // 
@@ -169,6 +174,7 @@
             this.buttonCancelRecalibration.Size = new System.Drawing.Size(329, 50);
             this.buttonCancelRecalibration.TabIndex = 88;
             this.buttonCancelRecalibration.Text = "Cancel";
+            this.toolTip1.SetToolTip(this.buttonCancelRecalibration, "Ukončit proces kalibrace a neukládat žádná data.");
             this.buttonCancelRecalibration.UseVisualStyleBackColor = true;
             this.buttonCancelRecalibration.Visible = false;
             this.buttonCancelRecalibration.Click += new System.EventHandler(this.buttonCancelRecalibration_Click);
@@ -181,6 +187,8 @@
             this.buttonCalibr.Size = new System.Drawing.Size(327, 50);
             this.buttonCalibr.TabIndex = 87;
             this.buttonCalibr.Text = "Kalibrovat";
+            this.toolTip1.SetToolTip(this.buttonCalibr, "Nastaví současné polohy motorů jako nulové, podle kterých se budou řídit veškeré " +
+        "algoritmy pohybu.");
             this.buttonCalibr.UseVisualStyleBackColor = true;
             this.buttonCalibr.Visible = false;
             this.buttonCalibr.Click += new System.EventHandler(this.buttonCalibr_Click);
@@ -193,6 +201,7 @@
             this.buttonSetDefaultPosition.Size = new System.Drawing.Size(327, 50);
             this.buttonSetDefaultPosition.TabIndex = 85;
             this.buttonSetDefaultPosition.Text = "Nastavit jako výchozí pozici";
+            this.toolTip1.SetToolTip(this.buttonSetDefaultPosition, "Nastaví současnou polohu všech motorů jako výchozí.");
             this.buttonSetDefaultPosition.UseVisualStyleBackColor = true;
             this.buttonSetDefaultPosition.Click += new System.EventHandler(this.buttonSetDefaultPosition_Click);
             // 
@@ -577,6 +586,8 @@
             this.label2.Size = new System.Drawing.Size(155, 25);
             this.label2.TabIndex = 53;
             this.label2.Text = "Velikost kroku:";
+            this.toolTip1.SetToolTip(this.label2, "Nastavení velikosti kroku, o který se budou otáčet motory při kliknutí na tlačítk" +
+        "o.");
             // 
             // comboBoxStep
             // 
@@ -592,6 +603,8 @@
             this.comboBoxStep.Size = new System.Drawing.Size(121, 33);
             this.comboBoxStep.TabIndex = 52;
             this.comboBoxStep.Text = "střední";
+            this.toolTip1.SetToolTip(this.comboBoxStep, "Nastavení velikosti kroku, o který se budou otáčet motory při kliknutí na tlačítk" +
+        "o.");
             this.comboBoxStep.SelectedIndexChanged += new System.EventHandler(this.comboBoxStep_SelectedIndexChanged);
             // 
             // rightLP_P
@@ -704,5 +717,6 @@
         private System.Windows.Forms.Button buttonCalibr;
         private System.Windows.Forms.Button buttonCancelRecalibration;
         private System.Windows.Forms.CheckBox checkBoxLimitProtection;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

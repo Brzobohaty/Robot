@@ -134,7 +134,7 @@ namespace Robot.Robot.Implementations.Test
             if (speed != 0)
             {
                 createSimulateTicker();
-                simulateTicker.Elapsed += delegate { simulateMove(Math.Sign(speed)); };
+                simulateTicker.Elapsed += delegate { simulateMove(Math.Sign(speed*rev)); };
             }
             else
             {

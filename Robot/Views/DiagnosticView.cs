@@ -139,7 +139,7 @@ namespace Robot
                     LP_ZK = angle;
                     break;
                 case MotorId.PP_P:
-                    PP_P = -speed;
+                    PP_P = speed;
                     break;
                 case MotorId.PP_R:
                     PP_R = -angle;
@@ -163,7 +163,7 @@ namespace Robot
                     LZ_ZK = -angle;
                     break;
                 case MotorId.PZ_P:
-                    PZ_P = -speed;
+                    PZ_P = speed;
                     break;
                 case MotorId.PZ_R:
                     PZ_R = angle;

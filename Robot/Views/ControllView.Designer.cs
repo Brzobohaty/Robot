@@ -28,11 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ControllView));
             this.messageLabelControl = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.buttonAbsolutPositioning = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.trackBarBackNarrow = new System.Windows.Forms.TrackBar();
+            this.trackBarFrontNarrow = new System.Windows.Forms.TrackBar();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.buttonWiden = new System.Windows.Forms.Button();
             this.buttonNarrow = new System.Windows.Forms.Button();
@@ -44,24 +49,25 @@
             this.buttonStop = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.panelForMoveJoystick = new System.Windows.Forms.PictureBox();
             this.panelForDirectMoveJoystick = new System.Windows.Forms.PictureBox();
-            this.trackBarFrontNarrow = new System.Windows.Forms.TrackBar();
-            this.trackBarBackNarrow = new System.Windows.Forms.TrackBar();
+            this.panelForMoveJoystick = new System.Windows.Forms.PictureBox();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.buttonTiltFront = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
-            this.buttonTiltBack = new System.Windows.Forms.Button();
-            this.buttonTiltLeft = new System.Windows.Forms.Button();
             this.buttonTiltRight = new System.Windows.Forms.Button();
+            this.buttonTiltLeft = new System.Windows.Forms.Button();
+            this.buttonTiltBack = new System.Windows.Forms.Button();
+            this.buttonTiltFront = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarBackNarrow)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarFrontNarrow)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.panelForMoveJoystick)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.panelForDirectMoveJoystick)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarFrontNarrow)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarBackNarrow)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelForMoveJoystick)).BeginInit();
             this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -99,12 +105,15 @@
             this.buttonAbsolutPositioning.Size = new System.Drawing.Size(724, 50);
             this.buttonAbsolutPositioning.TabIndex = 15;
             this.buttonAbsolutPositioning.Text = "Absolutní pozicování robota";
+            this.toolTip1.SetToolTip(this.buttonAbsolutPositioning, "Přepnout na absolutní pozicování robota. Ovládání jednotlivých motorů.");
             this.buttonAbsolutPositioning.UseVisualStyleBackColor = true;
             this.buttonAbsolutPositioning.Click += new System.EventHandler(this.buttonAbsolutPositioning_Click);
             // 
             // panel2
             // 
             this.panel2.AutoScroll = true;
+            this.panel2.Controls.Add(this.label6);
+            this.panel2.Controls.Add(this.label2);
             this.panel2.Controls.Add(this.trackBarBackNarrow);
             this.panel2.Controls.Add(this.trackBarFrontNarrow);
             this.panel2.Controls.Add(this.tableLayoutPanel1);
@@ -114,6 +123,48 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(724, 462);
             this.panel2.TabIndex = 16;
+            // 
+            // label6
+            // 
+            this.label6.Image = ((System.Drawing.Image)(resources.GetObject("label6.Image")));
+            this.label6.Location = new System.Drawing.Point(346, 400);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(32, 32);
+            this.label6.TabIndex = 19;
+            this.toolTip1.SetToolTip(this.label6, "Zůžení zadku a jízda kupředu");
+            // 
+            // label2
+            // 
+            this.label2.Image = ((System.Drawing.Image)(resources.GetObject("label2.Image")));
+            this.label2.Location = new System.Drawing.Point(19, 400);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(32, 32);
+            this.label2.TabIndex = 18;
+            this.toolTip1.SetToolTip(this.label2, "Zůžení předku a jízda kupředu");
+            // 
+            // trackBarBackNarrow
+            // 
+            this.trackBarBackNarrow.Location = new System.Drawing.Point(388, 400);
+            this.trackBarBackNarrow.Maximum = 100;
+            this.trackBarBackNarrow.Name = "trackBarBackNarrow";
+            this.trackBarBackNarrow.Size = new System.Drawing.Size(253, 56);
+            this.trackBarBackNarrow.SmallChange = 5;
+            this.trackBarBackNarrow.TabIndex = 17;
+            this.trackBarBackNarrow.TickFrequency = 5;
+            this.toolTip1.SetToolTip(this.trackBarBackNarrow, "Zůžení zadku a jízda kupředu");
+            this.trackBarBackNarrow.MouseUp += new System.Windows.Forms.MouseEventHandler(this.trackBarBackNarrow_MouseUp);
+            // 
+            // trackBarFrontNarrow
+            // 
+            this.trackBarFrontNarrow.Location = new System.Drawing.Point(59, 400);
+            this.trackBarFrontNarrow.Maximum = 100;
+            this.trackBarFrontNarrow.Name = "trackBarFrontNarrow";
+            this.trackBarFrontNarrow.Size = new System.Drawing.Size(253, 56);
+            this.trackBarFrontNarrow.SmallChange = 5;
+            this.trackBarFrontNarrow.TabIndex = 16;
+            this.trackBarFrontNarrow.TickFrequency = 5;
+            this.toolTip1.SetToolTip(this.trackBarFrontNarrow, "Zůžení předku a jízda kupředu");
+            this.trackBarFrontNarrow.MouseUp += new System.Windows.Forms.MouseEventHandler(this.trackBarFrontNarrow_MouseUp);
             // 
             // tableLayoutPanel1
             // 
@@ -133,7 +184,7 @@
             this.tableLayoutPanel1.Controls.Add(this.buttonDefaultPosition, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.buttonStop, 3, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 220);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 240);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
@@ -154,6 +205,7 @@
             this.buttonWiden.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonWiden.Size = new System.Drawing.Size(69, 52);
             this.buttonWiden.TabIndex = 4;
+            this.toolTip1.SetToolTip(this.buttonWiden, "Rozšířit robota");
             this.buttonWiden.UseVisualStyleBackColor = false;
             // 
             // buttonNarrow
@@ -167,6 +219,7 @@
             this.buttonNarrow.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonNarrow.Size = new System.Drawing.Size(69, 52);
             this.buttonNarrow.TabIndex = 5;
+            this.toolTip1.SetToolTip(this.buttonNarrow, "Zůžit robota");
             this.buttonNarrow.UseVisualStyleBackColor = false;
             // 
             // buttonMoveUp
@@ -181,6 +234,7 @@
             this.buttonMoveUp.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonMoveUp.Size = new System.Drawing.Size(56, 52);
             this.buttonMoveUp.TabIndex = 3;
+            this.toolTip1.SetToolTip(this.buttonMoveUp, "Zvýšit robota");
             this.buttonMoveUp.UseVisualStyleBackColor = false;
             // 
             // buttonMoveDown
@@ -195,6 +249,7 @@
             this.buttonMoveDown.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonMoveDown.Size = new System.Drawing.Size(56, 52);
             this.buttonMoveDown.TabIndex = 2;
+            this.toolTip1.SetToolTip(this.buttonMoveDown, "Snížit robota");
             this.buttonMoveDown.UseVisualStyleBackColor = false;
             // 
             // buttonRotateLeft
@@ -208,6 +263,7 @@
             this.buttonRotateLeft.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonRotateLeft.Size = new System.Drawing.Size(54, 52);
             this.buttonRotateLeft.TabIndex = 16;
+            this.toolTip1.SetToolTip(this.buttonRotateLeft, "Otáčet robota doleva");
             this.buttonRotateLeft.UseVisualStyleBackColor = false;
             this.buttonRotateLeft.MouseDown += new System.Windows.Forms.MouseEventHandler(this.buttonRotateLeft_MouseDown);
             this.buttonRotateLeft.MouseUp += new System.Windows.Forms.MouseEventHandler(this.buttonRotateLeft_MouseUp);
@@ -224,6 +280,7 @@
             this.buttonRotateRight.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonRotateRight.Size = new System.Drawing.Size(54, 52);
             this.buttonRotateRight.TabIndex = 16;
+            this.toolTip1.SetToolTip(this.buttonRotateRight, "Otáčet robota doprava");
             this.buttonRotateRight.UseVisualStyleBackColor = false;
             this.buttonRotateRight.MouseDown += new System.Windows.Forms.MouseEventHandler(this.buttonRotateRight_MouseDown);
             this.buttonRotateRight.MouseUp += new System.Windows.Forms.MouseEventHandler(this.buttonRotateRight_MouseUp);
@@ -240,6 +297,7 @@
             this.buttonDefaultPosition.Size = new System.Drawing.Size(190, 50);
             this.buttonDefaultPosition.TabIndex = 6;
             this.buttonDefaultPosition.Text = "Výchozí pozice";
+            this.toolTip1.SetToolTip(this.buttonDefaultPosition, "Nastavit robota do výchozí pozice");
             this.buttonDefaultPosition.UseVisualStyleBackColor = false;
             // 
             // buttonStop
@@ -253,6 +311,7 @@
             this.buttonStop.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonStop.Size = new System.Drawing.Size(56, 52);
             this.buttonStop.TabIndex = 16;
+            this.toolTip1.SetToolTip(this.buttonStop, "Zastavit všechny motory");
             this.buttonStop.UseVisualStyleBackColor = false;
             this.buttonStop.MouseDown += new System.Windows.Forms.MouseEventHandler(this.buttonStop_MouseDown);
             this.buttonStop.MouseUp += new System.Windows.Forms.MouseEventHandler(this.buttonStop_MouseUp);
@@ -265,7 +324,7 @@
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(0, 20, 0, 0);
-            this.panel1.Size = new System.Drawing.Size(724, 220);
+            this.panel1.Size = new System.Drawing.Size(724, 240);
             this.panel1.TabIndex = 14;
             // 
             // tableLayoutPanel2
@@ -273,28 +332,43 @@
             this.tableLayoutPanel2.ColumnCount = 5;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 210F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Controls.Add(this.panelForMoveJoystick, 3, 0);
-            this.tableLayoutPanel2.Controls.Add(this.panelForDirectMoveJoystick, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.panel3, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.panelForDirectMoveJoystick, 1, 1);
+            this.tableLayoutPanel2.Controls.Add(this.panelForMoveJoystick, 3, 1);
+            this.tableLayoutPanel2.Controls.Add(this.panel3, 2, 1);
+            this.tableLayoutPanel2.Controls.Add(this.label3, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.label4, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.label5, 3, 0);
             this.tableLayoutPanel2.Cursor = System.Windows.Forms.Cursors.Default;
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 20);
             this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 1;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(724, 200);
+            this.tableLayoutPanel2.RowCount = 2;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(724, 220);
             this.tableLayoutPanel2.TabIndex = 0;
+            // 
+            // panelForDirectMoveJoystick
+            // 
+            this.panelForDirectMoveJoystick.Cursor = System.Windows.Forms.Cursors.Cross;
+            this.panelForDirectMoveJoystick.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelForDirectMoveJoystick.Location = new System.Drawing.Point(32, 30);
+            this.panelForDirectMoveJoystick.Margin = new System.Windows.Forms.Padding(0);
+            this.panelForDirectMoveJoystick.Name = "panelForDirectMoveJoystick";
+            this.panelForDirectMoveJoystick.Size = new System.Drawing.Size(225, 200);
+            this.panelForDirectMoveJoystick.TabIndex = 13;
+            this.panelForDirectMoveJoystick.TabStop = false;
             // 
             // panelForMoveJoystick
             // 
             this.panelForMoveJoystick.Cursor = System.Windows.Forms.Cursors.Cross;
             this.panelForMoveJoystick.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelForMoveJoystick.Location = new System.Drawing.Point(462, 0);
-            this.panelForMoveJoystick.Margin = new System.Windows.Forms.Padding(0);
+            this.panelForMoveJoystick.Location = new System.Drawing.Point(492, 30);
+            this.panelForMoveJoystick.Margin = new System.Windows.Forms.Padding(25, 0, 0, 0);
             this.panelForMoveJoystick.Name = "panelForMoveJoystick";
             this.panelForMoveJoystick.Size = new System.Drawing.Size(200, 200);
             this.panelForMoveJoystick.TabIndex = 11;
@@ -303,98 +377,18 @@
             this.panelForMoveJoystick.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelForJoystick_MouseMove);
             this.panelForMoveJoystick.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panelForJoystick_MouseUp);
             // 
-            // panelForDirectMoveJoystick
-            // 
-            this.panelForDirectMoveJoystick.Cursor = System.Windows.Forms.Cursors.Cross;
-            this.panelForDirectMoveJoystick.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelForDirectMoveJoystick.Location = new System.Drawing.Point(62, 0);
-            this.panelForDirectMoveJoystick.Margin = new System.Windows.Forms.Padding(0);
-            this.panelForDirectMoveJoystick.Name = "panelForDirectMoveJoystick";
-            this.panelForDirectMoveJoystick.Size = new System.Drawing.Size(200, 200);
-            this.panelForDirectMoveJoystick.TabIndex = 10;
-            this.panelForDirectMoveJoystick.TabStop = false;
-            // 
-            // trackBarFrontNarrow
-            // 
-            this.trackBarFrontNarrow.Location = new System.Drawing.Point(21, 400);
-            this.trackBarFrontNarrow.Maximum = 100;
-            this.trackBarFrontNarrow.Name = "trackBarFrontNarrow";
-            this.trackBarFrontNarrow.Size = new System.Drawing.Size(253, 56);
-            this.trackBarFrontNarrow.TabIndex = 16;
-            // 
-            // trackBarBackNarrow
-            // 
-            this.trackBarBackNarrow.Location = new System.Drawing.Point(309, 400);
-            this.trackBarBackNarrow.Maximum = 100;
-            this.trackBarBackNarrow.Name = "trackBarBackNarrow";
-            this.trackBarBackNarrow.Size = new System.Drawing.Size(253, 56);
-            this.trackBarBackNarrow.TabIndex = 17;
-            // 
             // panel3
             // 
             this.panel3.Controls.Add(this.buttonTiltRight);
             this.panel3.Controls.Add(this.buttonTiltLeft);
             this.panel3.Controls.Add(this.buttonTiltBack);
-            this.panel3.Controls.Add(this.label2);
             this.panel3.Controls.Add(this.buttonTiltFront);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel3.Location = new System.Drawing.Point(265, 3);
+            this.panel3.Location = new System.Drawing.Point(257, 33);
+            this.panel3.Margin = new System.Windows.Forms.Padding(0, 3, 20, 3);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(194, 194);
+            this.panel3.Size = new System.Drawing.Size(190, 194);
             this.panel3.TabIndex = 12;
-            // 
-            // buttonTiltFront
-            // 
-            this.buttonTiltFront.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonTiltFront.AutoSize = true;
-            this.buttonTiltFront.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.buttonTiltFront.Image = ((System.Drawing.Image)(resources.GetObject("buttonTiltFront.Image")));
-            this.buttonTiltFront.Location = new System.Drawing.Point(69, 29);
-            this.buttonTiltFront.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.buttonTiltFront.Name = "buttonTiltFront";
-            this.buttonTiltFront.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.buttonTiltFront.Size = new System.Drawing.Size(56, 52);
-            this.buttonTiltFront.TabIndex = 4;
-            this.buttonTiltFront.UseVisualStyleBackColor = false;
-            // 
-            // label2
-            // 
-            this.label2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label2.Location = new System.Drawing.Point(0, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(194, 27);
-            this.label2.TabIndex = 5;
-            this.label2.Text = "Naklonění";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // buttonTiltBack
-            // 
-            this.buttonTiltBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonTiltBack.AutoSize = true;
-            this.buttonTiltBack.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.buttonTiltBack.Image = ((System.Drawing.Image)(resources.GetObject("buttonTiltBack.Image")));
-            this.buttonTiltBack.Location = new System.Drawing.Point(69, 140);
-            this.buttonTiltBack.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.buttonTiltBack.Name = "buttonTiltBack";
-            this.buttonTiltBack.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.buttonTiltBack.Size = new System.Drawing.Size(56, 52);
-            this.buttonTiltBack.TabIndex = 6;
-            this.buttonTiltBack.UseVisualStyleBackColor = false;
-            // 
-            // buttonTiltLeft
-            // 
-            this.buttonTiltLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonTiltLeft.AutoSize = true;
-            this.buttonTiltLeft.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.buttonTiltLeft.Image = ((System.Drawing.Image)(resources.GetObject("buttonTiltLeft.Image")));
-            this.buttonTiltLeft.Location = new System.Drawing.Point(3, 85);
-            this.buttonTiltLeft.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.buttonTiltLeft.Name = "buttonTiltLeft";
-            this.buttonTiltLeft.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.buttonTiltLeft.Size = new System.Drawing.Size(56, 52);
-            this.buttonTiltLeft.TabIndex = 7;
-            this.buttonTiltLeft.UseVisualStyleBackColor = false;
             // 
             // buttonTiltRight
             // 
@@ -402,13 +396,98 @@
             this.buttonTiltRight.AutoSize = true;
             this.buttonTiltRight.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.buttonTiltRight.Image = ((System.Drawing.Image)(resources.GetObject("buttonTiltRight.Image")));
-            this.buttonTiltRight.Location = new System.Drawing.Point(135, 85);
+            this.buttonTiltRight.Location = new System.Drawing.Point(131, 65);
             this.buttonTiltRight.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonTiltRight.Name = "buttonTiltRight";
             this.buttonTiltRight.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonTiltRight.Size = new System.Drawing.Size(56, 52);
             this.buttonTiltRight.TabIndex = 8;
+            this.toolTip1.SetToolTip(this.buttonTiltRight, "Naklonění doprava");
             this.buttonTiltRight.UseVisualStyleBackColor = false;
+            // 
+            // buttonTiltLeft
+            // 
+            this.buttonTiltLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonTiltLeft.AutoSize = true;
+            this.buttonTiltLeft.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.buttonTiltLeft.Image = ((System.Drawing.Image)(resources.GetObject("buttonTiltLeft.Image")));
+            this.buttonTiltLeft.Location = new System.Drawing.Point(-1, 65);
+            this.buttonTiltLeft.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonTiltLeft.Name = "buttonTiltLeft";
+            this.buttonTiltLeft.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonTiltLeft.Size = new System.Drawing.Size(56, 52);
+            this.buttonTiltLeft.TabIndex = 7;
+            this.toolTip1.SetToolTip(this.buttonTiltLeft, "Naklonění doleva");
+            this.buttonTiltLeft.UseVisualStyleBackColor = false;
+            // 
+            // buttonTiltBack
+            // 
+            this.buttonTiltBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonTiltBack.AutoSize = true;
+            this.buttonTiltBack.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.buttonTiltBack.Image = ((System.Drawing.Image)(resources.GetObject("buttonTiltBack.Image")));
+            this.buttonTiltBack.Location = new System.Drawing.Point(65, 120);
+            this.buttonTiltBack.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonTiltBack.Name = "buttonTiltBack";
+            this.buttonTiltBack.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonTiltBack.Size = new System.Drawing.Size(56, 52);
+            this.buttonTiltBack.TabIndex = 6;
+            this.toolTip1.SetToolTip(this.buttonTiltBack, "Naklonění dozadu");
+            this.buttonTiltBack.UseVisualStyleBackColor = false;
+            // 
+            // buttonTiltFront
+            // 
+            this.buttonTiltFront.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonTiltFront.AutoSize = true;
+            this.buttonTiltFront.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.buttonTiltFront.Image = ((System.Drawing.Image)(resources.GetObject("buttonTiltFront.Image")));
+            this.buttonTiltFront.Location = new System.Drawing.Point(65, 9);
+            this.buttonTiltFront.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonTiltFront.Name = "buttonTiltFront";
+            this.buttonTiltFront.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonTiltFront.Size = new System.Drawing.Size(56, 52);
+            this.buttonTiltFront.TabIndex = 4;
+            this.toolTip1.SetToolTip(this.buttonTiltFront, "Naklonění dopředu");
+            this.buttonTiltFront.UseVisualStyleBackColor = false;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label3.Location = new System.Drawing.Point(35, 0);
+            this.label3.Margin = new System.Windows.Forms.Padding(3, 0, 48, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(174, 30);
+            this.label3.TabIndex = 14;
+            this.label3.Text = "Přímý pohyb";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label4.Location = new System.Drawing.Point(260, 0);
+            this.label4.Margin = new System.Windows.Forms.Padding(3, 0, 35, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(172, 30);
+            this.label4.TabIndex = 15;
+            this.label4.Text = "Naklánění";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label5.Location = new System.Drawing.Point(470, 0);
+            this.label5.Margin = new System.Windows.Forms.Padding(3, 0, 20, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(202, 30);
+            this.label5.TabIndex = 16;
+            this.label5.Text = "Rádiusový pohyb";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // ControllView
             // 
@@ -422,14 +501,15 @@
             this.Size = new System.Drawing.Size(724, 622);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarBackNarrow)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarFrontNarrow)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.panelForMoveJoystick)).EndInit();
+            this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.panelForDirectMoveJoystick)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarFrontNarrow)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarBackNarrow)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.panelForMoveJoystick)).EndInit();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
             this.ResumeLayout(false);
@@ -450,18 +530,23 @@
         private System.Windows.Forms.Button buttonMoveDown;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        private System.Windows.Forms.PictureBox panelForDirectMoveJoystick;
         private System.Windows.Forms.Button buttonRotateLeft;
         private System.Windows.Forms.Button buttonRotateRight;
         private System.Windows.Forms.Button buttonStop;
-        private System.Windows.Forms.PictureBox panelForMoveJoystick;
         private System.Windows.Forms.TrackBar trackBarBackNarrow;
         private System.Windows.Forms.TrackBar trackBarFrontNarrow;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Button buttonTiltBack;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button buttonTiltFront;
         private System.Windows.Forms.Button buttonTiltRight;
         private System.Windows.Forms.Button buttonTiltLeft;
+        private System.Windows.Forms.PictureBox panelForMoveJoystick;
+        private System.Windows.Forms.PictureBox panelForDirectMoveJoystick;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
