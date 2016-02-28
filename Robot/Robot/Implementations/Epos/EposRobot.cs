@@ -239,23 +239,21 @@ namespace Robot.Robot.Implementations.Epos
         }
 
         /// <summary>
-        /// Zůžit předek
+        /// Zůžit předek a jet dopředu
         /// </summary>
         /// <param name="measure">míra zůžení od 0 do 100</param>
         public void narrowFront(int measure)
         {
-            //TODO
-            Console.WriteLine("narrowFront "+ measure);
+            narrowFrontBackStep0(true, measure);
         }
 
         /// <summary>
-        /// Zůžit zadek
+        /// Zůžit zadek a jet dopředu
         /// </summary>
         /// <param name="measure">míra zůžení od 0 do 100</param>
         public void narrowBack(int measure)
         {
-            //TODO
-            Console.WriteLine("narrowBack " + measure);
+            narrowFrontBackStep0(false, measure);
         }
 
         /// <summary>
@@ -436,6 +434,102 @@ namespace Robot.Robot.Implementations.Epos
             motors[MotorId.LP_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
             motors[MotorId.LZ_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
             motors[MotorId.PZ_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
+        }
+
+        /// <summary>
+        /// Zůží předek/zadek robota a pojede pomalu dopředu - krok 0 - nastavení manipulativní výšky
+        /// </summary>
+        /// <param name="front">příznak, zda se jedná u zůžení předku nebo zadku</param>
+        /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
+        private void narrowFrontBackStep0(bool front, int measure) {
+            if (isHeightOk())
+            {
+                narrowFrontBackStep1(front, measure);
+            }
+            else
+            {
+                setManipulativHeight();
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate {
+                    narrowFrontBackStep1(front, measure);
+                };
+            }
+        }
+
+        /// <summary>
+        /// Zůží předek/zadek robota a pojede pomalu dopředu - krok 1 - otočení kol pro otočení nohou
+        /// </summary>
+        /// <param name="front">příznak, zda se jedná u zůžení předku nebo zadku</param>
+        /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
+        private void narrowFrontBackStep1(bool front, int measure) {
+            if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
+            {
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+
+                motors[MotorId.LP_P].disable();
+                motors[MotorId.PP_P].disable();
+                motors[MotorId.LZ_P].disable();
+                motors[MotorId.PZ_P].disable();
+
+                motors[MotorId.LP_R].moveToPosition(0);
+                motors[MotorId.PP_R].moveToPosition(0);
+                motors[MotorId.LZ_R].moveToPosition(0);
+                motors[MotorId.PZ_R].moveToPosition(0);
+
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { narrowFrontBackStep2(front, measure); };
+            }
+        }
+
+        /// <summary>
+        /// Zůží předek/zadek robota a pojede pomalu dopředu - krok 2 - otočení nohou
+        /// </summary>
+        /// <param name="front">příznak, zda se jedná u zůžení předku nebo zadku</param>
+        /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
+        private void narrowFrontBackStep2(bool front, int measure)
+        {
+            if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
+            {
+                periodicChecker.Dispose();
+
+                int angle = MathLibrary.changeScale(measure, 0, 100, 0, 45);
+
+                if (front) {
+                    motors[MotorId.LP_ZK].moveToAngle(angle);
+                    motors[MotorId.PP_ZK].moveToAngle(angle);
+                }
+                else {
+                    motors[MotorId.LZ_ZK].moveToAngle(angle);
+                    motors[MotorId.PZ_ZK].moveToAngle(angle);
+                }
+
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { narrowFrontBackStep3(measure); };
+            }
+        }
+
+        /// <summary>
+        /// Zůží předek/zadek robota a pojede pomalu dopředu - krok 3 - pojezd
+        /// </summary>
+        /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
+        private void narrowFrontBackStep3(int measure)
+        {
+            if (motors[MotorId.PP_ZK].isTargetReached() && motors[MotorId.LP_ZK].isTargetReached() && motors[MotorId.LZ_ZK].isTargetReached() && motors[MotorId.PZ_ZK].isTargetReached())
+            {
+                periodicChecker.Dispose();
+
+                if (measure == 0)
+                {
+                    haltAll();
+                }
+                else
+                {
+                    directMove(90, 30);
+                }
+            }
         }
 
         /// <summary>
