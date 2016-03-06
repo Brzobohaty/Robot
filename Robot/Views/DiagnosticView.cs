@@ -296,11 +296,16 @@ namespace Robot
             Point firstPoint = new Point(canvasMid.X + ((baseWidth / 2)*xC), canvasMid.Y + ((baseWidth / 2)*yC));
             Point secondPoint = MathLibrary.getPointOnLine(canvasMid.X + ((baseWidth / 2) * xC), canvasMid.Y + ((baseWidth / 2) * yC), ZK + rC, baseWidth);
             g.DrawLine(pen, firstPoint, secondPoint);
-            wheelPaint(g, secondPoint, ZK + rC - R + 93, P, Z);
+            bool reverse = false;
+            if (xC * yC > 0)
+            {
+                reverse = true;
+            }
+            wheelPaint(g, secondPoint, ZK + rC - R + 93, P, reverse);
             legLimitLinePaint(g, firstPoint, rC-45);
             legLimitLinePaint(g, firstPoint, rC+45);
             wheelLimitLinePaint(g, secondPoint, ZK + rC - 180);
-            wheelLimitLinePaint(g, secondPoint, ZK + rC);
+            wheelLimitLinePaint(g, secondPoint, ZK + rC - xC*yC*90);
         }
 
         /// <summary>
@@ -340,11 +345,12 @@ namespace Robot
         /// <param name="mid">střed kola</param>
         /// <param name="rotation">rotace kola ve stupnich</param>
         /// <param name="speed">rychlost otáčení kola</param>
-        private void wheelPaint(Graphics g, Point mid, int rotation, int speed, int Z)
+        /// <param name="reverse">příznak otočení směru otáčení</param>
+        private void wheelPaint(Graphics g, Point mid, int rotation, int speed, bool reverse)
         {
             g.FillEllipse(Brushes.LightSlateGray, mid.X - (baseWidth / 6), mid.Y - (baseWidth / 6), (baseWidth/3), (baseWidth / 3));
-            arrowPaint(g, mid, rotation, baseWidth / 6, speed);
-            arrowPaint(g, mid, rotation+180, baseWidth / 6, -speed);
+            arrowPaint(g, mid, rotation, baseWidth / 6, speed, reverse);
+            arrowPaint(g, mid, rotation+180, baseWidth / 6, -speed, !reverse);
         }
 
         /// <summary>
@@ -355,13 +361,17 @@ namespace Robot
         /// <param name="rotation">rotace kola ve stupnich</param>
         /// <param name="circleWidth">průměr kola</param>
         /// <param name="speed">rychlost pohybu kola</param>
-        private void arrowPaint(Graphics g, Point mid, int rotation, int circleWidth, int speed)
+        /// <param name="front">příznak zda se jedná o šipku pro pohyb dopředu</param>
+        private void arrowPaint(Graphics g, Point mid, int rotation, int circleWidth, int speed, bool front)
         {
             Color color = Color.Black;
             if (speed > 0)
             {
                 color = Color.Orange;
                 endOfArrowPaint(g, mid, rotation, circleWidth, speed);
+            }
+            else if(front){
+                color = Color.Red;
             }
             Point startPoint = MathLibrary.getPointOnLine(mid.X, mid.Y, rotation, circleWidth-1);
             Point endPoint = MathLibrary.getPointOnLine(mid.X, mid.Y, rotation, circleWidth*3+ (speed / 5) - 20);

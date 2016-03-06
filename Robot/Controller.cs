@@ -282,8 +282,8 @@ namespace Robot
         private void joystickMoveChanged(int x, int y)
         {
             Point corectedPoint = MathLibrary.convertPointToCircle(x, y, 0, 0, 101);
-            //TODO
-            //moveRobot(corectedPoint.X, corectedPoint.Y);
+            moveRobotInRadius(corectedPoint.X, corectedPoint.Y);
+
             if (!(joystick is MainWindow))
             {
                 controllView.moveMoveJoystick(corectedPoint.X, corectedPoint.Y);
@@ -503,6 +503,30 @@ namespace Robot
         {
             int angle = (int)MathLibrary.getAngle(0, 0, 100, 0, x, y);
             robot.move(angle, (int)MathLibrary.getPointsDistance(0, 0, x, y));
+        }
+
+        /// <summary>
+        /// Pohne s robotem v daném rádiusu
+        /// </summary>
+        /// <param name="x">x souřadnice joysticku od -100 do 100</param>
+        /// <param name="y">y souřadnice joysticku od -100 do 100</param>
+        private void moveRobotInRadius(int x, int y)
+        {
+            double radiusCircleDistance = x;
+
+            if (radiusCircleDistance > 5 || radiusCircleDistance < -5)
+            {
+                radiusCircleDistance = MathLibrary.changeScaleLog(radiusCircleDistance, 0, Math.Sign(radiusCircleDistance) * 100, Math.Sign(radiusCircleDistance) * 2000, Math.Sign(radiusCircleDistance) * 60);
+            }
+            else
+            {
+                radiusCircleDistance = 99999;
+            }
+            double speed = MathLibrary.getPointsDistance(0, 0, x, y);
+            if (y>0){
+                speed = -speed;
+            }
+            robot.moveInRadius(radiusCircleDistance, speed);
         }
 
         /// <summary>

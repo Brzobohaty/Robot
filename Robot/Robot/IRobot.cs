@@ -28,6 +28,13 @@ namespace Robot.Robot
         void move(int direction, int speed);
 
         /// <summary>
+        /// Pohne s robotem v daném rádiusu
+        /// </summary>
+        /// <param name="radiusCircleDistance">vzdálenost rádiusové kružnice (0 - 2000) pro >2000 bere jako přímý pohyb</param>
+        /// <param name="speed">rychlost pohybu od -100 do 100</param>
+        void moveInRadius(double radiusCircleDistance, double speed);
+
+        /// <summary>
         /// Sníží robota
         /// </summary>
         void moveDown();

@@ -13,12 +13,14 @@ namespace Robot.Robot.Implementations.Epos
     /// </summary>
     class EposRobot : IRobot
     {
+        private const double halfOfBaseWidth = 40; //půlka šířky základny robota (cm)
         private DeviceManager connector; // handler pro přopojení motorů
         private Dictionary<MotorId, IMotor> motors = new Dictionary<MotorId, IMotor>(); //mapa motorů
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
         private Action motorErrorOccuredObserver; //Posluchač chyb motorů
         private System.Timers.Timer periodicChecker; //periodický vyvolávač určitých funkcí
         private bool test = false; //příznak, že se jedná o simulaci robota
+        private bool radiusMoving = false; //příznak, že probíhá pohyb robota v rádiusu
 
         public EposRobot()
         {
@@ -141,6 +143,38 @@ namespace Robot.Robot.Implementations.Epos
         }
 
         /// <summary>
+        /// Pohne s robotem v daném rádiusu
+        /// </summary>
+        /// <param name="radiusCircleDistance">vzdálenost rádiusové kružnice (0 - 2000) pro >2000 bere jako přímý pohyb</param>
+        /// <param name="speed">rychlost pohybu od -100 do 100</param>
+        public void moveInRadius(double radiusCircleDistance, double speed)
+        {
+            if (speed == 0)
+            {
+                radiusMoving = false;
+                haltAll();
+                return;
+            }
+            if (radiusMoving)
+            {
+                moveInRadiusFluently(radiusCircleDistance, speed);
+            }
+            else
+            {
+                if (isHeightOk())
+                {
+                    moveInRadiusStep0(radiusCircleDistance, speed);
+                }
+                else
+                {
+                    setManipulativHeight();
+                    createPeriodicChecker();
+                    periodicChecker.Elapsed += delegate { moveInRadiusStep0(radiusCircleDistance, speed); };
+                }
+            }
+        }
+
+        /// <summary>
         /// Sníží robota
         /// </summary>
         public void moveDown()
@@ -210,8 +244,9 @@ namespace Robot.Robot.Implementations.Epos
         /// <summary>
         /// Nahne robota dozadu
         /// </summary>
-        public void tiltBack() {
-            tiltStep0(tiltBackStep1);   
+        public void tiltBack()
+        {
+            tiltStep0(tiltBackStep1);
         }
 
         /// <summary>
@@ -436,12 +471,103 @@ namespace Robot.Robot.Implementations.Epos
             motors[MotorId.PZ_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
         }
 
+        private double getLegLeangth(IMotor motorZ){
+            //TODO
+            return 60;
+        }
+
+        /// <summary>
+        /// Pohne s robotem v daném rádiusu a danou rychlostí - krok 0 - nastavení směru kol
+        /// </summary>
+        /// <param name="radiusCircleDistance">vzdálenost rádiusové kružnice (0 - 2000) pro >2000 bere jako přímý pohyb</param>
+        /// <param name="speed">rychlost pohybu od -100 do 100</param>
+        private void moveInRadiusStep0(double radiusCircleDistance, double speed)
+        {
+            if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
+            {
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+
+                motors[MotorId.LP_P].disable();
+                motors[MotorId.PP_P].disable();
+                motors[MotorId.LZ_P].disable();
+                motors[MotorId.PZ_P].disable();
+
+                motors[MotorId.LP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.LP_Z]), -halfOfBaseWidth, halfOfBaseWidth));
+                motors[MotorId.PP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.PP_Z]), halfOfBaseWidth, halfOfBaseWidth));
+                motors[MotorId.LZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.LZ_Z]), -halfOfBaseWidth, -halfOfBaseWidth));
+                motors[MotorId.PZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.PZ_Z]), halfOfBaseWidth, -halfOfBaseWidth));
+
+                createPeriodicChecker();
+                periodicChecker.Elapsed += delegate { moveInRadiusStep1(radiusCircleDistance, speed); };
+            }
+        }
+
+        /// <summary>
+        /// Pohne s robotem v daném rádiusu a danou rychlostí - krok 1 - pohon kol
+        /// </summary>
+        /// <param name="radiusCircleDistance">vzdálenost rádiusové kružnice (0 - 2000) pro >2000 bere jako přímý pohyb</param>
+        /// <param name="speed">rychlost pohybu od -100 do 100</param>
+        private void moveInRadiusStep1(double radiusCircleDistance, double speed)
+        {
+            if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
+            {
+                periodicChecker.Dispose();
+
+                motors[MotorId.LP_P].enable();
+                motors[MotorId.PP_P].enable();
+                motors[MotorId.LZ_P].enable();
+                motors[MotorId.PZ_P].enable();
+
+                moveInRadiusLastStep(radiusCircleDistance, speed);
+            }
+        }
+
+        /// <summary>
+        /// Pohne s robotem v daném rádiusu a danou rychlostí (bez čekání na nastavení kol => směr nastaví za jízdy)
+        /// </summary>
+        /// <param name="radiusCircleDistance">vzdálenost rádiusové kružnice (0 - 2000) pro >2000 bere jako přímý pohyb</param>
+        /// <param name="speed">rychlost pohybu od -100 do 100</param>
+        private void moveInRadiusFluently(double radiusCircleDistance, double speed)
+        {
+            motors[MotorId.LP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.LP_Z]), -halfOfBaseWidth, halfOfBaseWidth));
+            motors[MotorId.PP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.PP_Z]), halfOfBaseWidth, halfOfBaseWidth));
+            motors[MotorId.LZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.LZ_Z]), -halfOfBaseWidth, -halfOfBaseWidth));
+            motors[MotorId.PZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.PZ_Z]), halfOfBaseWidth, -halfOfBaseWidth));
+
+            moveInRadiusLastStep(radiusCircleDistance, speed);
+        }
+
+        /// <summary>
+        /// Pohne s robotem v daném rádiusu a danou rychlostí - poslední krok - pohon kol
+        /// </summary>
+        /// <param name="radiusCircleDistance">vzdálenost rádiusové kružnice (0 - 2000) pro >2000 bere jako přímý pohyb</param>
+        /// <param name="speed">rychlost pohybu od -100 do 100</param>
+        private void moveInRadiusLastStep(double radiusCircleDistance, double speed) {
+            double arcLeangthLP = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.LP_Z]), -halfOfBaseWidth, halfOfBaseWidth);
+            double arcLeangthPP = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.PP_Z]), halfOfBaseWidth, halfOfBaseWidth);
+            double arcLeangthLZ = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.LZ_Z]), -halfOfBaseWidth, -halfOfBaseWidth);
+            double arcLeangthPZ = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.PZ_Z]), halfOfBaseWidth, -halfOfBaseWidth);
+
+            double maxArcLeangth = Math.Max(Math.Max(arcLeangthLP, arcLeangthPP), Math.Max(arcLeangthLZ, arcLeangthPZ));
+
+            motors[MotorId.LP_P].moving((int)(speed * (arcLeangthLP / maxArcLeangth)));
+            motors[MotorId.PP_P].moving((int)(speed * (arcLeangthPP / maxArcLeangth)));
+            motors[MotorId.LZ_P].moving((int)(speed * (arcLeangthLZ / maxArcLeangth)));
+            motors[MotorId.PZ_P].moving((int)(speed * (arcLeangthPZ / maxArcLeangth)));
+
+            radiusMoving = true;
+        }
+
         /// <summary>
         /// Zůží předek/zadek robota a pojede pomalu dopředu - krok 0 - nastavení manipulativní výšky
         /// </summary>
         /// <param name="front">příznak, zda se jedná u zůžení předku nebo zadku</param>
         /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
-        private void narrowFrontBackStep0(bool front, int measure) {
+        private void narrowFrontBackStep0(bool front, int measure)
+        {
             if (isHeightOk())
             {
                 narrowFrontBackStep1(front, measure);
@@ -450,7 +576,8 @@ namespace Robot.Robot.Implementations.Epos
             {
                 setManipulativHeight();
                 createPeriodicChecker();
-                periodicChecker.Elapsed += delegate {
+                periodicChecker.Elapsed += delegate
+                {
                     narrowFrontBackStep1(front, measure);
                 };
             }
@@ -461,7 +588,8 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         /// <param name="front">příznak, zda se jedná u zůžení předku nebo zadku</param>
         /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
-        private void narrowFrontBackStep1(bool front, int measure) {
+        private void narrowFrontBackStep1(bool front, int measure)
+        {
             if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
             {
                 if (periodicChecker != null)
@@ -497,11 +625,13 @@ namespace Robot.Robot.Implementations.Epos
 
                 int angle = MathLibrary.changeScale(measure, 0, 100, 0, 45);
 
-                if (front) {
+                if (front)
+                {
                     motors[MotorId.LP_ZK].moveToAngle(angle);
                     motors[MotorId.PP_ZK].moveToAngle(angle);
                 }
-                else {
+                else
+                {
                     motors[MotorId.LZ_ZK].moveToAngle(angle);
                     motors[MotorId.PZ_ZK].moveToAngle(angle);
                 }
@@ -555,7 +685,7 @@ namespace Robot.Robot.Implementations.Epos
             if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
             {
                 periodicChecker.Dispose();
-                
+
                 motors[MotorId.LZ_Z].move(2000);
                 motors[MotorId.PZ_Z].move(2000);
             }
@@ -583,7 +713,7 @@ namespace Robot.Robot.Implementations.Epos
             if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
             {
                 periodicChecker.Dispose();
-                
+
                 motors[MotorId.LP_Z].move(2000);
                 motors[MotorId.LZ_Z].move(2000);
             }
@@ -900,11 +1030,6 @@ namespace Robot.Robot.Implementations.Epos
                 reverseWheelSpeed = !reverseWheelSpeed;
             }
             int wheelAngle = kartezWheelAngle;
-            if (kartezWheelAngle > 90)
-            {
-                reverseWheelSpeed = !reverseWheelSpeed;
-                wheelAngle = MathLibrary.changeScale(kartezWheelAngle, 180, 90, 0, motorR.minAngle);
-            }
             if (wheelAngle != motorR.angle)
             {
                 motorP.disable();
@@ -941,10 +1066,10 @@ namespace Robot.Robot.Implementations.Epos
             motors[MotorId.LP_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 8, MotorId.LP_P, MotorMode.velocity, false, 1, (uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
             motors[MotorId.LZ_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 12, MotorId.LZ_P, MotorMode.velocity, false, 1, (uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
             motors[MotorId.PZ_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 16, MotorId.PZ_P, MotorMode.velocity, true, 1, (uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
-            motors[MotorId.PP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 3, MotorId.PP_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -241562, 216502, -90, 90);
-            motors[MotorId.LP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 7, MotorId.LP_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -241562, 216502, -90, 90);
-            motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 11, MotorId.LZ_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -241562, 216502, -90, 90);
-            motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 15, MotorId.PZ_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -241562, 216502, -90, 90);
+            motors[MotorId.PP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 3, MotorId.PP_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180);
+            motors[MotorId.LP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 7, MotorId.LP_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180);
+            motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 11, MotorId.LZ_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180);
+            motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 15, MotorId.PZ_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180);
             motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 2, MotorId.PP_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40);
             motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 6, MotorId.LP_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40);
             motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 10, MotorId.LZ_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40);
@@ -1066,6 +1191,98 @@ namespace Robot.Robot.Implementations.Epos
                 motors[MotorId.LZ_P].enable();
                 motors[MotorId.PZ_P].enable();
             }
+        }
+
+        /// <summary>
+        /// Vypočítá úhel natočení kola po daném rádiusu a podle stavu nohy
+        /// </summary>
+        /// <param name="radiusCircleDistance">vzdálenost rádiusové kružnice (0 - 2000) pro >2000 bere jako přímý pohyb</param>
+        /// <param name="legAngle">úhel natočení nohy</param>
+        /// <param name="legLength">délka nohy</param>
+        /// <param name="xOrigin">x souřadnice počátku nohy</param>
+        /// <param name="yOrigin">y souřadnice počátku nohy</param>
+        /// <returns>úhel, do kterého se má natočit kolo</returns>
+        private double getWheelAngleForRadiusMove(double radiusCircleDistance, double legAngle, double legLength, double xOrigin, double yOrigin)
+        {
+            MathLibrary.Line legLine = getLegLine(legAngle, xOrigin, yOrigin);//přímka nohy
+            MathLibrary.Point endPoint = MathLibrary.getPointOnLineInDistance(legLine, new MathLibrary.Point((int)xOrigin, (int)yOrigin), legLength); // koncový bod nohy
+            double radiusCircleDistanceCorected = radiusCircleDistance + Math.Sign(radiusCircleDistance) * Math.Sign(xOrigin) * endPoint.X; //x souřadnice středu rádiusové kružnice
+            MathLibrary.Circle radiusCircle = new MathLibrary.Circle(new MathLibrary.Point(radiusCircleDistanceCorected, 0), endPoint); //rádiusová kružnice 
+            MathLibrary.Line tangent = radiusCircle.getTangent(endPoint); //tečna k rádiusové kružnici na konci nohy
+            if (radiusCircleDistance > 2000)
+            { //rovně
+                tangent = new MathLibrary.Line(endPoint.X, endPoint.Y, -90);
+            }
+            MathLibrary.Line legEndLine = legLine.getNormal(endPoint); //přímka konce nohy (kolmá na nohu)
+            double angle = MathLibrary.getDeviation(tangent, legEndLine);
+            if (radiusCircleDistance < 0)
+            { //zatáčení doleva
+                angle = 180 - angle;
+            }
+            if ((xOrigin < 0 && yOrigin > 0 && ((radiusCircleDistance > 0 && legEndLine.k > tangent.k) || (radiusCircleDistance < 0 && legEndLine.k < tangent.k)) && !tangent.vertical) ||
+                (xOrigin < 0 && yOrigin < 0 && ((radiusCircleDistance > 0 && legEndLine.k < tangent.k) || (radiusCircleDistance < 0 && legEndLine.k > tangent.k)) && !tangent.vertical) ||
+                (xOrigin > 0 && yOrigin > 0 && ((radiusCircleDistance > 0 && legEndLine.k > tangent.k) || (radiusCircleDistance < 0 && legEndLine.k < tangent.k)) && !tangent.vertical) ||
+                (xOrigin > 0 && yOrigin < 0 && ((radiusCircleDistance > 0 && legEndLine.k < tangent.k) || (radiusCircleDistance < 0 && legEndLine.k > tangent.k)) && !tangent.vertical) ||
+                (xOrigin < 0 && yOrigin < 0 && radiusCircleDistance > 0 && legEndLine.vertical) ||
+                (xOrigin < 0 && yOrigin > 0 && radiusCircleDistance > 0 && legEndLine.vertical) ||
+                (xOrigin > 0 && yOrigin < 0 && radiusCircleDistance < 0 && legEndLine.vertical) ||
+                (xOrigin > 0 && yOrigin > 0 && radiusCircleDistance < 0 && legEndLine.vertical))
+            {
+                angle = -angle;
+            }
+            if (xOrigin < 0 && yOrigin > 0 && legLine.vertical)
+            {
+                angle = 180 - angle;
+            }
+            return angle;
+        }
+
+        /// <summary>
+        /// Vrátí přímku představující nohu
+        /// </summary>
+        /// <param name="legAngle">úhel natočení nohy</param>
+        /// <param name="xOrigin">x souřadnice počátku nohy</param>
+        /// <param name="yOrigin">y souřadnice počátku nohy</param>
+        /// <returns>přímku představující nohu</returns>
+        private MathLibrary.Line getLegLine(double legAngle, double xOrigin, double yOrigin) {
+            if (legAngle == 0)
+            {
+                legAngle = 0.001;
+            }
+            double angleRelativeToXAxis = legAngle;
+
+            if (xOrigin < 0 && yOrigin > 0)
+            {
+                angleRelativeToXAxis = 180 - angleRelativeToXAxis;
+            }
+            else if (xOrigin < 0 && yOrigin < 0)
+            {
+                angleRelativeToXAxis = 180 + angleRelativeToXAxis;
+            }
+            else if (xOrigin > 0 && yOrigin < 0)
+            {
+                angleRelativeToXAxis = -angleRelativeToXAxis;
+            }
+
+            return new MathLibrary.Line(xOrigin, yOrigin, angleRelativeToXAxis);
+        }
+
+        /// <summary>
+        /// Vypočítá délku standartizovaného oblouku na dané rádiusové kružnici pro danou nohu
+        /// </summary>
+        /// <param name="radiusCircleDistance">vzdálenost rádiusové kružnice (0 - 2000) pro >2000 bere jako přímý pohyb</param>
+        /// <param name="legAngle">úhel natočení nohy</param>
+        /// <param name="legLength">délka nohy</param>
+        /// <param name="xOrigin">x souřadnice počátku nohy</param>
+        /// <param name="yOrigin">y souřadnice počátku nohy</param>
+        /// <returns>úhel, do kterého se má natočit kolo</returns>
+        private double getStandardizedArcLeangth(double radiusCircleDistance, double legAngle, double legLength, double xOrigin, double yOrigin)
+        {
+            MathLibrary.Line legLine = getLegLine(legAngle, xOrigin, yOrigin);//přímka nohy
+            MathLibrary.Point endPoint = MathLibrary.getPointOnLineInDistance(legLine, new MathLibrary.Point((int)xOrigin, (int)yOrigin), legLength); // koncový bod nohy
+            double radiusCircleDistanceCorected = radiusCircleDistance + Math.Sign(radiusCircleDistance) * Math.Sign(xOrigin) * endPoint.X; //x souřadnice středu rádiusové kružnice
+            MathLibrary.Circle radiusCircle = new MathLibrary.Circle(new MathLibrary.Point(radiusCircleDistanceCorected, 0), endPoint); //rádiusová kružnice
+            return MathLibrary.getArcLength(radiusCircle.r, 90);
         }
 
         /// <summary>
