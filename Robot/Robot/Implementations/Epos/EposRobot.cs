@@ -14,6 +14,9 @@ namespace Robot.Robot.Implementations.Epos
     class EposRobot : IRobot
     {
         private const double halfOfBaseWidth = 40; //půlka šířky základny robota (cm)
+        private const double leangthOfLeg = 60; //délka nohy (cm)
+        private const double maxRealAngleOfLeg = 30; //reálný úhel odpovídající současnému maximu natočení nohy
+        private const double minRealAngleOfLeg = -50; //reálný úhel odpovídající současnému maximu natočení nohy
         private DeviceManager connector; // handler pro přopojení motorů
         private Dictionary<MotorId, IMotor> motors = new Dictionary<MotorId, IMotor>(); //mapa motorů
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
@@ -471,9 +474,15 @@ namespace Robot.Robot.Implementations.Epos
             motors[MotorId.PZ_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
         }
 
-        private double getLegLeangth(IMotor motorZ){
-            //TODO
-            return 60;
+        /// <summary>
+        /// Vypočítá délku nohy při pohledu ze zhora
+        /// </summary>
+        /// <param name="motorZ">motor zdvihu nohy</param>
+        /// <returns>délku nohy při pohledu ze zhora</returns>
+        private double getLegLeangthFromUpView(IMotor motorZ){
+            double motorAngle = MathLibrary.changeScale(motorZ.angle, motorZ.minAngle, motorZ.maxAngle, (int)minRealAngleOfLeg, (int)maxRealAngleOfLeg);
+            double angle = 90 - Math.Abs(motorAngle);
+            return leangthOfLeg * Math.Sin(angle);
         }
 
         /// <summary>
@@ -495,10 +504,10 @@ namespace Robot.Robot.Implementations.Epos
                 motors[MotorId.LZ_P].disable();
                 motors[MotorId.PZ_P].disable();
 
-                motors[MotorId.LP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.LP_Z]), -halfOfBaseWidth, halfOfBaseWidth));
-                motors[MotorId.PP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.PP_Z]), halfOfBaseWidth, halfOfBaseWidth));
-                motors[MotorId.LZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.LZ_Z]), -halfOfBaseWidth, -halfOfBaseWidth));
-                motors[MotorId.PZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.PZ_Z]), halfOfBaseWidth, -halfOfBaseWidth));
+                motors[MotorId.LP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LP_Z]), -halfOfBaseWidth, halfOfBaseWidth));
+                motors[MotorId.PP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PP_Z]), halfOfBaseWidth, halfOfBaseWidth));
+                motors[MotorId.LZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LZ_Z]), -halfOfBaseWidth, -halfOfBaseWidth));
+                motors[MotorId.PZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PZ_Z]), halfOfBaseWidth, -halfOfBaseWidth));
 
                 createPeriodicChecker();
                 periodicChecker.Elapsed += delegate { moveInRadiusStep1(radiusCircleDistance, speed); };
@@ -532,10 +541,10 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         private void moveInRadiusFluently(double radiusCircleDistance, double speed)
         {
-            motors[MotorId.LP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.LP_Z]), -halfOfBaseWidth, halfOfBaseWidth));
-            motors[MotorId.PP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.PP_Z]), halfOfBaseWidth, halfOfBaseWidth));
-            motors[MotorId.LZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.LZ_Z]), -halfOfBaseWidth, -halfOfBaseWidth));
-            motors[MotorId.PZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.PZ_Z]), halfOfBaseWidth, -halfOfBaseWidth));
+            motors[MotorId.LP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LP_Z]), -halfOfBaseWidth, halfOfBaseWidth));
+            motors[MotorId.PP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PP_Z]), halfOfBaseWidth, halfOfBaseWidth));
+            motors[MotorId.LZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LZ_Z]), -halfOfBaseWidth, -halfOfBaseWidth));
+            motors[MotorId.PZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PZ_Z]), halfOfBaseWidth, -halfOfBaseWidth));
 
             moveInRadiusLastStep(radiusCircleDistance, speed);
         }
@@ -546,10 +555,10 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="radiusCircleDistance">vzdálenost rádiusové kružnice (0 - 2000) pro >2000 bere jako přímý pohyb</param>
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         private void moveInRadiusLastStep(double radiusCircleDistance, double speed) {
-            double arcLeangthLP = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.LP_Z]), -halfOfBaseWidth, halfOfBaseWidth);
-            double arcLeangthPP = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.PP_Z]), halfOfBaseWidth, halfOfBaseWidth);
-            double arcLeangthLZ = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.LZ_Z]), -halfOfBaseWidth, -halfOfBaseWidth);
-            double arcLeangthPZ = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangth(motors[MotorId.PZ_Z]), halfOfBaseWidth, -halfOfBaseWidth);
+            double arcLeangthLP = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LP_Z]), -halfOfBaseWidth, halfOfBaseWidth);
+            double arcLeangthPP = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PP_Z]), halfOfBaseWidth, halfOfBaseWidth);
+            double arcLeangthLZ = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LZ_Z]), -halfOfBaseWidth, -halfOfBaseWidth);
+            double arcLeangthPZ = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PZ_Z]), halfOfBaseWidth, -halfOfBaseWidth);
 
             double maxArcLeangth = Math.Max(Math.Max(arcLeangthLP, arcLeangthPP), Math.Max(arcLeangthLZ, arcLeangthPZ));
 
@@ -1066,18 +1075,18 @@ namespace Robot.Robot.Implementations.Epos
             motors[MotorId.LP_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 8, MotorId.LP_P, MotorMode.velocity, false, 1, (uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
             motors[MotorId.LZ_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 12, MotorId.LZ_P, MotorMode.velocity, false, 1, (uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
             motors[MotorId.PZ_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 16, MotorId.PZ_P, MotorMode.velocity, true, 1, (uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
-            motors[MotorId.PP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 3, MotorId.PP_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180);
-            motors[MotorId.LP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 7, MotorId.LP_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180);
-            motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 11, MotorId.LZ_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180);
-            motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 15, MotorId.PZ_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180);
-            motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 2, MotorId.PP_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40);
-            motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 6, MotorId.LP_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40);
-            motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 10, MotorId.LZ_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40);
-            motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 14, MotorId.PZ_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40);
-            motors[MotorId.PP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 1, MotorId.PP_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45);
-            motors[MotorId.LP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 5, MotorId.LP_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45);
-            motors[MotorId.LZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 9, MotorId.LZ_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45);
-            motors[MotorId.PZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 13, MotorId.PZ_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45);
+            motors[MotorId.PP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 3, MotorId.PP_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180, false);
+            motors[MotorId.LP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 7, MotorId.LP_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180, false);
+            motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 11, MotorId.LZ_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180, false);
+            motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 15, MotorId.PZ_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180, false);
+            motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 2, MotorId.PP_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40, true);
+            motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 6, MotorId.LP_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40, true);
+            motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 10, MotorId.LZ_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40, true);
+            motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 14, MotorId.PZ_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40, true);
+            motors[MotorId.PP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 1, MotorId.PP_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45, false);
+            motors[MotorId.LP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 5, MotorId.LP_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45, false);
+            motors[MotorId.LZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 9, MotorId.LZ_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45, false);
+            motors[MotorId.PZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 13, MotorId.PZ_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45, false);
         }
 
         /// <summary>

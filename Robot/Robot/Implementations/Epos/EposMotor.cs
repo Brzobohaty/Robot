@@ -40,6 +40,7 @@ namespace Robot.Robot.Implementations.Epos
         private int maxSpeed; //maximální rychlost motoru
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
         private int lastPosition = 0; //poslední pozice motoru
+        private bool logaritmicScale = false; //příznak, že stupnice úhlu je logaritmická vůči pohybu motoru
 
         public EposMotor()
         {
@@ -64,8 +65,10 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
         /// <param name="minPosition">minimální pozice motoru</param>
         /// <param name="maxPosition">maximální pozice motoru</param>
-        public void inicialize(DeviceManager connector, IStateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int minPosition, int maxPosition, int minAngle, int maxAngle)
+        /// <param name="logaritmicScale">příznak, že stupnice úhlu je logaritmická vůči pohybu motoru</param>
+        public void inicialize(DeviceManager connector, IStateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int minPosition, int maxPosition, int minAngle, int maxAngle, bool logaritmicScale)
         {
+            this.logaritmicScale = logaritmicScale;
             hasPositionLimit = true;
             this.maxPosition = maxPosition;
             this.minPosition = minPosition;
@@ -565,7 +568,13 @@ namespace Robot.Robot.Implementations.Epos
                     {
                         int velocity = stateHandler.GetVelocityIs();
                         int position = stateHandler.GetPositionIs();
-                        angle = MathLibrary.changeScale(position, minPosition, maxPosition, minAngle, maxAngle);
+                        if (logaritmicScale)
+                        {
+                            angle = (int)MathLibrary.changeScaleLog(position, minPosition, maxPosition, minAngle, maxAngle);
+                        }
+                        else {
+                            angle = MathLibrary.changeScale(position, minPosition, maxPosition, minAngle, maxAngle);
+                        }
                         if (Math.Abs(velocity) > 50)
                         {
                             state = MotorState.running;
