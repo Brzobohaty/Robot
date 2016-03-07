@@ -32,6 +32,7 @@ namespace Robot.Robot.Implementations.Test
         private const int maxSpeed = 5000; //maximální rychlost motoru
         private int lastPosition = 0; //poslední pozice motoru
         private Timer simulateTicker;
+        private bool logaritmicScale = false; //příznak, že stupnice úhlu je logaritmická vůči pohybu motoru
 
         //simulovací proměnné
         int speed = 0;
@@ -56,8 +57,10 @@ namespace Robot.Robot.Implementations.Test
         /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
         /// <param name="minPosition">minimální pozice motoru</param>
         /// <param name="maxPosition">maximální pozice motoru</param>
-        public void inicialize(DeviceManager connector, IStateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int minPosition, int maxPosition, int minAngle, int maxAngle)
+        /// <param name="logaritmicScale">příznak, že stupnice úhlu je logaritmická vůči pohybu motoru</param
+        public void inicialize(DeviceManager connector, IStateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int minPosition, int maxPosition, int minAngle, int maxAngle, bool logaritmicScale)
         {
+            this.logaritmicScale = logaritmicScale;
             hasPositionLimit = true;
             this.maxPosition = maxPosition;
             this.minPosition = minPosition;

@@ -59,6 +59,7 @@ namespace Robot
 
             foreach (KeyValuePair<MotorId, Label> motorView in motorViews)
             {
+                createLabelForSpeed(motorView.Value);
                 toolTip.SetToolTip(motorView.Value, "ID motoru: " + motorView.Key + "\nStav motoru: not inicialized");
             }
         }
@@ -116,6 +117,19 @@ namespace Robot
         {
             showMotorState(motorViews[motorId], state, message, motorId, speed, position);
             changeVisualization(motorId, speedRelative, angle);
+        }
+
+        /// <summary>
+        /// Vytvoří textové pole pro rychlost
+        /// </summary>
+        /// <param name="motorLabel">label motoru</param>
+        private void createLabelForSpeed(Label motorLabel)
+        {
+            Label label = new Label();
+            label.Size = new Size(55, 20);
+            label.TextAlign = ContentAlignment.TopCenter;
+            label.Parent = motorLabel;
+            label.BackColor = Color.Transparent;
         }
 
         /// <summary>
@@ -203,7 +217,8 @@ namespace Robot
             }
             this.Invoke((MethodInvoker)delegate
             {
-                motorView.Text = speed.ToString() + "\n" + position.ToString();
+                ((Label)motorView.GetChildAtPoint(new Point(0,0))).Text = speed.ToString();
+                motorView.Text = position.ToString();
                 toolTip.SetToolTip(motorView, "ID motoru: " + motorId + "\nStav motoru: " + state + "\nZpráva: " + message);
                 motorView.Update();
             });

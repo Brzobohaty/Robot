@@ -375,6 +375,10 @@ namespace Robot.Robot.Implementations.Epos
                     {
                         motor.Value.setHomingPosition((int)Properties.Settings.Default[motor.Key.ToString()]);
                     }
+                    motors[MotorId.LZ_P].setActualPositionAsHoming();
+                    motors[MotorId.PZ_P].setActualPositionAsHoming();
+                    motors[MotorId.PP_P].setActualPositionAsHoming();
+                    motors[MotorId.LP_P].setActualPositionAsHoming();
                     return true;
                 }
                 else
