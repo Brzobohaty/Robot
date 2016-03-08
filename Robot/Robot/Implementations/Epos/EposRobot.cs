@@ -13,8 +13,9 @@ namespace Robot.Robot.Implementations.Epos
     /// </summary>
     class EposRobot : IRobot
     {
-        private const double halfOfBaseWidth = 40; //půlka šířky základny robota (cm)
-        private const double leangthOfLeg = 60; //délka nohy (cm)
+        private const double widthOfBase = 46.85; //šířka základny robota v půdorysu (cm)
+        private const double heightOfBase = 43.85; //výška základny robota v půdorysu (cm)
+        private const double leangthOfLeg = 30; //délka nohy (cm)
         private const double maxRealAngleOfLeg = 30; //reálný úhel odpovídající současnému maximu natočení nohy
         private const double minRealAngleOfLeg = -50; //reálný úhel odpovídající současnému maximu natočení nohy
         private DeviceManager connector; // handler pro přopojení motorů
@@ -56,7 +57,7 @@ namespace Robot.Robot.Implementations.Epos
                 }
                 inicializeMotors(motorStateObserver, motorErrorOccuredObserver);
             }
-            catch (DeviceException)
+            catch (DeviceException e)
             {
                 inicializeSimulation(motorStateObserver, motorErrorOccuredObserver); //odkomentovat pro softwarovou simulaci (a zakomentovat následující řádek)
                 //return String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode));
@@ -508,10 +509,10 @@ namespace Robot.Robot.Implementations.Epos
                 motors[MotorId.LZ_P].disable();
                 motors[MotorId.PZ_P].disable();
 
-                motors[MotorId.LP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LP_Z]), -halfOfBaseWidth, halfOfBaseWidth));
-                motors[MotorId.PP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PP_Z]), halfOfBaseWidth, halfOfBaseWidth));
-                motors[MotorId.LZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LZ_Z]), -halfOfBaseWidth, -halfOfBaseWidth));
-                motors[MotorId.PZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PZ_Z]), halfOfBaseWidth, -halfOfBaseWidth));
+                motors[MotorId.LP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LP_Z]), -widthOfBase/2, heightOfBase / 2));
+                motors[MotorId.PP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PP_Z]), widthOfBase / 2, heightOfBase / 2));
+                motors[MotorId.LZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LZ_Z]), -widthOfBase / 2, -heightOfBase / 2));
+                motors[MotorId.PZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PZ_Z]), widthOfBase / 2, -heightOfBase / 2));
 
                 createPeriodicChecker();
                 periodicChecker.Elapsed += delegate { moveInRadiusStep1(radiusCircleDistance, speed); };
@@ -545,10 +546,10 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         private void moveInRadiusFluently(double radiusCircleDistance, double speed)
         {
-            motors[MotorId.LP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LP_Z]), -halfOfBaseWidth, halfOfBaseWidth));
-            motors[MotorId.PP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PP_Z]), halfOfBaseWidth, halfOfBaseWidth));
-            motors[MotorId.LZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LZ_Z]), -halfOfBaseWidth, -halfOfBaseWidth));
-            motors[MotorId.PZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PZ_Z]), halfOfBaseWidth, -halfOfBaseWidth));
+            motors[MotorId.LP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LP_Z]), -widthOfBase / 2, heightOfBase / 2));
+            motors[MotorId.PP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PP_Z]), widthOfBase / 2, heightOfBase / 2));
+            motors[MotorId.LZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LZ_Z]), -widthOfBase / 2, -heightOfBase / 2));
+            motors[MotorId.PZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PZ_Z]), widthOfBase / 2, -heightOfBase / 2));
 
             moveInRadiusLastStep(radiusCircleDistance, speed);
         }
@@ -559,10 +560,10 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="radiusCircleDistance">vzdálenost rádiusové kružnice (0 - 2000) pro >2000 bere jako přímý pohyb</param>
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         private void moveInRadiusLastStep(double radiusCircleDistance, double speed) {
-            double arcLeangthLP = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LP_Z]), -halfOfBaseWidth, halfOfBaseWidth);
-            double arcLeangthPP = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PP_Z]), halfOfBaseWidth, halfOfBaseWidth);
-            double arcLeangthLZ = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LZ_Z]), -halfOfBaseWidth, -halfOfBaseWidth);
-            double arcLeangthPZ = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PZ_Z]), halfOfBaseWidth, -halfOfBaseWidth);
+            double arcLeangthLP = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LP_Z]), -widthOfBase / 2, heightOfBase / 2);
+            double arcLeangthPP = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PP_Z]), widthOfBase / 2, heightOfBase / 2);
+            double arcLeangthLZ = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LZ_Z]), -widthOfBase / 2, -heightOfBase / 2);
+            double arcLeangthPZ = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PZ_Z]), widthOfBase / 2, -heightOfBase / 2);
 
             double maxArcLeangth = Math.Max(Math.Max(arcLeangthLP, arcLeangthPP), Math.Max(arcLeangthLZ, arcLeangthPZ));
 
