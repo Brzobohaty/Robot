@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using EposCmd.Net;
-using EposCmd.Net.DeviceCmdSet.Initialization;
 using System.Threading;
 using Robot.Robot.Implementations.Test;
 using System.Windows.Forms;
@@ -25,6 +24,12 @@ namespace Robot.Robot.Implementations.Epos
         private System.Timers.Timer periodicChecker; //periodický vyvolávač určitých funkcí
         private bool test = false; //příznak, že se jedná o simulaci robota
         private bool radiusMoving = false; //příznak, že probíhá pohyb robota v rádiusu
+
+        //pozice zdvihových motorů před nahnutím
+        private int lastPositionBeforeTiltLP = 0;
+        private int lastPositionBeforeTiltPP = 0;
+        private int lastPositionBeforeTiltLZ = 0;
+        private int lastPositionBeforeTiltPZ = 0;
 
         public EposRobot()
         {
@@ -444,6 +449,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="left">příznak, zda rotovat doleva</param>
         public void rotate(bool left)
         {
+            haltAll();
             if (isHeightOk())
             {
                 rotateStep1(left);
@@ -454,6 +460,125 @@ namespace Robot.Robot.Implementations.Epos
                 createPeriodicChecker();
                 periodicChecker.Elapsed += delegate { rotateStep1(left); };
             }
+        }
+
+        /// <summary>
+        /// Zastaví naklánění dopředu
+        /// </summary>
+        public void stopTiltFront() {
+            if (periodicChecker != null)
+            {
+                periodicChecker.Dispose();
+            }
+            motors[MotorId.LP_Z].moveToPosition(lastPositionBeforeTiltLP);
+            motors[MotorId.PP_Z].moveToPosition(lastPositionBeforeTiltPP);
+        }
+
+        /// <summary>
+        /// Zastaví naklánění dozadu
+        /// </summary>
+        public void stopTiltBack()
+        {
+            if (periodicChecker != null)
+            {
+                periodicChecker.Dispose();
+            }
+            motors[MotorId.LZ_Z].moveToPosition(lastPositionBeforeTiltLZ);
+            motors[MotorId.PZ_Z].moveToPosition(lastPositionBeforeTiltPZ);
+        }
+
+        /// <summary>
+        /// Zastaví naklánění doleva
+        /// </summary>
+        public void stopTiltLeft()
+        {
+            if (periodicChecker != null)
+            {
+                periodicChecker.Dispose();
+            }
+            motors[MotorId.LZ_Z].moveToPosition(lastPositionBeforeTiltLZ);
+            motors[MotorId.LP_Z].moveToPosition(lastPositionBeforeTiltLP);
+        }
+
+        /// <summary>
+        /// Zastaví naklánění doprava
+        /// </summary>
+        public void stopTiltRight()
+        {
+            if (periodicChecker != null)
+            {
+                periodicChecker.Dispose();
+            }
+            motors[MotorId.PP_Z].moveToPosition(lastPositionBeforeTiltPP);
+            motors[MotorId.PZ_Z].moveToPosition(lastPositionBeforeTiltPZ);
+        }
+
+        /// <summary>
+        /// Zastaví zvyšování robota
+        /// </summary>
+        public void stopMoveUp()
+        {
+            if (periodicChecker != null)
+            {
+                periodicChecker.Dispose();
+            }
+            motors[MotorId.LP_Z].halt();
+            motors[MotorId.PP_Z].halt();
+            motors[MotorId.LZ_Z].halt();
+            motors[MotorId.PZ_Z].halt();
+        }
+
+        /// <summary>
+        /// Zastaví snižování robota
+        /// </summary>
+        public void stopMoveDown()
+        {
+            if (periodicChecker != null)
+            {
+                periodicChecker.Dispose();
+            }
+            motors[MotorId.LP_Z].halt();
+            motors[MotorId.PP_Z].halt();
+            motors[MotorId.LZ_Z].halt();
+            motors[MotorId.PZ_Z].halt();
+        }
+
+        /// <summary>
+        /// Zastaví rozšiřování robota
+        /// </summary>
+        public void stopWiden()
+        {
+            if (periodicChecker != null)
+            {
+                periodicChecker.Dispose();
+            }
+            motors[MotorId.LP_ZK].halt();
+            motors[MotorId.PP_ZK].halt();
+            motors[MotorId.LZ_ZK].halt();
+            motors[MotorId.PZ_ZK].halt();
+        }
+
+        /// <summary>
+        /// Zastaví zužování robota
+        /// </summary>
+        public void stopNarrow()
+        {
+            if (periodicChecker != null)
+            {
+                periodicChecker.Dispose();
+            }
+            motors[MotorId.LP_ZK].halt();
+            motors[MotorId.PP_ZK].halt();
+            motors[MotorId.LZ_ZK].halt();
+            motors[MotorId.PZ_ZK].halt();
+        }
+
+        /// <summary>
+        /// Zastaví rotování robota
+        /// </summary>
+        public void stopRotate()
+        {
+            haltAll();
         }
 
         /// <summary>
@@ -700,8 +825,11 @@ namespace Robot.Robot.Implementations.Epos
             {
                 periodicChecker.Dispose();
 
-                motors[MotorId.LZ_Z].move(2000);
-                motors[MotorId.PZ_Z].move(2000);
+                lastPositionBeforeTiltLZ = motors[MotorId.LZ_Z].getPosition();
+                lastPositionBeforeTiltPZ = motors[MotorId.PZ_Z].getPosition();
+
+                motors[MotorId.LZ_Z].moveToMaxPosition();
+                motors[MotorId.PZ_Z].moveToMaxPosition();
             }
         }
 
@@ -714,8 +842,11 @@ namespace Robot.Robot.Implementations.Epos
             {
                 periodicChecker.Dispose();
 
-                motors[MotorId.PP_Z].move(2000);
-                motors[MotorId.LP_Z].move(2000);
+                lastPositionBeforeTiltPP = motors[MotorId.PP_Z].getPosition();
+                lastPositionBeforeTiltLP = motors[MotorId.LP_Z].getPosition();
+
+                motors[MotorId.PP_Z].moveToMaxPosition();
+                motors[MotorId.LP_Z].moveToMaxPosition();
             }
         }
 
@@ -728,8 +859,11 @@ namespace Robot.Robot.Implementations.Epos
             {
                 periodicChecker.Dispose();
 
-                motors[MotorId.LP_Z].move(2000);
-                motors[MotorId.LZ_Z].move(2000);
+                lastPositionBeforeTiltLP = motors[MotorId.LP_Z].getPosition();
+                lastPositionBeforeTiltLZ = motors[MotorId.LZ_Z].getPosition();
+
+                motors[MotorId.LP_Z].moveToMaxPosition();
+                motors[MotorId.LZ_Z].moveToMaxPosition();
             }
         }
 
@@ -742,8 +876,11 @@ namespace Robot.Robot.Implementations.Epos
             {
                 periodicChecker.Dispose();
 
-                motors[MotorId.PP_Z].move(2000);
-                motors[MotorId.PZ_Z].move(2000);
+                lastPositionBeforeTiltPP = motors[MotorId.PP_Z].getPosition();
+                lastPositionBeforeTiltPZ = motors[MotorId.PZ_Z].getPosition();
+
+                motors[MotorId.PP_Z].moveToMaxPosition();
+                motors[MotorId.PZ_Z].moveToMaxPosition();
             }
         }
 
@@ -791,10 +928,10 @@ namespace Robot.Robot.Implementations.Epos
                 motors[MotorId.LZ_P].enable();
                 motors[MotorId.PZ_P].enable();
 
-                motors[MotorId.LP_P].move(4000 * rev);
-                motors[MotorId.PP_P].move(4000 * rev);
-                motors[MotorId.LZ_P].move(4000 * rev);
-                motors[MotorId.PZ_P].move(4000 * rev);
+                motors[MotorId.LP_P].moving(100 * rev);
+                motors[MotorId.PP_P].moving(100 * rev);
+                motors[MotorId.LZ_P].moving(100 * rev);
+                motors[MotorId.PZ_P].moving(100 * rev);
             }
         }
 
@@ -1123,11 +1260,19 @@ namespace Robot.Robot.Implementations.Epos
             {
                 periodicChecker.Dispose();
 
-                motors[MotorId.PP_Z].move(-2000 * direction);
-                motors[MotorId.LP_Z].move(-2000 * direction);
-                motors[MotorId.LZ_Z].move(-2000 * direction);
-                motors[MotorId.PZ_Z].move(-2000 * direction);
-
+                if (direction > 0)
+                {
+                    motors[MotorId.PP_Z].moveToMinPosition();
+                    motors[MotorId.LP_Z].moveToMinPosition();
+                    motors[MotorId.LZ_Z].moveToMinPosition();
+                    motors[MotorId.PZ_Z].moveToMinPosition();
+                }
+                else {
+                    motors[MotorId.PP_Z].moveToMaxPosition();
+                    motors[MotorId.LP_Z].moveToMaxPosition();
+                    motors[MotorId.LZ_Z].moveToMaxPosition();
+                    motors[MotorId.PZ_Z].moveToMaxPosition();
+                }
                 createPeriodicChecker();
                 periodicChecker.Elapsed += delegate { enablePAfterZPeriodic(); };
             }
@@ -1183,10 +1328,23 @@ namespace Robot.Robot.Implementations.Epos
             if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
             {
                 periodicChecker.Dispose();
-                motors[MotorId.PP_ZK].move(2000 * direction);
-                motors[MotorId.LP_ZK].move(2000 * direction);
-                motors[MotorId.LZ_ZK].move(2000 * direction);
-                motors[MotorId.PZ_ZK].move(2000 * direction);
+
+                if (direction > 0)
+                {
+                    motors[MotorId.PP_ZK].moveToMaxPosition();
+                    motors[MotorId.LP_ZK].moveToMaxPosition();
+                    motors[MotorId.LZ_ZK].moveToMaxPosition();
+                    motors[MotorId.PZ_ZK].moveToMaxPosition();
+                }
+                else
+                {
+                    motors[MotorId.PP_ZK].moveToMinPosition();
+                    motors[MotorId.LP_ZK].moveToMinPosition();
+                    motors[MotorId.LZ_ZK].moveToMinPosition();
+                    motors[MotorId.PZ_ZK].moveToMinPosition();
+                    
+                }
+                
                 createPeriodicChecker();
                 periodicChecker.Elapsed += delegate { enablePAfterZKPeriodic(); };
             }

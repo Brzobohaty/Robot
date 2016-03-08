@@ -337,6 +337,22 @@ namespace Robot.Robot.Implementations.Test
         }
 
         /// <summary>
+        /// Pohnen s motorem do maximální koncové pozice
+        /// </summary>
+        public void moveToMaxPosition()
+        {
+            moveToPosition(maxPosition - 1);
+        }
+
+        /// <summary>
+        /// Pohnen s motorem do minimální koncové pozice
+        /// </summary>
+        public void moveToMinPosition()
+        {
+            moveToPosition(minPosition + 1);
+        }
+
+        /// <summary>
         /// Nastavení timeru pro dotazování stavu motoru
         /// </summary>
         private void setStateObserver()

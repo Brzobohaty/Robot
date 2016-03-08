@@ -147,5 +147,50 @@ namespace Robot.Robot
         /// </summary>
         /// <param name="measure">míra zůžení od 0 do 100</param>
         void narrowBack(int measure);
+
+        /// <summary>
+        /// Zastaví naklánění dopředu
+        /// </summary>
+        void stopTiltFront();
+
+        /// <summary>
+        /// Zastaví naklánění dozadu
+        /// </summary>
+        void stopTiltBack();
+
+        /// <summary>
+        /// Zastaví naklánění doleva
+        /// </summary>
+        void stopTiltLeft();
+
+        /// <summary>
+        /// Zastaví naklánění doprava
+        /// </summary>
+        void stopTiltRight();
+
+        /// <summary>
+        /// Zastaví zvyšování robota
+        /// </summary>
+        void stopMoveUp();
+
+        /// <summary>
+        /// Zastaví snižování robota
+        /// </summary>
+        void stopMoveDown();
+
+        /// <summary>
+        /// Zastaví rozšiřování robota
+        /// </summary>
+        void stopWiden();
+
+        /// <summary>
+        /// Zastaví zužování robota
+        /// </summary>
+        void stopNarrow();
+
+        /// <summary>
+        /// Zastaví rotování robota
+        /// </summary>
+        void stopRotate();
     }
 }

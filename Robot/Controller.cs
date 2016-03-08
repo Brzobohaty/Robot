@@ -30,18 +30,6 @@ namespace Robot
         private System.Timers.Timer finishInicializationObserver; // posluchač ukončení vláken inicializace
         private System.Timers.Timer gamePadChecker; // kontrololor připojeného externího ovladače
 
-        //timery obstarávající periodické spouštění při držění tlačítka
-        private System.Timers.Timer moveUpPeriodHandler;
-        private System.Timers.Timer moveDownPeriodHandler;
-        private System.Timers.Timer widenPeriodHandler;
-        private System.Timers.Timer narrowPeriodHandler;
-        private System.Timers.Timer rotateLeftPeriodHandler;
-        private System.Timers.Timer rotateRightPeriodHandler;
-        private System.Timers.Timer tiltFrontPeriodHandler;
-        private System.Timers.Timer tiltBackPeriodHandler;
-        private System.Timers.Timer tiltLeftPeriodHandler;
-        private System.Timers.Timer tiltRightPeriodHandler;
-
         /// <param name="mainWindow">hlavní okno aplikace</param>
         public Controller(MainWindow mainWindow)
         {
@@ -92,16 +80,6 @@ namespace Robot
             if (!inicializeRobotThread.IsAlive && !inicializeJoystickThread.IsAlive)
             {
                 finishInicializationObserver.Stop();
-                moveUpPeriodHandler = getPeriodHandler();
-                moveDownPeriodHandler = getPeriodHandler();
-                widenPeriodHandler = getPeriodHandler();
-                narrowPeriodHandler = getPeriodHandler();
-                rotateLeftPeriodHandler = getPeriodHandler();
-                rotateRightPeriodHandler = getPeriodHandler();
-                tiltFrontPeriodHandler = getPeriodHandler();
-                tiltBackPeriodHandler = getPeriodHandler();
-                tiltLeftPeriodHandler = getPeriodHandler();
-                tiltRightPeriodHandler = getPeriodHandler();
                 controllOnOff(true);
             }
         }
@@ -195,12 +173,11 @@ namespace Robot
         private void joystickButtonTiltFrontChanged(bool pressed) {
             if (pressed)
             {
-                periodiclyAction(tiltFrontPeriodHandler, null);
-                tiltFrontPeriodHandler.Start();
+                robot.tiltFront();
             }
             else
             {
-                tiltFrontPeriodHandler.Stop();
+                robot.stopTiltFront();
             }
             controllView.buttonTiltFrontPressed(pressed);
         }
@@ -213,12 +190,11 @@ namespace Robot
         {
             if (pressed)
             {
-                periodiclyAction(tiltBackPeriodHandler, null);
-                tiltBackPeriodHandler.Start();
+                robot.tiltBack();
             }
             else
             {
-                tiltBackPeriodHandler.Stop();
+                robot.stopTiltBack();
             }
             controllView.buttonTiltBackPressed(pressed);
         }
@@ -231,12 +207,11 @@ namespace Robot
         {
             if (pressed)
             {
-                periodiclyAction(tiltLeftPeriodHandler, null);
-                tiltLeftPeriodHandler.Start();
+                robot.tiltLeft();
             }
             else
             {
-                tiltLeftPeriodHandler.Stop();
+                robot.stopTiltLeft();
             }
             controllView.buttonTiltLeftPressed(pressed);
         }
@@ -249,12 +224,11 @@ namespace Robot
         {
             if (pressed)
             {
-                periodiclyAction(tiltRightPeriodHandler, null);
-                tiltRightPeriodHandler.Start();
+                robot.tiltRight();
             }
             else
             {
-                tiltRightPeriodHandler.Stop();
+                robot.stopTiltRight();
             }
             controllView.buttonTiltRightPressed(pressed);
         }
@@ -291,68 +265,6 @@ namespace Robot
         }
 
         /// <summary>
-        /// Vytvoří timer, který bude periodicky spouštět akci robota.
-        /// </summary>
-        /// <returns>timer</returns>
-        private System.Timers.Timer getPeriodHandler()
-        {
-            System.Timers.Timer aTimer = new System.Timers.Timer();
-            aTimer.Elapsed += new ElapsedEventHandler(periodiclyAction);
-            aTimer.Interval = 200;
-            aTimer.Stop();
-            return aTimer;
-        }
-
-        /// <summary>
-        /// Akce s robotem vykonávána periodicky
-        /// </summary>
-        /// <param name="sender">timer, který se stará o periodu</param>
-        /// <param name="arg">argumenty</param>
-        private void periodiclyAction(object sender, ElapsedEventArgs arg)
-        {
-            if (sender == moveUpPeriodHandler)
-            {
-                robot.moveUp();
-            }
-            if (sender == moveDownPeriodHandler)
-            {
-                robot.moveDown();
-            }
-            if (sender == widenPeriodHandler)
-            {
-                robot.widen();
-            }
-            if (sender == narrowPeriodHandler)
-            {
-                robot.narrow();
-            }
-            if (sender == rotateLeftPeriodHandler)
-            {
-                robot.rotate(true);
-            }
-            if (sender == rotateRightPeriodHandler)
-            {
-                robot.rotate(false);
-            }
-            if (sender == tiltBackPeriodHandler)
-            {
-                robot.tiltBack();
-            }
-            if (sender == tiltFrontPeriodHandler)
-            {
-                robot.tiltFront();
-            }
-            if (sender == tiltLeftPeriodHandler)
-            {
-                robot.tiltLeft();
-            }
-            if (sender == tiltRightPeriodHandler)
-            {
-                robot.tiltRight();
-            }
-        }
-
-        /// <summary>
         /// Callback pro změnu stavu tlačítka pro pohyb nahoru 
         /// </summary>
         /// <param name="pressed">stisknuté tlačítko pro pohyb robota nahoru</param>
@@ -360,12 +272,11 @@ namespace Robot
         {
             if (pressed)
             {
-                periodiclyAction(moveUpPeriodHandler, null);
-                moveUpPeriodHandler.Start();
+                robot.moveUp();
             }
             else
             {
-                moveUpPeriodHandler.Stop();
+                robot.stopMoveUp();
             }
             controllView.buttonMoveUpPressed(pressed);
         }
@@ -378,12 +289,11 @@ namespace Robot
         {
             if (pressed)
             {
-                periodiclyAction(moveDownPeriodHandler, null);
-                moveDownPeriodHandler.Start();
+                robot.moveDown();
             }
             else
             {
-                moveDownPeriodHandler.Stop();
+                robot.stopMoveDown();
             }
             controllView.buttonMoveDownPressed(pressed);
         }
@@ -396,12 +306,11 @@ namespace Robot
         {
             if (pressed)
             {
-                periodiclyAction(widenPeriodHandler, null);
-                widenPeriodHandler.Start();
+                robot.widen();
             }
             else
             {
-                widenPeriodHandler.Stop();
+                robot.stopWiden();
             }
             controllView.buttonWidenPressed(pressed);
         }
@@ -414,12 +323,11 @@ namespace Robot
         {
             if (pressed)
             {
-                periodiclyAction(narrowPeriodHandler, null);
-                narrowPeriodHandler.Start();
+                robot.narrow();
             }
             else
             {
-                narrowPeriodHandler.Stop();
+                robot.stopNarrow();
             }
             controllView.buttonNarrowPressed(pressed);
         }
@@ -432,12 +340,11 @@ namespace Robot
         {
             if (pressed)
             {
-                periodiclyAction(rotateLeftPeriodHandler, null);
-                rotateLeftPeriodHandler.Start();
+                robot.rotate(true);
             }
             else
             {
-                rotateLeftPeriodHandler.Stop();
+                robot.stopRotate();
             }
             controllView.buttonRotateLeftPressed(pressed);
         }
@@ -450,12 +357,11 @@ namespace Robot
         {
             if (pressed)
             {
-                periodiclyAction(rotateRightPeriodHandler, null);
-                rotateRightPeriodHandler.Start();
+                robot.rotate(false);
             }
             else
             {
-                rotateRightPeriodHandler.Stop();
+                robot.stopRotate();
             }
             controllView.buttonRotateRightPressed(pressed);
         }

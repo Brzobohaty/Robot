@@ -334,14 +334,26 @@ namespace Robot
             panelForMoveJoystick.Invalidate();
         }
 
+        delegate void SetBackNarrowSliderCallback(int value);
+
         /// <summary>
         /// Nastaví slider pro zůžení zadku na danou hodnotu
         /// </summary>
         /// <param name="value">hodnota od 0 do 100</param>
         public void setBackNarrowSlider(int value)
         {
-            trackBarBackNarrow.Value = value;
+            if (trackBarBackNarrow.InvokeRequired)
+            {
+                SetBackNarrowSliderCallback cb = new SetBackNarrowSliderCallback(setBackNarrowSlider);
+                this.Invoke(cb, new object[] { value });
+            }
+            else
+            {
+                trackBarBackNarrow.Value = value;
+            }
         }
+
+        delegate void SetFrontNarrowSliderCallback(int value);
 
         /// <summary>
         /// Nastaví slider pro zůžení p5edku na danou hodnotu
@@ -349,7 +361,15 @@ namespace Robot
         /// <param name="value">hodnota od 0 do 100</param>
         public void setFrontNarrowSlider(int value)
         {
-            trackBarFrontNarrow.Value = value;
+            if (trackBarFrontNarrow.InvokeRequired)
+            {
+                SetFrontNarrowSliderCallback cb = new SetFrontNarrowSliderCallback(setFrontNarrowSlider);
+                this.Invoke(cb, new object[] { value });
+            }
+            else
+            {
+                trackBarFrontNarrow.Value = value;
+            }
         }
 
         /// <summary>

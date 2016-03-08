@@ -167,5 +167,15 @@ namespace Robot.Robot
         /// Zastaví motor
         /// </summary>
         void halt();
+
+        /// <summary>
+        /// Pohnen s motorem do maximální koncové pozice
+        /// </summary>
+        void moveToMaxPosition();
+
+        /// <summary>
+        /// Pohnen s motorem do minimální koncové pozice
+        /// </summary>
+        void moveToMinPosition();
     }
 }
