@@ -1083,13 +1083,26 @@ namespace Robot.Robot.Implementations.Epos
             int speedLZ = setWheelToDirection(motors[MotorId.LZ_ZK], motors[MotorId.LZ_R], motors[MotorId.LZ_P], 180 - direction, speed, -90);
             int speedPZ = setWheelToDirection(motors[MotorId.PZ_ZK], motors[MotorId.PZ_R], motors[MotorId.PZ_P], direction, speed, 360 - 90);
 
-            if (!motors[MotorId.LP_P].isDisabled() && !motors[MotorId.PP_P].isDisabled() && !motors[MotorId.LZ_P].isDisabled() && !motors[MotorId.PZ_P].isDisabled())
+            int tolerance = 100000;
+
+            if(Math.Abs(motors[MotorId.LP_R].targetPosition - motors[MotorId.LP_R].getPosition()) < tolerance && Math.Abs(motors[MotorId.PP_R].targetPosition - motors[MotorId.PP_R].getPosition()) < tolerance && Math.Abs(motors[MotorId.LZ_R].targetPosition - motors[MotorId.LZ_R].getPosition()) < tolerance && Math.Abs(motors[MotorId.PZ_R].targetPosition - motors[MotorId.PZ_R].getPosition()) < tolerance)
             {
+                motors[MotorId.LP_P].enable();
+                motors[MotorId.PP_P].enable();
+                motors[MotorId.LZ_P].enable();
+                motors[MotorId.PZ_P].enable();
                 motors[MotorId.LP_P].moving(speedLP);
                 motors[MotorId.PP_P].moving(speedPP);
                 motors[MotorId.LZ_P].moving(speedLZ);
                 motors[MotorId.PZ_P].moving(speedPZ);
             }
+            //if (!motors[MotorId.LP_P].isDisabled() && !motors[MotorId.PP_P].isDisabled() && !motors[MotorId.LZ_P].isDisabled() && !motors[MotorId.PZ_P].isDisabled())
+            //{
+            //    motors[MotorId.LP_P].moving(speedLP);
+            //    motors[MotorId.PP_P].moving(speedPP);
+            //    motors[MotorId.LZ_P].moving(speedLZ);
+            //    motors[MotorId.PZ_P].moving(speedPZ);
+            //}
             else
             {
                 createPeriodicChecker();
@@ -1181,7 +1194,7 @@ namespace Robot.Robot.Implementations.Epos
                 reverseWheelSpeed = !reverseWheelSpeed;
             }
             int wheelAngle = kartezWheelAngle;
-            if (wheelAngle != motorR.angle)
+            if (Math.Abs(wheelAngle - motorR.angle) > 5)
             {
                 motorP.disable();
             }

@@ -20,6 +20,7 @@ namespace Robot.Robot.Implementations.Epos
         public int angle { get; private set; } //aktuální úhel natočení motoru
         public int minAngle { get; private set; } //minimální úhel natočení motoru
         public int maxAngle { get; private set; } //maximální úhel natočení motoru
+        public int targetPosition { get; private set; } //pozice, které má v současnou chvíli motor dosáhnout
         private Device motor; //ovladač motoru
         private StateMachine sm; //ovladač stavu motoru
         private MotorMode mode; //mód ve kterém se zrovna nachází handler motoru
@@ -41,8 +42,9 @@ namespace Robot.Robot.Implementations.Epos
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
         private int lastPosition = 0; //poslední pozice motoru
         private bool logaritmicScale = false; //příznak, že stupnice úhlu je logaritmická vůči pohybu motoru
+        
 
-        public EposMotor()
+    public EposMotor()
         {
             errorDictionary = EposErrorCode.getInstance();
         }
@@ -127,6 +129,7 @@ namespace Robot.Robot.Implementations.Epos
                 setStateObserver();
                 state = MotorState.enabled;
                 stateObserver.motorStateChanged(MotorState.enabled, "", id, 0, 0, 0, 0);
+                targetPosition = stateHandler.GetPositionIs();
             }
             catch (DeviceException e)
             {
@@ -246,6 +249,7 @@ namespace Robot.Robot.Implementations.Epos
             }
             try
             {
+                targetPosition = position;
                 positionHandler.MoveToPosition(Convert.ToInt32(position), true, true);
             }
             catch (DeviceException e)

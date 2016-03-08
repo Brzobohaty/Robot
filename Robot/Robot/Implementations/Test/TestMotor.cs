@@ -18,6 +18,7 @@ namespace Robot.Robot.Implementations.Test
         public int angle { get; private set; } //aktuální úhel natočení motoru
         public int minAngle { get; private set; } //minimální úhel natočení motoru
         public int maxAngle { get; private set; } //maximální úhel natočení motoru
+        public int targetPosition { get; private set; } //pozice, které má v současnou chvíli motor dosáhnout
         private MotorMode mode; //mód ve kterém se zrovna nachází handler motoru
         private IStateObserver stateObserver; //posluchač pro stav motoru
         private Action motorErrorOccuredObserver; //posluchač chyb na motoru
@@ -172,6 +173,7 @@ namespace Robot.Robot.Implementations.Test
                 SystemSounds.Beep.Play();
             }
             createSimulateTicker();
+            targetPosition = position;
             simulateTicker.Elapsed += delegate { simulateMoveToPosition(position); };
         }
 
