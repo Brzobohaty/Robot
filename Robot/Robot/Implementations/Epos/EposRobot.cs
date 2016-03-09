@@ -550,6 +550,16 @@ namespace Robot.Robot.Implementations.Epos
             motors[MotorId.PP_Z].halt();
             motors[MotorId.LZ_Z].halt();
             motors[MotorId.PZ_Z].halt();
+
+            motors[MotorId.PP_P].halt();
+            motors[MotorId.LP_P].halt();
+            motors[MotorId.LZ_P].halt();
+            motors[MotorId.PZ_P].halt();
+
+            motors[MotorId.PP_P].enable();
+            motors[MotorId.LP_P].enable();
+            motors[MotorId.LZ_P].enable();
+            motors[MotorId.PZ_P].enable();
         }
 
         /// <summary>
@@ -565,6 +575,11 @@ namespace Robot.Robot.Implementations.Epos
             motors[MotorId.PP_Z].halt();
             motors[MotorId.LZ_Z].halt();
             motors[MotorId.PZ_Z].halt();
+
+            motors[MotorId.PP_P].enable();
+            motors[MotorId.LP_P].enable();
+            motors[MotorId.LZ_P].enable();
+            motors[MotorId.PZ_P].enable();
         }
 
         /// <summary>
@@ -1293,6 +1308,16 @@ namespace Robot.Robot.Implementations.Epos
 
                 if (direction > 0)
                 {
+                    motors[MotorId.PP_P].enable();
+                    motors[MotorId.LP_P].enable();
+                    motors[MotorId.LZ_P].enable();
+                    motors[MotorId.PZ_P].enable();
+
+                    motors[MotorId.PP_P].moving(-50);
+                    motors[MotorId.LP_P].moving(-50);
+                    motors[MotorId.LZ_P].moving(50);
+                    motors[MotorId.PZ_P].moving(50);
+
                     motors[MotorId.PP_Z].moveToMinPosition();
                     motors[MotorId.LP_Z].moveToMinPosition();
                     motors[MotorId.LZ_Z].moveToMinPosition();
@@ -1317,6 +1342,12 @@ namespace Robot.Robot.Implementations.Epos
             if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
             {
                 periodicChecker.Dispose();
+
+                motors[MotorId.PP_P].halt();
+                motors[MotorId.LP_P].halt();
+                motors[MotorId.LZ_P].halt();
+                motors[MotorId.PZ_P].halt();
+
                 motors[MotorId.PP_P].enable();
                 motors[MotorId.LP_P].enable();
                 motors[MotorId.LZ_P].enable();
