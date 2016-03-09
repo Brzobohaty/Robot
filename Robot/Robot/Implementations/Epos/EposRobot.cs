@@ -12,11 +12,10 @@ namespace Robot.Robot.Implementations.Epos
     /// </summary>
     class EposRobot : IRobot
     {
-        private const double widthOfBase = 46.85; //šířka základny robota v půdorysu (cm)
-        private const double heightOfBase = 43.85; //výška základny robota v půdorysu (cm)
-        private const double leangthOfLeg = 30; //délka nohy (cm)
-        private const double maxRealAngleOfLeg = 30; //reálný úhel odpovídající současnému maximu natočení nohy
-        private const double minRealAngleOfLeg = -50; //reálný úhel odpovídající současnému maximu natočení nohy
+        private const double widthOfBase = 32; //šířka základny robota v půdorysu (cm)
+        private const double heightOfBase = ; //výška základny robota v půdorysu (cm)
+        private const double leangthOfLeg = 30; //délka od nohy od osy Z motoru po spodek kola (cm)
+        private const int maxManipulativeHeightAngle = 60; //maximální úhel zdvihu nohy, kdy je ještě možné otáčet kola 
         private DeviceManager connector; // handler pro přopojení motorů
         private Dictionary<MotorId, IMotor> motors = new Dictionary<MotorId, IMotor>(); //mapa motorů
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
@@ -30,6 +29,30 @@ namespace Robot.Robot.Implementations.Epos
         private int lastPositionBeforeTiltPP = 0;
         private int lastPositionBeforeTiltLZ = 0;
         private int lastPositionBeforeTiltPZ = 0;
+
+        /// <summary>
+        /// Pole definující vztah úhlu ze škály uvedené u zdvihového motoru a opravdového úhlu a pozicí motoru
+        /// Jeden řádek obsahuje {úhel ze škály ve stupních; opravdový úhel, který svírá přímka vedoucí od osy Z motoru k spodní hraně kola s kolmicí k zemi z osy motoru Z; pozice motoru}
+        /// </summary>
+        int[,] motorZAngleMap = new int[17, 3] {
+            {40, 15, 147465},
+            {35, 17, 123465},
+            {30, 23, 107465},
+            {25, 28, 84215},
+            {20, 31, 71919},
+            {15, 35, 52633},
+            {10, 43, 30435},
+            {5, 47, 15425},
+            {0, 56, 0},
+            {-5, 60, -24000},
+            {-10, 62, -47152},
+            {-15, 69, -63152},
+            {-20, 75, -83133},
+            {-25, 79, -107406},
+            {-30, 84, -125934},
+            {-35, 89, -145483},
+            {-40, 92, -160000},
+        };
 
         public EposRobot()
         {
@@ -610,9 +633,12 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="motorZ">motor zdvihu nohy</param>
         /// <returns>délku nohy při pohledu ze zhora</returns>
         private double getLegLeangthFromUpView(IMotor motorZ){
-            double motorAngle = MathLibrary.changeScale(motorZ.angle, motorZ.minAngle, motorZ.maxAngle, (int)minRealAngleOfLeg, (int)maxRealAngleOfLeg);
-            double angle = 90 - Math.Abs(motorAngle);
-            return leangthOfLeg * Math.Sin(angle);
+            int angle = motorZ.angle;
+            if (angle > 90)
+            {
+                angle %= 90;
+            }
+            return (leangthOfLeg * Math.Sin(angle))+10.5;
         }
 
         /// <summary>
@@ -1040,10 +1066,10 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         private void setManipulativHeight()
         {
-            motors[MotorId.PP_Z].moveToAngle(10);
-            motors[MotorId.LP_Z].moveToAngle(10);
-            motors[MotorId.LZ_Z].moveToAngle(10);
-            motors[MotorId.PZ_Z].moveToAngle(10);
+            motors[MotorId.PP_Z].moveToAngle(maxManipulativeHeightAngle);
+            motors[MotorId.LP_Z].moveToAngle(maxManipulativeHeightAngle);
+            motors[MotorId.LZ_Z].moveToAngle(maxManipulativeHeightAngle);
+            motors[MotorId.PZ_Z].moveToAngle(maxManipulativeHeightAngle);
         }
 
         /// <summary>
@@ -1052,7 +1078,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <returns>true pokud je v manipulační výšce</returns>
         private bool isHeightOk()
         {
-            if (motors[MotorId.PP_Z].angle < 10 && motors[MotorId.LP_Z].angle < 10 && motors[MotorId.LZ_Z].angle < 10 && motors[MotorId.PZ_Z].angle < 10)
+            if (motors[MotorId.PP_Z].angle < maxManipulativeHeightAngle && motors[MotorId.LP_Z].angle < maxManipulativeHeightAngle && motors[MotorId.LZ_Z].angle < maxManipulativeHeightAngle && motors[MotorId.PZ_Z].angle < maxManipulativeHeightAngle)
             {
                 return true;
             }
@@ -1230,18 +1256,18 @@ namespace Robot.Robot.Implementations.Epos
             motors[MotorId.LP_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 8, MotorId.LP_P, MotorMode.velocity, false, 1, (uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
             motors[MotorId.LZ_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 12, MotorId.LZ_P, MotorMode.velocity, false, 1, (uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
             motors[MotorId.PZ_P].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 16, MotorId.PZ_P, MotorMode.velocity, true, 1, (uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
-            motors[MotorId.PP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 3, MotorId.PP_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180, false);
-            motors[MotorId.LP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 7, MotorId.LP_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180, false);
-            motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 11, MotorId.LZ_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180, false);
-            motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 15, MotorId.PZ_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180, false);
-            motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 2, MotorId.PP_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40, true);
-            motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 6, MotorId.LP_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40, true);
-            motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 10, MotorId.LZ_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40, true);
-            motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 14, MotorId.PZ_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, -160000, 158000, -40, 40, true);
-            motors[MotorId.PP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 1, MotorId.PP_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45, false);
-            motors[MotorId.LP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 5, MotorId.LP_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45, false);
-            motors[MotorId.LZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 9, MotorId.LZ_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45, false);
-            motors[MotorId.PZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 13, MotorId.PZ_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45, false);
+            motors[MotorId.PP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 3, MotorId.PP_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180);
+            motors[MotorId.LP_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 7, MotorId.LP_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180);
+            motors[MotorId.LZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 11, MotorId.LZ_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180);
+            motors[MotorId.PZ_R].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 15, MotorId.PZ_R, MotorMode.position, false, 4, (uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1, -216502, 433004, -90, 180);
+            motors[MotorId.PP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 2, MotorId.PP_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, motorZAngleMap);
+            motors[MotorId.LP_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 6, MotorId.LP_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, motorZAngleMap);
+            motors[MotorId.LZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 10, MotorId.LZ_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, motorZAngleMap);
+            motors[MotorId.PZ_Z].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 14, MotorId.PZ_Z, MotorMode.position, false, 4, (uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1, motorZAngleMap);
+            motors[MotorId.PP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 1, MotorId.PP_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45);
+            motors[MotorId.LP_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 5, MotorId.LP_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45);
+            motors[MotorId.LZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 9, MotorId.LZ_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45);
+            motors[MotorId.PZ_ZK].inicialize(connector, motorStateObserver, motorErrorOccuredObserver, 13, MotorId.PZ_ZK, MotorMode.position, false, 4, (uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1, -110000, 108000, -45, 45);
         }
 
         /// <summary>

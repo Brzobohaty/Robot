@@ -36,8 +36,28 @@ namespace Robot.Robot
         /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
         /// <param name="minPosition">minimální pozice motoru</param>
         /// <param name="maxPosition">maximální pozice motoru</param>
-        /// <param name="logaritmicScale">příznak, že stupnice úhlu je logaritmická vůči pohybu motoru</param>
-        void inicialize(DeviceManager connector, IStateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int minPosition, int maxPosition, int minAngle, int maxAngle, bool logaritmicScale);
+        /// <param name="angleMap">Pole definující vztah úhlu ze škály uvedené u motoru a opravdového úhlu a pozicí motoru. Jeden řádek obsahuje {úhel ze škály ve stupních; opravdový úhel; pozice motoru}</param>
+        void inicialize(DeviceManager connector, IStateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int[,] angleMap);
+
+        /// <summary>
+        /// Inicializace motoru
+        /// </summary>
+        /// <param name="connector">connector sběrnice</param>
+        /// <param name="stateObserver">posluchač stavu motoru</param>
+        /// <param name="nodeNumber">číslo node</param>
+        /// <param name="id">id motoru</param>
+        /// <param name="mode">defaultní nastavení módu</param>
+        /// <param name="reverse">příznak obrácení směru točení</param>
+        /// <param name="multiplier">násobitel otáček v případě, že je motor za převodovkou</param>
+        /// <param name="positionVeocity">rychlost motoru v otáčkách při pozicování</param>
+        /// <param name="positionAceleration">zrychlení motoru v otáčkách při pozicování</param>
+        /// <param name="positionDeceleration">zpomalení motoru v otáčkách při pozicování</param>
+        /// <param name="velocity">maximální rychlost motoru při rychlostním řízení</param>
+        /// <param name="aceleration">zrychlení motoru při rychlostním řízení</param>
+        /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
+        /// <param name="minPosition">minimální pozice motoru</param>
+        /// <param name="maxPosition">maximální pozice motoru</param>
+        void inicialize(DeviceManager connector, IStateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int minPosition, int maxPosition, int minAngle, int maxAngle);
 
         /// <summary>
         /// Inicializace motoru

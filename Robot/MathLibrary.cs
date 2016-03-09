@@ -261,6 +261,24 @@ namespace Robot
             return 2 * angle * Math.PI * radius / 360;
         }
 
+        /// <summary>
+        /// Spočítá lineární interpolaci bodu na dané přímce
+        /// </summary>
+        /// <param name="x">x souřadnice bodu</param>
+        /// <param name="x0">x souřadnice jednoho bodu na přímce</param>
+        /// <param name="x1">x souřadnice druhého bodu na přímce</param>
+        /// <param name="y0">y souřadnice jednoho bodu na přímce</param>
+        /// <param name="y1">y souřadnice druhého bodu na přímce</param>
+        /// <returns></returns>
+        public static double linearInterpolation(double x, double x0, double x1, double y0, double y1)
+        {
+            if ((x1 - x0) == 0)
+            {
+                return (y0 + y1) / 2;
+            }
+            return y0 + (x - x0) * (y1 - y0) / (x1 - x0);
+        }
+
         ///*********************CLASSES*********************************************************************************************///
 
         /// <summary>

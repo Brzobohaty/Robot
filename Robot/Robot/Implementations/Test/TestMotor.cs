@@ -41,6 +41,12 @@ namespace Robot.Robot.Implementations.Test
         bool targetReached = true;
 
         /// <summary>
+        /// Pole definující vztah úhlu ze škály uvedené u motoru a opravdového úhlu a pozicí motoru
+        /// Jeden řádek obsahuje {úhel ze škály ve stupních; opravdový úhel; pozice motoru}
+        /// </summary>
+        private int[,] angleMap;
+
+        /// <summary>
         /// Inicializace motoru
         /// </summary>
         /// <param name="connector">connector sběrnice</param>
@@ -58,10 +64,33 @@ namespace Robot.Robot.Implementations.Test
         /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
         /// <param name="minPosition">minimální pozice motoru</param>
         /// <param name="maxPosition">maximální pozice motoru</param>
-        /// <param name="logaritmicScale">příznak, že stupnice úhlu je logaritmická vůči pohybu motoru</param
-        public void inicialize(DeviceManager connector, IStateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int minPosition, int maxPosition, int minAngle, int maxAngle, bool logaritmicScale)
+        /// <param name="angleMap">Pole definující vztah úhlu ze škály uvedené u motoru a opravdového úhlu a pozicí motoru. Jeden řádek obsahuje {úhel ze škály ve stupních; opravdový úhel; pozice motoru}</param>
+        public void inicialize(DeviceManager connector, IStateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int[,] angleMap)
         {
-            this.logaritmicScale = logaritmicScale;
+            this.angleMap = angleMap;
+            inicialize(connector, stateObserver, motorErrorOccuredObserver, nodeNumber, id, mode, reverse, multiplier, positionVelocity, positionAceleration, positionDeceleration, velocity, aceleration, deceleration, angleMap[angleMap.GetLength(0) - 1, 2], angleMap[0, 2], angleMap[angleMap.GetLength(0) - 1, 1], angleMap[0, 1]);
+        }
+
+        /// <summary>
+        /// Inicializace motoru
+        /// </summary>
+        /// <param name="connector">connector sběrnice</param>
+        /// <param name="stateObserver">posluchač stavu motoru</param>
+        /// <param name="nodeNumber">číslo node</param>
+        /// <param name="id">id motoru</param>
+        /// <param name="mode">defaultní nastavení módu</param>
+        /// <param name="reverse">příznak obrácení směru točení</param>
+        /// <param name="multiplier">násobitel otáček v případě, že je motor za převodovkou</param>
+        /// <param name="positionVeocity">rychlost motoru v otáčkách při pozicování</param>
+        /// <param name="positionAceleration">zrychlení motoru v otáčkách při pozicování</param>
+        /// <param name="positionDeceleration">zpomalení motoru v otáčkách při pozicování</param>
+        /// <param name="velocity">maximální rychlost motoru při rychlostním řízení</param>
+        /// <param name="aceleration">zrychlení motoru při rychlostním řízení</param>
+        /// <param name="deceleration">zpomalení motoru při rychlostním řízení</param>
+        /// <param name="minPosition">minimální pozice motoru</param>
+        /// <param name="maxPosition">maximální pozice motoru</param>
+        public void inicialize(DeviceManager connector, IStateObserver stateObserver, Action motorErrorOccuredObserver, int nodeNumber, MotorId id, MotorMode mode, bool reverse, int multiplier, uint positionVelocity, uint positionAceleration, uint positionDeceleration, uint velocity, uint aceleration, uint deceleration, int minPosition, int maxPosition, int minAngle, int maxAngle)
+        {
             hasPositionLimit = true;
             this.maxPosition = maxPosition;
             this.minPosition = minPosition;
@@ -195,7 +224,7 @@ namespace Robot.Robot.Implementations.Test
             {
                 angle = maxAngle;
             }
-            moveToPosition(MathLibrary.changeScale(angle, minAngle, maxAngle, minPosition, maxPosition));
+            moveToPosition(getAngleFromPosition(angle));
         }
 
         /// <summary>
@@ -373,7 +402,7 @@ namespace Robot.Robot.Implementations.Test
         private void stateHandle(object sender, EventArgs ev)
         {
             int velocity = speed;
-            angle = MathLibrary.changeScale(position, minPosition, maxPosition, minAngle, maxAngle);
+            angle = getAngleFromPosition(position);
             if (Math.Abs(velocity) > 50)
             {
                 state = MotorState.running;
@@ -389,6 +418,48 @@ namespace Robot.Robot.Implementations.Test
             }
             stateObserver.motorStateChanged(state, "", id, velocity, position, speedRelative, angle);
             lastPosition = position;
+        }
+
+        /// <summary>
+        /// Vypočítá úhel motoru při dané pozici
+        /// </summary>
+        /// <param name="position">pozice motoru</param>
+        /// <returns>úhel motoru</returns>
+        private int getAngleFromPosition(int position)
+        {
+            for (int i = 0; angleMap!=null && i < angleMap.GetLength(0); i++)
+            {
+                if (position == angleMap[i, 2])
+                {
+                    return angleMap[i, 1];
+                }
+                if (position < angleMap[i, 2] && position > angleMap[i + 1, 2])
+                {
+                    return (int)MathLibrary.linearInterpolation(position, angleMap[i, 2], angleMap[i + 1, 2], angleMap[i, 1], angleMap[i + 1, 1]);
+                }
+            }
+            return MathLibrary.changeScale(position, minPosition, maxPosition, minAngle, maxAngle);
+        }
+
+        /// <summary>
+        /// Vypočítá pozici motoru při daném úhlu
+        /// </summary>
+        /// <param name="angle">úhel motoru</param>
+        /// <returns>pozice motoru</returns>
+        private int getPositionFromAngle(int angle)
+        {
+            for (int i = 0; i < angleMap.GetLength(0); i++)
+            {
+                if (angle == angleMap[i, 1])
+                {
+                    return angleMap[i, 2];
+                }
+                if (angle < angleMap[i, 1] && angle > angleMap[i + 1, 1])
+                {
+                    return (int)MathLibrary.linearInterpolation(angle, angleMap[i, 1], angleMap[i + 1, 1], angleMap[i, 2], angleMap[i + 1, 2]);
+                }
+            }
+            return MathLibrary.changeScale(angle, minAngle, maxAngle, minPosition, maxPosition);
         }
 
         /// <summary>
@@ -422,7 +493,6 @@ namespace Robot.Robot.Implementations.Test
         /// <param name="direction">směr pohybu 1 nebo -1</param>
         private void simulateMove(int direction)
         {
-
             targetReached = false;
             speed = 2000 * 10 * multiplier;
             position += 3000 * direction;
