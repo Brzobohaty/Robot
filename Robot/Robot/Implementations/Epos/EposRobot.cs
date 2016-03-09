@@ -13,7 +13,7 @@ namespace Robot.Robot.Implementations.Epos
     class EposRobot : IRobot
     {
         private const double widthOfBase = 32; //šířka základny robota v půdorysu (cm)
-        private const double heightOfBase = ; //výška základny robota v půdorysu (cm)
+        private const double heightOfBase = 29; //výška základny robota v půdorysu (cm)
         private const double leangthOfLeg = 30; //délka od nohy od osy Z motoru po spodek kola (cm)
         private const int maxManipulativeHeightAngle = 60; //maximální úhel zdvihu nohy, kdy je ještě možné otáčet kola 
         private DeviceManager connector; // handler pro přopojení motorů
