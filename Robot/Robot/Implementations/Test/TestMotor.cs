@@ -19,6 +19,7 @@ namespace Robot.Robot.Implementations.Test
         public int minAngle { get; private set; } //minimální úhel natočení motoru
         public int maxAngle { get; private set; } //maximální úhel natočení motoru
         public int targetPosition { get; private set; } //pozice, které má v současnou chvíli motor dosáhnout
+        public int targetAngle { get; private set; } //úhel, kterého má v současnou chvíli motor dosáhnout
         private MotorMode mode; //mód ve kterém se zrovna nachází handler motoru
         private IStateObserver stateObserver; //posluchač pro stav motoru
         private Action motorErrorOccuredObserver; //posluchač chyb na motoru
@@ -33,7 +34,6 @@ namespace Robot.Robot.Implementations.Test
         private const int maxSpeed = 5000; //maximální rychlost motoru
         private int lastPosition = 0; //poslední pozice motoru
         private Timer simulateTicker;
-        private bool logaritmicScale = false; //příznak, že stupnice úhlu je logaritmická vůči pohybu motoru
 
         //simulovací proměnné
         int speed = 0;
@@ -203,6 +203,7 @@ namespace Robot.Robot.Implementations.Test
             }
             createSimulateTicker();
             targetPosition = position;
+            targetAngle = getAngleFromPosition(targetPosition);
             simulateTicker.Elapsed += delegate { simulateMoveToPosition(position); };
         }
 
@@ -224,7 +225,7 @@ namespace Robot.Robot.Implementations.Test
             {
                 angle = maxAngle;
             }
-            moveToPosition(getAngleFromPosition(angle));
+            moveToPosition(getPositionFromAngle(angle));
         }
 
         /// <summary>
@@ -448,7 +449,7 @@ namespace Robot.Robot.Implementations.Test
         /// <returns>pozice motoru</returns>
         private int getPositionFromAngle(int angle)
         {
-            for (int i = 0; i < angleMap.GetLength(0); i++)
+            for (int i = 0; angleMap != null && i < angleMap.GetLength(0); i++)
             {
                 if (angle == angleMap[i, 1])
                 {

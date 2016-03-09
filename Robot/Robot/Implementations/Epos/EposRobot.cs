@@ -15,6 +15,7 @@ namespace Robot.Robot.Implementations.Epos
         private const double widthOfBase = 32; //šířka základny robota v půdorysu (cm)
         private const double heightOfBase = 29; //výška základny robota v půdorysu (cm)
         private const double leangthOfLeg = 30; //délka od nohy od osy Z motoru po spodek kola (cm)
+        private const int ZKTolerance = 15; //úhel ve stupních o který když se pohne otáčení kola, tak se nevypne pohon kol 
         private const int maxManipulativeHeightAngle = 60; //maximální úhel zdvihu nohy, kdy je ještě možné otáčet kola 
         private DeviceManager connector; // handler pro přopojení motorů
         private Dictionary<MotorId, IMotor> motors = new Dictionary<MotorId, IMotor>(); //mapa motorů
@@ -1109,28 +1110,19 @@ namespace Robot.Robot.Implementations.Epos
             int speedLZ = setWheelToDirection(motors[MotorId.LZ_ZK], motors[MotorId.LZ_R], motors[MotorId.LZ_P], 180 - direction, speed, -90);
             int speedPZ = setWheelToDirection(motors[MotorId.PZ_ZK], motors[MotorId.PZ_R], motors[MotorId.PZ_P], direction, speed, 360 - 90);
 
-            int tolerance = 100000;
-
-            if(Math.Abs(motors[MotorId.LP_R].targetPosition - motors[MotorId.LP_R].getPosition()) < tolerance && Math.Abs(motors[MotorId.PP_R].targetPosition - motors[MotorId.PP_R].getPosition()) < tolerance && Math.Abs(motors[MotorId.LZ_R].targetPosition - motors[MotorId.LZ_R].getPosition()) < tolerance && Math.Abs(motors[MotorId.PZ_R].targetPosition - motors[MotorId.PZ_R].getPosition()) < tolerance)
+            if(Math.Abs(motors[MotorId.LP_R].targetAngle - motors[MotorId.LP_R].angle) < ZKTolerance && Math.Abs(motors[MotorId.PP_R].targetAngle - motors[MotorId.PP_R].angle) < ZKTolerance && Math.Abs(motors[MotorId.LZ_R].targetAngle - motors[MotorId.LZ_R].angle) < ZKTolerance && Math.Abs(motors[MotorId.PZ_R].targetAngle - motors[MotorId.PZ_R].angle) < ZKTolerance)
             {
-                motors[MotorId.LP_P].enable();
-                motors[MotorId.PP_P].enable();
-                motors[MotorId.LZ_P].enable();
-                motors[MotorId.PZ_P].enable();
                 motors[MotorId.LP_P].moving(speedLP);
                 motors[MotorId.PP_P].moving(speedPP);
                 motors[MotorId.LZ_P].moving(speedLZ);
                 motors[MotorId.PZ_P].moving(speedPZ);
             }
-            //if (!motors[MotorId.LP_P].isDisabled() && !motors[MotorId.PP_P].isDisabled() && !motors[MotorId.LZ_P].isDisabled() && !motors[MotorId.PZ_P].isDisabled())
-            //{
-            //    motors[MotorId.LP_P].moving(speedLP);
-            //    motors[MotorId.PP_P].moving(speedPP);
-            //    motors[MotorId.LZ_P].moving(speedLZ);
-            //    motors[MotorId.PZ_P].moving(speedPZ);
-            //}
             else
             {
+                motors[MotorId.LP_P].disable();
+                motors[MotorId.PP_P].disable();
+                motors[MotorId.LZ_P].disable();
+                motors[MotorId.PZ_P].disable();
                 createPeriodicChecker();
                 periodicChecker.Elapsed += delegate { directMovePeriodic(speedLP, speedPP, speedLZ, speedPZ); };
             }
@@ -1220,7 +1212,7 @@ namespace Robot.Robot.Implementations.Epos
                 reverseWheelSpeed = !reverseWheelSpeed;
             }
             int wheelAngle = kartezWheelAngle;
-            if (Math.Abs(wheelAngle - motorR.angle) > 5)
+            if (Math.Abs(wheelAngle - motorR.angle) > ZKTolerance)
             {
                 motorP.disable();
             }

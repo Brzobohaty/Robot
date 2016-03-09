@@ -21,6 +21,7 @@ namespace Robot.Robot.Implementations.Epos
         public int minAngle { get; private set; } //minimální úhel natočení motoru
         public int maxAngle { get; private set; } //maximální úhel natočení motoru
         public int targetPosition { get; private set; } //pozice, které má v současnou chvíli motor dosáhnout
+        public int targetAngle { get; private set; } //úhel, kterého má v současnou chvíli motor dosáhnout
         private Device motor; //ovladač motoru
         private StateMachine sm; //ovladač stavu motoru
         private MotorMode mode; //mód ve kterém se zrovna nachází handler motoru
@@ -157,6 +158,7 @@ namespace Robot.Robot.Implementations.Epos
                 state = MotorState.enabled;
                 stateObserver.motorStateChanged(MotorState.enabled, "", id, 0, 0, 0, 0);
                 targetPosition = stateHandler.GetPositionIs();
+                targetAngle = getAngleFromPosition(targetPosition);
             }
             catch (DeviceException e)
             {
@@ -279,6 +281,7 @@ namespace Robot.Robot.Implementations.Epos
             try
             {
                 targetPosition = position;
+                targetAngle = getAngleFromPosition(targetPosition);
                 positionHandler.MoveToPosition(Convert.ToInt32(position), true, true);
             }
             catch (DeviceException e)
@@ -308,7 +311,7 @@ namespace Robot.Robot.Implementations.Epos
                 angle = maxAngle;
             }
 
-            moveToPosition(getAngleFromPosition(angle));
+            moveToPosition(getPositionFromAngle(angle));
         }
 
         /// <summary>
@@ -655,7 +658,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <returns>úhel motoru</returns>
         private int getAngleFromPosition(int position)
         {
-            for (int i = 0; i < angleMap.GetLength(0); i++)
+            for (int i = 0; angleMap != null && i < angleMap.GetLength(0); i++)
             {
                 if (position == angleMap[i, 2])
                 {
@@ -676,7 +679,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <returns>pozice motoru</returns>
         private int getPositionFromAngle(int angle)
         {
-            for (int i = 0; i < angleMap.GetLength(0); i++)
+            for (int i = 0; angleMap!=null && i < angleMap.GetLength(0); i++)
             {
                 if (angle == angleMap[i, 1])
                 {

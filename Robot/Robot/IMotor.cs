@@ -17,6 +17,7 @@ namespace Robot.Robot
         int minAngle { get; } //minimální úhel natočení motoru
         int maxAngle { get; } //maximální úhel natočení motoru
         int targetPosition { get; } //pozice, které má v současnou chvíli motor dosáhnout
+        int targetAngle { get; } //úhel, kterého má v současnou chvíli motor dosáhnout
 
         /// <summary>
         /// Inicializace motoru
