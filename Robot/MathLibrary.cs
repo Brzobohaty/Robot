@@ -144,10 +144,21 @@ namespace Robot
         /// <returns>hodnotu v novém rozsahu</returns>
         public static double changeScaleLog(double oldValue, double oldMin, double oldMax, double newMin, double newMax)
         {
+            double division = newMax / newMin;
+            double shift = 0;
+            if (division < 0) {
+                shift = 1 - newMin;
+                newMax = newMax + shift;
+                newMin = newMin + shift;
+            }
             //y = a exp bx
-            double b = Math.Log(newMax / newMin) / (oldMax - oldMin);
+            double b = Math.Log(newMax / newMin ) / (oldMax - oldMin);
             double a = newMax / Math.Exp(b * oldMax);
-            return a * Math.Exp(b * oldValue);
+            double newValue = a * Math.Exp(b * oldValue);
+            if (division < 0) {
+                return newValue - shift;
+            }
+            return newValue;
         }
 
         /// <summary>

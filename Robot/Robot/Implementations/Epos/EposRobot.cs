@@ -929,9 +929,9 @@ namespace Robot.Robot.Implementations.Epos
                 motors[MotorId.PZ_P].enable();
 
                 motors[MotorId.LP_P].moving(100 * rev);
-                motors[MotorId.PP_P].moving(100 * rev);
+                motors[MotorId.PP_P].moving(-100 * rev);
                 motors[MotorId.LZ_P].moving(100 * rev);
-                motors[MotorId.PZ_P].moving(100 * rev);
+                motors[MotorId.PZ_P].moving(-100 * rev);
             }
         }
 

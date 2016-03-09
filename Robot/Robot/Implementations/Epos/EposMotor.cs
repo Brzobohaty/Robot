@@ -591,6 +591,7 @@ namespace Robot.Robot.Implementations.Epos
                         if (logaritmicScale)
                         {
                             angle = (int)MathLibrary.changeScaleLog(position, minPosition, maxPosition, minAngle, maxAngle);
+                            Console.WriteLine(angle);
                         }
                         else {
                             angle = MathLibrary.changeScale(position, minPosition, maxPosition, minAngle, maxAngle);
@@ -604,10 +605,6 @@ namespace Robot.Robot.Implementations.Epos
                             state = MotorState.enabled;
                         }
                         int speedRelative = MathLibrary.changeScale(velocity, 0, (int)maxSpeed, 0, 100);
-                        if (lastPosition > position)
-                        {
-                            speedRelative = -speedRelative;
-                        }
                         stateObserver.motorStateChanged(state, "", id, velocity, position, speedRelative, angle);
                         lastPosition = position;
                     }

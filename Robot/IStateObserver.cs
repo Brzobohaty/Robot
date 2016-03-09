@@ -19,7 +19,7 @@ namespace Robot
         /// <param name="motorId">id motoru</param>
         /// <param name="speed">aktuální rychlost motoru</param>
         /// <param name="position">aktuální pozice motoru</param>
-        /// <param name="speedRelative">relativní rychlost (0 až 100)</param>
+        /// <param name="speedRelative">relativní rychlost (-100 až 100)</param>
         /// <param name="positionRelative">relativní pozice (-100 až 100)</param>
         void motorStateChanged(MotorState state, string message, MotorId motorId, int speed, int position, int speedRelative, int positionRelative);
     }
