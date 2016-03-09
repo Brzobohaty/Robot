@@ -1165,9 +1165,6 @@ namespace Robot.Robot.Implementations.Epos
                 motors[MotorId.PP_P].moving(speedPP);
                 motors[MotorId.LZ_P].moving(speedLZ);
                 motors[MotorId.PZ_P].moving(speedPZ);
-
-                createPeriodicChecker();
-                periodicChecker.Elapsed += delegate { enablePAfterZPeriodic(); };
             }
         }
 
