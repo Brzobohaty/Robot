@@ -526,7 +526,7 @@ namespace Robot
         {
             if (!robot.reHoming())
             {
-                DialogResult dialogResult = MessageBox.Show("Bylo zjištěno, že v tomto počítači ještě nejsou uloženy referenční hodnoty motorů nebo došlo k jejich ztrátě při náhlém vypnutí robota. Je potřeba provést rekalibraci. Rekalibrace se provádí tak, že uživatel nastaví všechny motory do nulové polohy a následně jsou tyto polohy brány ve všech výpočtech jako referenční. Pokud uživatel nastaví hodnoty špatně, může dojít k poškození robota.", "Rekalibrace", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult dialogResult = MessageBox.Show("Bylo zjištěno, že v tomto počítači ještě nejsou uloženy referenční hodnoty motorů nebo došlo k jejich ztrátě při náhlém vypnutí robota. Je potřeba provést rekalibraci. Rekalibrace se provádí tak, že uživatel nastaví všechny motory do nulové polohy a následně jsou tyto polohy brány ve všech výpočtech jako referenční. Pokud uživatel nastaví hodnoty špatně, může dojít k poškození robota.", "Rekalibrace", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
                 if (dialogResult == DialogResult.OK)
                 {
                     prepareRecalibration(false);
