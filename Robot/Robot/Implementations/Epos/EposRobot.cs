@@ -14,8 +14,8 @@ namespace Robot.Robot.Implementations.Epos
     {
         private const double widthOfBase = 32; //šířka základny robota v půdorysu (cm)
         private const double heightOfBase = 29; //výška základny robota v půdorysu (cm)
-        private const double leangthOfLeg = 30; //délka od nohy od osy Z motoru po spodek kola (cm)
-        private const int ZKTolerance = 15; //úhel ve stupních o který když se pohne otáčení kola, tak se nevypne pohon kol 
+        private const double leangthOfLeg = 35; //délka od nohy od osy Z motoru po spodek kola (cm)
+        private const int ZKTolerance = 30; //úhel ve stupních o který když se pohne otáčení kola, tak se nevypne pohon kol 
         private const int maxManipulativeHeightAngle = 60; //maximální úhel zdvihu nohy, kdy je ještě možné otáčet kola 
         private DeviceManager connector; // handler pro přopojení motorů
         private Dictionary<MotorId, IMotor> motors = new Dictionary<MotorId, IMotor>(); //mapa motorů
@@ -1305,6 +1305,12 @@ namespace Robot.Robot.Implementations.Epos
 
                 if (direction > 0)
                 {
+                    motors[MotorId.PP_Z].moveToMinPosition();
+                    motors[MotorId.LP_Z].moveToMinPosition();
+                    motors[MotorId.LZ_Z].moveToMinPosition();
+                    motors[MotorId.PZ_Z].moveToMinPosition();
+                }
+                else {
                     motors[MotorId.PP_P].enable();
                     motors[MotorId.LP_P].enable();
                     motors[MotorId.LZ_P].enable();
@@ -1315,12 +1321,6 @@ namespace Robot.Robot.Implementations.Epos
                     motors[MotorId.LZ_P].moving(50);
                     motors[MotorId.PZ_P].moving(50);
 
-                    motors[MotorId.PP_Z].moveToMinPosition();
-                    motors[MotorId.LP_Z].moveToMinPosition();
-                    motors[MotorId.LZ_Z].moveToMinPosition();
-                    motors[MotorId.PZ_Z].moveToMinPosition();
-                }
-                else {
                     motors[MotorId.PP_Z].moveToMaxPosition();
                     motors[MotorId.LP_Z].moveToMaxPosition();
                     motors[MotorId.LZ_Z].moveToMaxPosition();

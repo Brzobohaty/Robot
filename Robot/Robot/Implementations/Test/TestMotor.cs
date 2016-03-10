@@ -428,7 +428,7 @@ namespace Robot.Robot.Implementations.Test
         /// <returns>úhel motoru</returns>
         private int getAngleFromPosition(int position)
         {
-            for (int i = 0; angleMap!=null && i < angleMap.GetLength(0); i++)
+            for (int i = 0; angleMap!=null && i < angleMap.GetLength(0)-1; i++)
             {
                 if (position == angleMap[i, 2])
                 {
@@ -449,7 +449,7 @@ namespace Robot.Robot.Implementations.Test
         /// <returns>pozice motoru</returns>
         private int getPositionFromAngle(int angle)
         {
-            for (int i = 0; angleMap != null && i < angleMap.GetLength(0); i++)
+            for (int i = 0; angleMap != null && i < angleMap.GetLength(0)-1; i++)
             {
                 if (angle == angleMap[i, 1])
                 {
