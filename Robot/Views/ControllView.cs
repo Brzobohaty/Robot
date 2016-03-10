@@ -715,12 +715,12 @@ namespace Robot
 
         private void buttonMoveUp_MouseUp(object sender, MouseEventArgs e)
         {
-            buttonMoveUpObserver(false);
+            buttonMoveUpObserver(true);
         }
 
         private void buttonMoveUp_MouseDown(object sender, MouseEventArgs e)
         {
-            buttonMoveUpObserver(true);
+            buttonMoveUpObserver(false);
         }
 
         private void buttonAbsolutPositioning_Click(object sender, EventArgs e)
