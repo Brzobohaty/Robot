@@ -165,7 +165,7 @@ namespace Robot.Robot.Implementations.Epos
                 sm = null;
                 disableStateObserver();
                 state = MotorState.error;
-                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
             }
         }
 
@@ -212,7 +212,7 @@ namespace Robot.Robot.Implementations.Epos
                 catch (DeviceException e)
                 {
                     state = MotorState.error;
-                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                     motorErrorOccuredObserver();
                 }
             }
@@ -234,7 +234,7 @@ namespace Robot.Robot.Implementations.Epos
                 catch (DeviceException e)
                 {
                     state = MotorState.error;
-                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                     motorErrorOccuredObserver();
                 }
             }
@@ -256,7 +256,7 @@ namespace Robot.Robot.Implementations.Epos
                 catch (DeviceException e)
                 {
                     state = MotorState.error;
-                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                     motorErrorOccuredObserver();
                 }
             }
@@ -287,7 +287,7 @@ namespace Robot.Robot.Implementations.Epos
             catch (DeviceException e)
             {
                 state = MotorState.error;
-                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                 motorErrorOccuredObserver();
             }
         }
@@ -331,7 +331,7 @@ namespace Robot.Robot.Implementations.Epos
                 catch (DeviceException e)
                 {
                     state = MotorState.error;
-                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                     motorErrorOccuredObserver();
                 }
             }
@@ -354,7 +354,7 @@ namespace Robot.Robot.Implementations.Epos
                 catch (DeviceException e)
                 {
                     state = MotorState.error;
-                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                     motorErrorOccuredObserver();
                 }
             }
@@ -394,7 +394,7 @@ namespace Robot.Robot.Implementations.Epos
             catch (DeviceException e)
             {
                 state = MotorState.error;
-                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
             }
         }
 
@@ -441,7 +441,7 @@ namespace Robot.Robot.Implementations.Epos
             catch (DeviceException e)
             {
                 state = MotorState.error;
-                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                 motorErrorOccuredObserver();
             }
         }
@@ -493,7 +493,7 @@ namespace Robot.Robot.Implementations.Epos
                 catch (DeviceException e)
                 {
                     state = MotorState.error;
-                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                     motorErrorOccuredObserver();
                 }
                 changeMode(previouseMode);
@@ -514,7 +514,7 @@ namespace Robot.Robot.Implementations.Epos
             catch (DeviceException e)
             {
                 state = MotorState.error;
-                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                 motorErrorOccuredObserver();
             }
             changeMode(previouseMode);
@@ -535,7 +535,7 @@ namespace Robot.Robot.Implementations.Epos
                 catch (DeviceException e)
                 {
                     state = MotorState.error;
-                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                    stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                     motorErrorOccuredObserver();
                 }
             }
@@ -570,7 +570,7 @@ namespace Robot.Robot.Implementations.Epos
             catch (DeviceException e)
             {
                 state = MotorState.error;
-                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                 motorErrorOccuredObserver();
             }
         }
@@ -616,7 +616,7 @@ namespace Robot.Robot.Implementations.Epos
                     if (sm.GetFaultState())
                     {
                         state = MotorState.error;
-                        stateObserver.motorStateChanged(state, "Motor is in fault state", id, 0, 0, 0, 0);
+                        stateObserver.motorStateChanged(state, "Motor is in fault state" + errorDictionary.getDeviceErrorMessage(stateHandler.LastError), id, 0, 0, 0, 0);
                         motorErrorOccuredObserver();
                     }
                     else
@@ -646,7 +646,7 @@ namespace Robot.Robot.Implementations.Epos
             catch (DeviceException e)
             {
                 state = MotorState.error;
-                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
+                stateObserver.motorStateChanged(MotorState.error, String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode)), id, 0, 0, 0, 0);
                 motorErrorOccuredObserver();
             }
         }

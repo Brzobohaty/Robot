@@ -35,7 +35,7 @@ namespace Robot.Robot.Implementations.Epos
         /// Pole definující vztah úhlu ze škály uvedené u zdvihového motoru a opravdového úhlu a pozicí motoru
         /// Jeden řádek obsahuje {úhel ze škály ve stupních; opravdový úhel, který svírá přímka vedoucí od osy Z motoru k spodní hraně kola s kolmicí k zemi z osy motoru Z; pozice motoru}
         /// </summary>
-        int[,] motorZAngleMap = new int[17, 3] {
+        private int[,] motorZAngleMap = new int[17, 3] {
             {40, 15, 147465},
             {35, 17, 123465},
             {30, 23, 107465},

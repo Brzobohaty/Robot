@@ -67,7 +67,6 @@ namespace Robot.Views
 
         private void MotorsSettings_Activated(object sender, EventArgs e)
         {
-            Console.WriteLine("ssssssss");
             P_positionVelocity.Value = (uint)Properties.Settings.Default["P_positionVelocity"];
             P_positionAceleration.Value = (uint)Properties.Settings.Default["P_positionAceleration"];
             P_positionDeceleration.Value = (uint)Properties.Settings.Default["P_positionDeceleration"];
