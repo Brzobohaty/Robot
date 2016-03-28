@@ -27,6 +27,8 @@ namespace Robot.Joystick
         protected Action<bool> buttonTiltRightObserver; //callback pro změnu stavu tlačítka pro naklonění vpravo (bool stisknuto)
         protected Action<bool> buttonTiltFrontObserver; //callback pro změnu stavu tlačítka pro naklonění dopředu (bool stisknuto)
         protected Action<bool> buttonTiltBackObserver; //callback pro změnu stavu tlačítka pro naklonění dozadu (bool stisknuto)
+        protected const int sensitivityJoystick = 5; //citlivost joysticku
+        protected const int sensitivityAnalogButtons = 10; //citlivost zadních analogových tlačítek
         protected Action errorObserver; //callback když nastane chyba
         protected bool enabled = true; //příznak vypnutého/zapnutého ovládání
 

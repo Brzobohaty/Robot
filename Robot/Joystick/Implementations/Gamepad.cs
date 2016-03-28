@@ -16,7 +16,6 @@ namespace Robot.Joystick.Implementations
     {
         private SlimDX.DirectInput.Joystick gamepad; //připojený gamepad
         private GamePadeState state = new GamePadeState(); //stav gamepadu
-        private const int sensitivity = 5; //citlivost joysticku
         private Timer periodicChecker; //periodický kontorler stavu gamepadu
         DirectInput dinput;
 
@@ -109,7 +108,7 @@ namespace Robot.Joystick.Implementations
                 JoystickState stateNow = new JoystickState();
                 stateNow = gamepad.GetCurrentState();
                 bool[] buttons = stateNow.GetButtons();
-                if ((Math.Abs(state.stickDirectMoveX - stateNow.X) > sensitivity || Math.Abs(state.stickDirectMoveY - stateNow.Y) > sensitivity) && stickDirectMoveObserver != null)
+                if ((Math.Abs(state.stickDirectMoveX - stateNow.X) > sensitivityJoystick || Math.Abs(state.stickDirectMoveY - stateNow.Y) > sensitivityJoystick) && stickDirectMoveObserver != null)
                 {
                     state.stickDirectMoveX = stateNow.X;
                     state.stickDirectMoveY = stateNow.Y;

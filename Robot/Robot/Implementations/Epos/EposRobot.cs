@@ -22,8 +22,15 @@ namespace Robot.Robot.Implementations.Epos
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
         private Action motorErrorOccuredObserver; //Posluchač chyb motorů
         private System.Timers.Timer periodicChecker; //periodický vyvolávač určitých funkcí
+        private System.Timers.Timer periodicCheckerBackNarrow; //periodický vyvolávač kroků pro zužování zadku
+        private System.Timers.Timer periodicCheckerFrontNarrow; //periodický vyvolávač kroků pro zužování předku
         private bool test = false; //příznak, že se jedná o simulaci robota
         private bool radiusMoving = false; //příznak, že probíhá pohyb robota v rádiusu
+        private int lastNarrowFrontMeasure = 0; //poslední hodnota na kterou se zůžil předek
+        private int lastNarrowBackMeasure = 0; //poslední hodnota na kterou se zůžil zadek
+        private bool narrowFrontMoving = false; //příznak, že probíhá pohyb při zůženém předku
+        private bool narrowBackMoving = false; //příznak, že probíhá pohyb při zůženém zadku
+        private bool directMoving = false; //příznak, že probíhá přímý pohyb
 
         //pozice zdvihových motorů před nahnutím
         private int lastPositionBeforeTiltLP = 0;
@@ -133,46 +140,6 @@ namespace Robot.Robot.Implementations.Epos
                 createPeriodicChecker();
                 periodicChecker.Elapsed += delegate { directMovePeriodic(direction, speed); };
             }
-
-
-            //if (speed != 0)
-            //{
-            //    if (Math.Abs(direction) > 90)
-            //    {
-            //        speed = -speed;
-            //        //        //motors[MotorId.LZ_P].disable();
-            //        //        //motors[MotorId.PZ_P].disable();
-            //        //        //motors[MotorId.PP_P].enable();
-            //        //        //motors[MotorId.LP_P].enable();
-            //        //        //motors[MotorId.PP_P].moving(speed);
-            //        //        //motors[MotorId.LP_P].moving(speed);
-            //    }
-            //    else
-            //    {
-            //        //        //motors[MotorId.PP_P].disable();
-            //        //        //motors[MotorId.LP_P].disable();
-            //        //        //motors[MotorId.LZ_P].enable();
-            //        //        //motors[MotorId.PZ_P].enable();
-            //        //        //motors[MotorId.LZ_P].moving(speed);
-            //        //        //motors[MotorId.PZ_P].moving(speed);
-            //    }
-            //    motors[MotorId.PP_P].moving(speed);
-            //    motors[MotorId.LP_P].moving(speed);
-            //    motors[MotorId.LZ_P].moving(speed);
-            //    motors[MotorId.PZ_P].moving(speed);
-            //}
-            //else
-            //{
-            //    motors[MotorId.PP_P].halt();
-            //    motors[MotorId.LP_P].halt();
-            //    motors[MotorId.LZ_P].halt();
-            //    motors[MotorId.PZ_P].halt();
-            //    motors[MotorId.PP_P].enable();
-            //    motors[MotorId.LP_P].enable();
-            //    motors[MotorId.LZ_P].enable();
-            //    motors[MotorId.PZ_P].enable();
-            //}
-
         }
 
         /// <summary>
@@ -212,6 +179,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void moveDown()
         {
+            haltAll();
             moveDownUp(-1);
         }
 
@@ -220,6 +188,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void moveUp()
         {
+            haltAll();
             moveDownUp(1);
         }
 
@@ -228,6 +197,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void widen()
         {
+            haltAll();
             if (isHeightOk())
             {
                 narrowWiden(-1);
@@ -245,6 +215,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void narrow()
         {
+            haltAll();
             if (isHeightOk())
             {
                 narrowWiden(1);
@@ -262,6 +233,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void setDefaultPosition()
         {
+            haltAll();
             if (isHeightOk())
             {
                 setDefaultPositionStep1();
@@ -279,6 +251,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void tiltBack()
         {
+            haltAll();
             tiltStep0(tiltBackStep1);
         }
 
@@ -287,6 +260,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void tiltFront()
         {
+            haltAll();
             tiltStep0(tiltFrontStep1);
         }
 
@@ -295,6 +269,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void tiltLeft()
         {
+            haltAll();
             tiltStep0(tiltLeftStep1);
         }
 
@@ -303,6 +278,7 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void tiltRight()
         {
+            haltAll();
             tiltStep0(tiltRightStep1);
         }
 
@@ -312,7 +288,11 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="measure">míra zůžení od 0 do 100</param>
         public void narrowFront(int measure)
         {
-            narrowFrontBackStep0(true, measure);
+            if (!(narrowFrontMoving || narrowBackMoving))
+            {
+                haltAll();
+            }
+            narrowFrontStep0(measure);
         }
 
         /// <summary>
@@ -321,7 +301,11 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="measure">míra zůžení od 0 do 100</param>
         public void narrowBack(int measure)
         {
-            narrowFrontBackStep0(false, measure);
+            if (!(narrowFrontMoving || narrowBackMoving))
+            {
+                haltAll();
+            }
+            narrowBackStep0(measure);
         }
 
         /// <summary>
@@ -457,9 +441,21 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void haltAll()
         {
+            radiusMoving = false;
+            narrowFrontMoving = false;
+            narrowBackMoving = false;
+            directMoving = false;
             if (periodicChecker != null)
             {
                 periodicChecker.Dispose();
+            }
+            if (periodicCheckerFrontNarrow != null)
+            {
+                periodicCheckerFrontNarrow.Dispose();
+            }
+            if (periodicCheckerBackNarrow != null)
+            {
+                periodicCheckerBackNarrow.Dispose();
             }
             foreach (KeyValuePair<MotorId, IMotor> motor in motors)
             {
@@ -489,7 +485,8 @@ namespace Robot.Robot.Implementations.Epos
         /// <summary>
         /// Zastaví naklánění dopředu
         /// </summary>
-        public void stopTiltFront() {
+        public void stopTiltFront()
+        {
             if (periodicChecker != null)
             {
                 periodicChecker.Dispose();
@@ -648,13 +645,14 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         /// <param name="motorZ">motor zdvihu nohy</param>
         /// <returns>délku nohy při pohledu ze zhora</returns>
-        private double getLegLeangthFromUpView(IMotor motorZ){
+        private double getLegLeangthFromUpView(IMotor motorZ)
+        {
             int angle = motorZ.angle;
             if (angle > 90)
             {
                 angle %= 90;
             }
-            return (leangthOfLeg * Math.Sin(angle))+10.5;
+            return (leangthOfLeg * Math.Sin(angle)) + 10.5;
         }
 
         /// <summary>
@@ -676,7 +674,7 @@ namespace Robot.Robot.Implementations.Epos
                 motors[MotorId.LZ_P].disable();
                 motors[MotorId.PZ_P].disable();
 
-                motors[MotorId.LP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LP_Z]), -widthOfBase/2, heightOfBase / 2));
+                motors[MotorId.LP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LP_Z]), -widthOfBase / 2, heightOfBase / 2));
                 motors[MotorId.PP_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PP_Z]), widthOfBase / 2, heightOfBase / 2));
                 motors[MotorId.LZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LZ_Z]), -widthOfBase / 2, -heightOfBase / 2));
                 motors[MotorId.PZ_R].moveToAngle((int)getWheelAngleForRadiusMove(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PZ_ZK].angle, motors[MotorId.PZ_ZK].minAngle, motors[MotorId.PZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PZ_Z]), widthOfBase / 2, -heightOfBase / 2));
@@ -726,7 +724,8 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         /// <param name="radiusCircleDistance">vzdálenost rádiusové kružnice (0 - 2000) pro >2000 bere jako přímý pohyb</param>
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
-        private void moveInRadiusLastStep(double radiusCircleDistance, double speed) {
+        private void moveInRadiusLastStep(double radiusCircleDistance, double speed)
+        {
             double arcLeangthLP = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LP_ZK].angle, motors[MotorId.LP_ZK].minAngle, motors[MotorId.LP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LP_Z]), -widthOfBase / 2, heightOfBase / 2);
             double arcLeangthPP = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.PP_ZK].angle, motors[MotorId.PP_ZK].minAngle, motors[MotorId.PP_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.PP_Z]), widthOfBase / 2, heightOfBase / 2);
             double arcLeangthLZ = getStandardizedArcLeangth(radiusCircleDistance, MathLibrary.changeScale(motors[MotorId.LZ_ZK].angle, motors[MotorId.LZ_ZK].minAngle, motors[MotorId.LZ_ZK].maxAngle, 0, 90), getLegLeangthFromUpView(motors[MotorId.LZ_Z]), -widthOfBase / 2, -heightOfBase / 2);
@@ -743,23 +742,72 @@ namespace Robot.Robot.Implementations.Epos
         }
 
         /// <summary>
-        /// Zůží předek/zadek robota a pojede pomalu dopředu - krok 0 - nastavení manipulativní výšky
+        /// Zůží předek robota a pojede pomalu dopředu - krok 0 - nastavení manipulativní výšky
         /// </summary>
-        /// <param name="front">příznak, zda se jedná u zůžení předku nebo zadku</param>
         /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
-        private void narrowFrontBackStep0(bool front, int measure)
+        private void narrowFrontStep0(int measure)
         {
+            if ((narrowFrontMoving || narrowBackMoving) && directMoving && Math.Abs(measure - lastNarrowFrontMeasure) < 15)
+            {
+                narrowFrontStep2(measure);
+                return;
+            }
+            else {
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                    motors[MotorId.LP_P].halt();
+                    motors[MotorId.PP_P].halt();
+                    motors[MotorId.LZ_P].halt();
+                    motors[MotorId.PZ_P].halt();
+                }
+            }
             if (isHeightOk())
             {
-                narrowFrontBackStep1(front, measure);
+                narrowFrontStep1(measure);
             }
             else
             {
                 setManipulativHeight();
-                createPeriodicChecker();
-                periodicChecker.Elapsed += delegate
+                createPeriodicCheckerFrontNarrow();
+                periodicCheckerFrontNarrow.Elapsed += delegate
                 {
-                    narrowFrontBackStep1(front, measure);
+                    narrowFrontStep1(measure);
+                };
+            }
+        }
+
+        /// <summary>
+        /// Zůží zadek robota a pojede pomalu dopředu - krok 0 - nastavení manipulativní výšky
+        /// </summary>
+        /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
+        private void narrowBackStep0(int measure)
+        {
+            if ((narrowFrontMoving || narrowBackMoving) && directMoving && Math.Abs(measure - lastNarrowBackMeasure) < 15)
+            {
+                narrowBackStep2(measure);
+                return;
+            }
+            else {
+                if (periodicChecker != null) {
+                    periodicChecker.Dispose();
+                    motors[MotorId.LP_P].halt();
+                    motors[MotorId.PP_P].halt();
+                    motors[MotorId.LZ_P].halt();
+                    motors[MotorId.PZ_P].halt();
+                }
+            }
+            if (isHeightOk())
+            {
+                narrowBackStep1(measure);
+            }
+            else
+            {
+                setManipulativHeight();
+                createPeriodicCheckerBackNarrow();
+                periodicCheckerBackNarrow.Elapsed += delegate
+                {
+                    narrowBackStep1(measure);
                 };
             }
         }
@@ -767,58 +815,94 @@ namespace Robot.Robot.Implementations.Epos
         /// <summary>
         /// Zůží předek/zadek robota a pojede pomalu dopředu - krok 1 - otočení kol pro otočení nohou
         /// </summary>
-        /// <param name="front">příznak, zda se jedná u zůžení předku nebo zadku</param>
         /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
-        private void narrowFrontBackStep1(bool front, int measure)
+        private void narrowFrontStep1(int measure)
         {
             if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
             {
-                if (periodicChecker != null)
+                if (periodicCheckerFrontNarrow != null)
                 {
-                    periodicChecker.Dispose();
+                    periodicCheckerFrontNarrow.Dispose();
                 }
 
                 motors[MotorId.LP_P].disable();
                 motors[MotorId.PP_P].disable();
-                motors[MotorId.LZ_P].disable();
-                motors[MotorId.PZ_P].disable();
 
                 motors[MotorId.LP_R].moveToPosition(0);
                 motors[MotorId.PP_R].moveToPosition(0);
+
+                createPeriodicCheckerFrontNarrow();
+                periodicCheckerFrontNarrow.Elapsed += delegate { narrowFrontStep2(measure); };
+            }
+        }
+
+        /// <summary>
+        /// Zůží předek/zadek robota a pojede pomalu dopředu - krok 1 - otočení kol pro otočení nohou
+        /// </summary>
+        /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
+        private void narrowBackStep1(int measure)
+        {
+            if (motors[MotorId.PP_Z].isTargetReached() && motors[MotorId.LP_Z].isTargetReached() && motors[MotorId.LZ_Z].isTargetReached() && motors[MotorId.PZ_Z].isTargetReached())
+            {
+                if (periodicCheckerBackNarrow != null)
+                {
+                    periodicCheckerBackNarrow.Dispose();
+                }
+                
+                motors[MotorId.LZ_P].disable();
+                motors[MotorId.PZ_P].disable();
+                
                 motors[MotorId.LZ_R].moveToPosition(0);
                 motors[MotorId.PZ_R].moveToPosition(0);
 
-                createPeriodicChecker();
-                periodicChecker.Elapsed += delegate { narrowFrontBackStep2(front, measure); };
+                createPeriodicCheckerBackNarrow();
+                periodicCheckerBackNarrow.Elapsed += delegate { narrowBackStep2(measure); };
             }
         }
 
         /// <summary>
         /// Zůží předek/zadek robota a pojede pomalu dopředu - krok 2 - otočení nohou
         /// </summary>
-        /// <param name="front">příznak, zda se jedná u zůžení předku nebo zadku</param>
         /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
-        private void narrowFrontBackStep2(bool front, int measure)
+        private void narrowFrontStep2(int measure)
         {
             if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
             {
-                periodicChecker.Dispose();
+                if (periodicCheckerFrontNarrow != null) {
+                    periodicCheckerFrontNarrow.Dispose();
+                }
 
                 int angle = MathLibrary.changeScale(measure, 0, 100, 0, 45);
 
-                if (front)
+
+                motors[MotorId.LP_ZK].moveToAngle(angle);
+                motors[MotorId.PP_ZK].moveToAngle(angle);
+
+                createPeriodicCheckerFrontNarrow();
+                periodicCheckerFrontNarrow.Elapsed += delegate { narrowFrontStep3(measure); };
+            }
+        }
+
+        /// <summary>
+        /// Zůží předek/zadek robota a pojede pomalu dopředu - krok 2 - otočení nohou
+        /// </summary>
+        /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
+        private void narrowBackStep2(int measure)
+        {
+            if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
+            {
+                if (periodicCheckerBackNarrow != null)
                 {
-                    motors[MotorId.LP_ZK].moveToAngle(angle);
-                    motors[MotorId.PP_ZK].moveToAngle(angle);
-                }
-                else
-                {
-                    motors[MotorId.LZ_ZK].moveToAngle(angle);
-                    motors[MotorId.PZ_ZK].moveToAngle(angle);
+                    periodicCheckerBackNarrow.Dispose();
                 }
 
-                createPeriodicChecker();
-                periodicChecker.Elapsed += delegate { narrowFrontBackStep3(measure); };
+                int angle = MathLibrary.changeScale(measure, 0, 100, 0, 45);
+
+                motors[MotorId.LZ_ZK].moveToAngle(angle);
+                motors[MotorId.PZ_ZK].moveToAngle(angle);
+
+                createPeriodicCheckerBackNarrow();
+                periodicCheckerBackNarrow.Elapsed += delegate { narrowBackStep3(measure); };
             }
         }
 
@@ -826,18 +910,61 @@ namespace Robot.Robot.Implementations.Epos
         /// Zůží předek/zadek robota a pojede pomalu dopředu - krok 3 - pojezd
         /// </summary>
         /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
-        private void narrowFrontBackStep3(int measure)
+        private void narrowFrontStep3(int measure)
         {
             if (motors[MotorId.PP_ZK].isTargetReached() && motors[MotorId.LP_ZK].isTargetReached() && motors[MotorId.LZ_ZK].isTargetReached() && motors[MotorId.PZ_ZK].isTargetReached())
             {
-                periodicChecker.Dispose();
+                periodicCheckerFrontNarrow.Dispose();
 
                 if (measure == 0)
                 {
-                    haltAll();
+                    narrowFrontMoving = false;
+                    if (!narrowBackMoving)
+                    {
+                        haltAll();
+                    }
+                    else {
+                        lastNarrowFrontMeasure = measure;
+                        narrowFrontMoving = true;
+                        directMove(90, 30);
+                    }
                 }
                 else
                 {
+                    lastNarrowFrontMeasure = measure;
+                    narrowFrontMoving = true;
+                    directMove(90, 30);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Zůží předek/zadek robota a pojede pomalu dopředu - krok 3 - pojezd
+        /// </summary>
+        /// <param name="measure">hodnota o kolik zůžit 0 až 100</param>
+        private void narrowBackStep3(int measure)
+        {
+            if (motors[MotorId.PP_ZK].isTargetReached() && motors[MotorId.LP_ZK].isTargetReached() && motors[MotorId.LZ_ZK].isTargetReached() && motors[MotorId.PZ_ZK].isTargetReached())
+            {
+                periodicCheckerBackNarrow.Dispose();
+
+                if (measure == 0)
+                {
+                    narrowBackMoving = false;
+                    if (!narrowFrontMoving)
+                    {
+                        haltAll();
+                    }
+                    else {
+                        lastNarrowBackMeasure = measure;
+                        narrowBackMoving = true;
+                        directMove(90, 30);
+                    }
+                }
+                else
+                {
+                    lastNarrowBackMeasure = measure;
+                    narrowBackMoving = true;
                     directMove(90, 30);
                 }
             }
@@ -1125,8 +1252,13 @@ namespace Robot.Robot.Implementations.Epos
             int speedLZ = setWheelToDirection(motors[MotorId.LZ_ZK], motors[MotorId.LZ_R], motors[MotorId.LZ_P], 180 - direction, speed, -90);
             int speedPZ = setWheelToDirection(motors[MotorId.PZ_ZK], motors[MotorId.PZ_R], motors[MotorId.PZ_P], direction, speed, 360 - 90);
 
-            if(Math.Abs(motors[MotorId.LP_R].targetAngle - motors[MotorId.LP_R].angle) < ZKTolerance && Math.Abs(motors[MotorId.PP_R].targetAngle - motors[MotorId.PP_R].angle) < ZKTolerance && Math.Abs(motors[MotorId.LZ_R].targetAngle - motors[MotorId.LZ_R].angle) < ZKTolerance && Math.Abs(motors[MotorId.PZ_R].targetAngle - motors[MotorId.PZ_R].angle) < ZKTolerance)
+            if (Math.Abs(motors[MotorId.LP_R].targetAngle - motors[MotorId.LP_R].angle) < ZKTolerance && Math.Abs(motors[MotorId.PP_R].targetAngle - motors[MotorId.PP_R].angle) < ZKTolerance && Math.Abs(motors[MotorId.LZ_R].targetAngle - motors[MotorId.LZ_R].angle) < ZKTolerance && Math.Abs(motors[MotorId.PZ_R].targetAngle - motors[MotorId.PZ_R].angle) < ZKTolerance)
             {
+                motors[MotorId.LP_P].enable();
+                motors[MotorId.PP_P].enable();
+                motors[MotorId.LZ_P].enable();
+                motors[MotorId.PZ_P].enable();
+
                 motors[MotorId.LP_P].moving(speedLP);
                 motors[MotorId.PP_P].moving(speedPP);
                 motors[MotorId.LZ_P].moving(speedLZ);
@@ -1155,6 +1287,8 @@ namespace Robot.Robot.Implementations.Epos
             if (motors[MotorId.PP_R].isTargetReached() && motors[MotorId.LP_R].isTargetReached() && motors[MotorId.LZ_R].isTargetReached() && motors[MotorId.PZ_R].isTargetReached())
             {
                 periodicChecker.Dispose();
+
+                directMoving = true;
 
                 motors[MotorId.LP_P].enable();
                 motors[MotorId.PP_P].enable();
@@ -1401,9 +1535,9 @@ namespace Robot.Robot.Implementations.Epos
                     motors[MotorId.LP_ZK].moveToMinPosition();
                     motors[MotorId.LZ_ZK].moveToMinPosition();
                     motors[MotorId.PZ_ZK].moveToMinPosition();
-                    
+
                 }
-                
+
                 createPeriodicChecker();
                 periodicChecker.Elapsed += delegate { enablePAfterZKPeriodic(); };
             }
@@ -1475,7 +1609,8 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="xOrigin">x souřadnice počátku nohy</param>
         /// <param name="yOrigin">y souřadnice počátku nohy</param>
         /// <returns>přímku představující nohu</returns>
-        private MathLibrary.Line getLegLine(double legAngle, double xOrigin, double yOrigin) {
+        private MathLibrary.Line getLegLine(double legAngle, double xOrigin, double yOrigin)
+        {
             if (legAngle == 0)
             {
                 legAngle = 0.001;
@@ -1575,6 +1710,34 @@ namespace Robot.Robot.Implementations.Epos
             periodicChecker = new System.Timers.Timer();
             periodicChecker.Interval = 50;
             periodicChecker.Enabled = true;
+        }
+
+        /// <summary>
+        /// Nastaví periodický vyvolávač kroků pro zužování předku
+        /// </summary>
+        private void createPeriodicCheckerFrontNarrow()
+        {
+            if (periodicCheckerFrontNarrow != null)
+            {
+                periodicCheckerFrontNarrow.Dispose();
+            }
+            periodicCheckerFrontNarrow = new System.Timers.Timer();
+            periodicCheckerFrontNarrow.Interval = 50;
+            periodicCheckerFrontNarrow.Enabled = true;
+        }
+
+        /// <summary>
+        /// Nastaví periodický vyvolávač kroků pro zužování zadku
+        /// </summary>
+        private void createPeriodicCheckerBackNarrow()
+        {
+            if (periodicCheckerBackNarrow != null)
+            {
+                periodicCheckerBackNarrow.Dispose();
+            }
+            periodicCheckerBackNarrow = new System.Timers.Timer();
+            periodicCheckerBackNarrow.Interval = 50;
+            periodicCheckerBackNarrow.Enabled = true;
         }
     }
 }

@@ -12,7 +12,6 @@ namespace Robot.Joystick.Implementations
     {
         private SlimDX.XInput.Controller gamepad = new SlimDX.XInput.Controller(0); //připojený gamepad
         private GamePadeState state = new GamePadeState(); //stav gamepadu
-        private const int sensitivity = 5; //citlivost joysticku a zadních analogových tlačítek
         private Timer periodicChecker; //periodický kontorler stavu gamepadu
 
         /// <summary>
@@ -125,13 +124,13 @@ namespace Robot.Joystick.Implementations
                         state.tiltRight = buttons.HasFlag(GamepadButtonFlags.DPadRight);
                     }
 
-                    if ((Math.Abs(state.stickDirectMoveX - stateNow.Gamepad.LeftThumbX) > sensitivity || Math.Abs(state.stickDirectMoveY - stateNow.Gamepad.LeftThumbY) > sensitivity) && stickDirectMoveObserver != null)
+                    if ((Math.Abs(state.stickDirectMoveX - stateNow.Gamepad.LeftThumbX) > sensitivityJoystick || Math.Abs(state.stickDirectMoveY - stateNow.Gamepad.LeftThumbY) > sensitivityJoystick) && stickDirectMoveObserver != null)
                     {
                         state.stickDirectMoveX = stateNow.Gamepad.LeftThumbX;
                         state.stickDirectMoveY = stateNow.Gamepad.LeftThumbY;
                         int x = MathLibrary.changeScale(state.stickDirectMoveX, -32768, 32767, -100, 100);
                         int y = MathLibrary.changeScale(state.stickDirectMoveY, 32767, -32768, -100, 100);
-                        if (Math.Abs(x) < sensitivity && Math.Abs(y) < sensitivity)
+                        if (Math.Abs(x) < sensitivityJoystick && Math.Abs(y) < sensitivityJoystick)
                         {
                             x = 0;
                             y = 0;
@@ -139,13 +138,13 @@ namespace Robot.Joystick.Implementations
                         stickDirectMoveObserver(x, y);
                     }
 
-                    if ((Math.Abs(state.stickMoveX - stateNow.Gamepad.RightThumbX) > sensitivity || Math.Abs(state.stickMoveY - stateNow.Gamepad.RightThumbY) > sensitivity) && stickMoveObserver != null)
+                    if ((Math.Abs(state.stickMoveX - stateNow.Gamepad.RightThumbX) > sensitivityJoystick || Math.Abs(state.stickMoveY - stateNow.Gamepad.RightThumbY) > sensitivityJoystick) && stickMoveObserver != null)
                     {
                         state.stickMoveX = stateNow.Gamepad.RightThumbX;
                         state.stickMoveY = stateNow.Gamepad.RightThumbY;
                         int x = MathLibrary.changeScale(state.stickMoveX, -32768, 32767, -100, 100);
                         int y = MathLibrary.changeScale(state.stickMoveY, 32767, -32768, -100, 100);
-                        if (Math.Abs(x) < sensitivity && Math.Abs(y) < sensitivity)
+                        if (Math.Abs(x) < sensitivityJoystick && Math.Abs(y) < sensitivityJoystick)
                         {
                             x = 0;
                             y = 0;
@@ -153,22 +152,22 @@ namespace Robot.Joystick.Implementations
                         stickMoveObserver(x, y);
                     }
 
-                    if ((Math.Abs(state.frontNarrow - stateNow.Gamepad.LeftTrigger) > sensitivity) && frontNarrowObserver != null)
+                    if ((Math.Abs(state.frontNarrow - stateNow.Gamepad.LeftTrigger) > sensitivityAnalogButtons) && frontNarrowObserver != null)
                     {
                         state.frontNarrow = stateNow.Gamepad.LeftTrigger;
                         int frontNarrow = MathLibrary.changeScale(state.frontNarrow, 0, 255, 0, 100);
-                        if (state.frontNarrow < sensitivity)
+                        if (state.frontNarrow < sensitivityAnalogButtons)
                         {
                             frontNarrow = 0;
                         }
                         frontNarrowObserver(frontNarrow);
                     }
 
-                    if ((Math.Abs(state.backNarrow - stateNow.Gamepad.RightTrigger) > sensitivity) && backNarrowObserver != null)
+                    if ((Math.Abs(state.backNarrow - stateNow.Gamepad.RightTrigger) > sensitivityAnalogButtons) && backNarrowObserver != null)
                     {
                         state.backNarrow = stateNow.Gamepad.RightTrigger;
                         int backNarrow = MathLibrary.changeScale(state.backNarrow, 0, 255, 0, 100);
-                        if (state.backNarrow < sensitivity)
+                        if (state.backNarrow < sensitivityAnalogButtons)
                         {
                             backNarrow = 0;
                         }
