@@ -302,13 +302,26 @@ namespace Robot.Robot.Implementations.Epos
             {
                 return;
             }
-            if (angle <= minAngle)
+            if (minAngle > maxAngle)
             {
-                angle = minAngle;
+                if (angle <= maxAngle)
+                {
+                    angle = maxAngle;
+                }
+                if (angle >= minAngle)
+                {
+                    angle = minAngle;
+                }
             }
-            if (angle >= maxAngle)
-            {
-                angle = maxAngle;
+            else {
+                if (angle <= minAngle)
+                {
+                    angle = minAngle;
+                }
+                if (angle >= maxAngle)
+                {
+                    angle = maxAngle;
+                }
             }
 
             moveToPosition(getPositionFromAngle(angle));

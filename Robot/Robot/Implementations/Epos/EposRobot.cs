@@ -16,7 +16,7 @@ namespace Robot.Robot.Implementations.Epos
         private const double heightOfBase = 29; //výška základny robota v půdorysu (cm)
         private const double leangthOfLeg = 35; //délka od nohy od osy Z motoru po spodek kola (cm)
         private const int ZKTolerance = 30; //úhel ve stupních o který když se pohne otáčení kola, tak se nevypne pohon kol 
-        private const int maxManipulativeHeightAngle = 60; //maximální úhel zdvihu nohy, kdy je ještě možné otáčet kola 
+        private const int maxManipulativeHeightAngle = 30; //maximální úhel zdvihu nohy, kdy je ještě možné otáčet kola 
         private DeviceManager connector; // handler pro přopojení motorů
         private Dictionary<MotorId, IMotor> motors = new Dictionary<MotorId, IMotor>(); //mapa motorů
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
@@ -572,6 +572,11 @@ namespace Robot.Robot.Implementations.Epos
             motors[MotorId.PP_Z].halt();
             motors[MotorId.LZ_Z].halt();
             motors[MotorId.PZ_Z].halt();
+
+            motors[MotorId.PP_P].halt();
+            motors[MotorId.LP_P].halt();
+            motors[MotorId.LZ_P].halt();
+            motors[MotorId.PZ_P].halt();
 
             motors[MotorId.PP_P].enable();
             motors[MotorId.LP_P].enable();
@@ -1221,7 +1226,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <returns>true pokud je v manipulační výšce</returns>
         private bool isHeightOk()
         {
-            if (motors[MotorId.PP_Z].angle < maxManipulativeHeightAngle && motors[MotorId.LP_Z].angle < maxManipulativeHeightAngle && motors[MotorId.LZ_Z].angle < maxManipulativeHeightAngle && motors[MotorId.PZ_Z].angle < maxManipulativeHeightAngle)
+            if (motors[MotorId.PP_Z].angle > maxManipulativeHeightAngle && motors[MotorId.LP_Z].angle > maxManipulativeHeightAngle && motors[MotorId.LZ_Z].angle > maxManipulativeHeightAngle && motors[MotorId.PZ_Z].angle > maxManipulativeHeightAngle)
             {
                 return true;
             }
