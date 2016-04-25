@@ -15,8 +15,8 @@ namespace Robot.Robot.Implementations.Epos
         private const double widthOfBase = 32; //šířka základny robota v půdorysu (cm)
         private const double heightOfBase = 29; //výška základny robota v půdorysu (cm)
         private const double leangthOfLeg = 35; //délka od nohy od osy Z motoru po spodek kola (cm)
-        private const int ZKTolerance = 30; //úhel ve stupních o který když se pohne otáčení kola, tak se nevypne pohon kol 
-        private const int maxManipulativeHeightAngle = 30; //maximální úhel zdvihu nohy, kdy je ještě možné otáčet kola 
+        private const int ZKTolerance = 50; //úhel ve stupních o který když se pohne otáčení kola, tak se nevypne pohon kol 
+        private const int maxManipulativeHeightAngle = 40; //maximální úhel zdvihu nohy, kdy je ještě možné otáčet kola 
         private DeviceManager connector; // handler pro přopojení motorů
         private Dictionary<MotorId, IMotor> motors = new Dictionary<MotorId, IMotor>(); //mapa motorů
         private EposErrorCode errorDictionary; //slovník pro překlad z error kódů do zpráv
