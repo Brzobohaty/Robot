@@ -31,6 +31,7 @@ namespace Robot.Robot.Implementations.Epos
         private bool narrowFrontMoving = false; //příznak, že probíhá pohyb při zůženém předku
         private bool narrowBackMoving = false; //příznak, že probíhá pohyb při zůženém zadku
         private bool directMoving = false; //příznak, že probíhá přímý pohyb
+        private bool error = false; //při incializaci robota nastala chyba
 
         //pozice zdvihových motorů před nahnutím
         private int lastPositionBeforeTiltLP = 0;
@@ -81,6 +82,7 @@ namespace Robot.Robot.Implementations.Epos
         /// <returns>chybovou hlášku nebo prázdný řetězec pokud nenastala chyba</returns>
         public string inicialize(IStateObserver motorStateObserver, bool withChooseOfBus, Action motorErrorOccuredObserver)
         {
+            error = false;
             try
             {
                 if (withChooseOfBus)
@@ -95,8 +97,9 @@ namespace Robot.Robot.Implementations.Epos
             }
             catch (DeviceException e)
             {
-                inicializeSimulation(motorStateObserver, motorErrorOccuredObserver); //odkomentovat pro softwarovou simulaci (a zakomentovat následující řádek)
-                //return String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getErrorMessage(e.ErrorCode));
+                //inicializeSimulation(motorStateObserver, motorErrorOccuredObserver); //odkomentovat pro softwarovou simulaci (a zakomentovat následující dva řádky)
+                error = true;
+                return String.Format("{0}\nError: {1}", e.ErrorMessage, errorDictionary.getComunicationErrorMessage(e.ErrorCode));
             }
 
             foreach (KeyValuePair<MotorId, IMotor> motor in motors)
@@ -125,20 +128,22 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         public void move(int direction, int speed)
         {
-            if (speed == 0)
-            {
-                haltAll();
-                return;
-            }
-            if (isHeightOk())
-            {
-                directMove(direction, speed);
-            }
-            else
-            {
-                setManipulativHeight();
-                createPeriodicChecker();
-                periodicChecker.Elapsed += delegate { directMovePeriodic(direction, speed); };
+            if (!error) {
+                if (speed == 0)
+                {
+                    haltAll();
+                    return;
+                }
+                if (isHeightOk())
+                {
+                    directMove(direction, speed);
+                }
+                else
+                {
+                    setManipulativHeight();
+                    createPeriodicChecker();
+                    periodicChecker.Elapsed += delegate { directMovePeriodic(direction, speed); };
+                }
             }
         }
 
@@ -149,27 +154,30 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="speed">rychlost pohybu od -100 do 100</param>
         public void moveInRadius(double radiusCircleDistance, double speed)
         {
-            if (speed == 0)
+            if (!error)
             {
-                radiusMoving = false;
-                haltAll();
-                return;
-            }
-            if (radiusMoving)
-            {
-                moveInRadiusFluently(radiusCircleDistance, speed);
-            }
-            else
-            {
-                if (isHeightOk())
+                if (speed == 0)
                 {
-                    moveInRadiusStep0(radiusCircleDistance, speed);
+                    radiusMoving = false;
+                    haltAll();
+                    return;
+                }
+                if (radiusMoving)
+                {
+                    moveInRadiusFluently(radiusCircleDistance, speed);
                 }
                 else
                 {
-                    setManipulativHeight();
-                    createPeriodicChecker();
-                    periodicChecker.Elapsed += delegate { moveInRadiusStep0(radiusCircleDistance, speed); };
+                    if (isHeightOk())
+                    {
+                        moveInRadiusStep0(radiusCircleDistance, speed);
+                    }
+                    else
+                    {
+                        setManipulativHeight();
+                        createPeriodicChecker();
+                        periodicChecker.Elapsed += delegate { moveInRadiusStep0(radiusCircleDistance, speed); };
+                    }
                 }
             }
         }
@@ -179,8 +187,11 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void moveDown()
         {
-            haltAll();
-            moveDownUp(-1);
+            if (!error)
+            {
+                haltAll();
+                moveDownUp(-1);
+            }
         }
 
         /// <summary>
@@ -188,8 +199,11 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void moveUp()
         {
-            haltAll();
-            moveDownUp(1);
+            if (!error)
+            {
+                haltAll();
+                moveDownUp(1);
+            }
         }
 
         /// <summary>
@@ -197,16 +211,19 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void widen()
         {
-            haltAll();
-            if (isHeightOk())
+            if (!error)
             {
-                narrowWiden(-1);
-            }
-            else
-            {
-                setManipulativHeight();
-                createPeriodicChecker();
-                periodicChecker.Elapsed += delegate { narrowWiden(-1); };
+                haltAll();
+                if (isHeightOk())
+                {
+                    narrowWiden(-1);
+                }
+                else
+                {
+                    setManipulativHeight();
+                    createPeriodicChecker();
+                    periodicChecker.Elapsed += delegate { narrowWiden(-1); };
+                }
             }
         }
 
@@ -215,16 +232,19 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void narrow()
         {
-            haltAll();
-            if (isHeightOk())
+            if (!error)
             {
-                narrowWiden(1);
-            }
-            else
-            {
-                setManipulativHeight();
-                createPeriodicChecker();
-                periodicChecker.Elapsed += delegate { narrowWiden(1); };
+                haltAll();
+                if (isHeightOk())
+                {
+                    narrowWiden(1);
+                }
+                else
+                {
+                    setManipulativHeight();
+                    createPeriodicChecker();
+                    periodicChecker.Elapsed += delegate { narrowWiden(1); };
+                }
             }
         }
 
@@ -233,16 +253,19 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void setDefaultPosition()
         {
-            haltAll();
-            if (isHeightOk())
+            if (!error)
             {
-                setDefaultPositionStep1();
-            }
-            else
-            {
-                setManipulativHeight();
-                createPeriodicChecker();
-                periodicChecker.Elapsed += delegate { setDefaultPositionStep1(); };
+                haltAll();
+                if (isHeightOk())
+                {
+                    setDefaultPositionStep1();
+                }
+                else
+                {
+                    setManipulativHeight();
+                    createPeriodicChecker();
+                    periodicChecker.Elapsed += delegate { setDefaultPositionStep1(); };
+                }
             }
         }
 
@@ -251,8 +274,11 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void tiltBack()
         {
-            haltAll();
-            tiltStep0(tiltBackStep1);
+            if (!error)
+            {
+                haltAll();
+                tiltStep0(tiltBackStep1);
+            }
         }
 
         /// <summary>
@@ -260,8 +286,11 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void tiltFront()
         {
-            haltAll();
-            tiltStep0(tiltFrontStep1);
+            if (!error)
+            {
+                haltAll();
+                tiltStep0(tiltFrontStep1);
+            }
         }
 
         /// <summary>
@@ -269,8 +298,11 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void tiltLeft()
         {
-            haltAll();
-            tiltStep0(tiltLeftStep1);
+            if (!error)
+            {
+                haltAll();
+                tiltStep0(tiltLeftStep1);
+            }
         }
 
         /// <summary>
@@ -278,8 +310,11 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void tiltRight()
         {
-            haltAll();
-            tiltStep0(tiltRightStep1);
+            if (!error)
+            {
+                haltAll();
+                tiltStep0(tiltRightStep1);
+            }
         }
 
         /// <summary>
@@ -288,11 +323,14 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="measure">míra zůžení od 0 do 100</param>
         public void narrowFront(int measure)
         {
-            if (!(narrowFrontMoving || narrowBackMoving))
+            if (!error)
             {
-                haltAll();
+                if (!(narrowFrontMoving || narrowBackMoving))
+                {
+                    haltAll();
+                }
+                narrowFrontStep0(measure);
             }
-            narrowFrontStep0(measure);
         }
 
         /// <summary>
@@ -301,11 +339,14 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="measure">míra zůžení od 0 do 100</param>
         public void narrowBack(int measure)
         {
-            if (!(narrowFrontMoving || narrowBackMoving))
+            if (!error)
             {
-                haltAll();
+                if (!(narrowFrontMoving || narrowBackMoving))
+                {
+                    haltAll();
+                }
+                narrowBackStep0(measure);
             }
-            narrowBackStep0(measure);
         }
 
         /// <summary>
@@ -315,7 +356,10 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="step">krok motoru v qc</param>
         public void moveWithMotor(MotorId motorId, int step)
         {
-            motors[motorId].move(step);
+            if (!error)
+            {
+                motors[motorId].move(step);
+            }
         }
 
         /// <summary>
@@ -324,19 +368,22 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="savePosition">příznak, zda uložit pozici</param>
         public void disable(bool savePosition)
         {
-            if ((connector != null || test) && savePosition)
+            if (!error)
             {
-                saveCurrentPositions();
-            }
+                if ((connector != null || test) && savePosition)
+                {
+                    saveCurrentPositions();
+                }
 
-            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
-            {
-                motor.Value.disableStateObserver();
-            }
+                foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+                {
+                    motor.Value.disableStateObserver();
+                }
 
-            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
-            {
-                motor.Value.disable();
+                foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+                {
+                    motor.Value.disable();
+                }
             }
         }
 
@@ -346,19 +393,22 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="absoluteControllMode">true, pokud zobrazit absolutní pozicování</param>
         public void changeControllMode(bool absoluteControllMode)
         {
-            if (!absoluteControllMode)
+            if (!error)
             {
-                motors[MotorId.PP_P].changeMode(MotorMode.velocity);
-                motors[MotorId.LP_P].changeMode(MotorMode.velocity);
-                motors[MotorId.LZ_P].changeMode(MotorMode.velocity);
-                motors[MotorId.PZ_P].changeMode(MotorMode.velocity);
-            }
-            else
-            {
-                motors[MotorId.PP_P].changeMode(MotorMode.position);
-                motors[MotorId.LP_P].changeMode(MotorMode.position);
-                motors[MotorId.LZ_P].changeMode(MotorMode.position);
-                motors[MotorId.PZ_P].changeMode(MotorMode.position);
+                if (!absoluteControllMode)
+                {
+                    motors[MotorId.PP_P].changeMode(MotorMode.velocity);
+                    motors[MotorId.LP_P].changeMode(MotorMode.velocity);
+                    motors[MotorId.LZ_P].changeMode(MotorMode.velocity);
+                    motors[MotorId.PZ_P].changeMode(MotorMode.velocity);
+                }
+                else
+                {
+                    motors[MotorId.PP_P].changeMode(MotorMode.position);
+                    motors[MotorId.LP_P].changeMode(MotorMode.position);
+                    motors[MotorId.LZ_P].changeMode(MotorMode.position);
+                    motors[MotorId.PZ_P].changeMode(MotorMode.position);
+                }
             }
         }
 
@@ -367,9 +417,12 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void homing()
         {
-            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+            if (!error)
             {
-                motor.Value.setActualPositionAsHoming();
+                foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+                {
+                    motor.Value.setActualPositionAsHoming();
+                }
             }
         }
 
@@ -379,29 +432,35 @@ namespace Robot.Robot.Implementations.Epos
         /// <returns>true, pokud se nahrání povedlo</returns>
         public bool reHoming()
         {
-            if (allMotorsOK())
+            if (!error)
             {
-                if (Properties.Settings.Default.correctlyEnded)
+                if (allMotorsOK())
                 {
-                    Properties.Settings.Default.correctlyEnded = false;
-                    Properties.Settings.Default.Save();
-                    foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+                    if (Properties.Settings.Default.correctlyEnded)
                     {
-                        motor.Value.setHomingPosition((int)Properties.Settings.Default[motor.Key.ToString()]);
+                        Properties.Settings.Default.correctlyEnded = false;
+                        Properties.Settings.Default.Save();
+                        foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+                        {
+                            motor.Value.setHomingPosition((int)Properties.Settings.Default[motor.Key.ToString()]);
+                        }
+                        motors[MotorId.LZ_P].setActualPositionAsHoming();
+                        motors[MotorId.PZ_P].setActualPositionAsHoming();
+                        motors[MotorId.PP_P].setActualPositionAsHoming();
+                        motors[MotorId.LP_P].setActualPositionAsHoming();
+                        return true;
                     }
-                    motors[MotorId.LZ_P].setActualPositionAsHoming();
-                    motors[MotorId.PZ_P].setActualPositionAsHoming();
-                    motors[MotorId.PP_P].setActualPositionAsHoming();
-                    motors[MotorId.LP_P].setActualPositionAsHoming();
-                    return true;
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
-                    return false;
+                    return true;
                 }
             }
-            else
-            {
+            else {
                 return true;
             }
         }
@@ -411,15 +470,21 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void setCurrentPositionAsDefault()
         {
-            if (!isHeightOk())
+            if (!error)
             {
-                DialogResult dialogResult = MessageBox.Show("Výška jedné nebo více nohou je nastavena příliš vysoko (nad 40 °) a takovou polohu nelze z manipulačních důvodů nastavit jako výchozí.", "Zakázaná výška", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-            else
-            {
-                foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+                if (!error)
                 {
-                    motor.Value.setCurrentPositionAsDefault();
+                    if (!isHeightOk())
+                    {
+                        DialogResult dialogResult = MessageBox.Show("Výška jedné nebo více nohou je nastavena příliš vysoko (nad 40 °) a takovou polohu nelze z manipulačních důvodů nastavit jako výchozí.", "Zakázaná výška", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    else
+                    {
+                        foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+                        {
+                            motor.Value.setCurrentPositionAsDefault();
+                        }
+                    }
                 }
             }
         }
@@ -430,9 +495,12 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="on">true pokud zapnout</param>
         public void limitProtectionEnable(bool on)
         {
-            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+            if (!error)
             {
-                motor.Value.limitProtectionOnOff(on);
+                foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+                {
+                    motor.Value.limitProtectionOnOff(on);
+                }
             }
         }
 
@@ -441,25 +509,28 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void haltAll()
         {
-            radiusMoving = false;
-            narrowFrontMoving = false;
-            narrowBackMoving = false;
-            directMoving = false;
-            if (periodicChecker != null)
+            if (!error)
             {
-                periodicChecker.Dispose();
-            }
-            if (periodicCheckerFrontNarrow != null)
-            {
-                periodicCheckerFrontNarrow.Dispose();
-            }
-            if (periodicCheckerBackNarrow != null)
-            {
-                periodicCheckerBackNarrow.Dispose();
-            }
-            foreach (KeyValuePair<MotorId, IMotor> motor in motors)
-            {
-                motor.Value.halt();
+                radiusMoving = false;
+                narrowFrontMoving = false;
+                narrowBackMoving = false;
+                directMoving = false;
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+                if (periodicCheckerFrontNarrow != null)
+                {
+                    periodicCheckerFrontNarrow.Dispose();
+                }
+                if (periodicCheckerBackNarrow != null)
+                {
+                    periodicCheckerBackNarrow.Dispose();
+                }
+                foreach (KeyValuePair<MotorId, IMotor> motor in motors)
+                {
+                    motor.Value.halt();
+                }
             }
         }
 
@@ -469,16 +540,19 @@ namespace Robot.Robot.Implementations.Epos
         /// <param name="left">příznak, zda rotovat doleva</param>
         public void rotate(bool left)
         {
-            haltAll();
-            if (isHeightOk())
+            if (!error)
             {
-                rotateStep1(left);
-            }
-            else
-            {
-                setManipulativHeight();
-                createPeriodicChecker();
-                periodicChecker.Elapsed += delegate { rotateStep1(left); };
+                haltAll();
+                if (isHeightOk())
+                {
+                    rotateStep1(left);
+                }
+                else
+                {
+                    setManipulativHeight();
+                    createPeriodicChecker();
+                    periodicChecker.Elapsed += delegate { rotateStep1(left); };
+                }
             }
         }
 
@@ -487,12 +561,15 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void stopTiltFront()
         {
-            if (periodicChecker != null)
+            if (!error)
             {
-                periodicChecker.Dispose();
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+                motors[MotorId.LP_Z].moveToPosition(lastPositionBeforeTiltLP);
+                motors[MotorId.PP_Z].moveToPosition(lastPositionBeforeTiltPP);
             }
-            motors[MotorId.LP_Z].moveToPosition(lastPositionBeforeTiltLP);
-            motors[MotorId.PP_Z].moveToPosition(lastPositionBeforeTiltPP);
         }
 
         /// <summary>
@@ -500,12 +577,15 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void stopTiltBack()
         {
-            if (periodicChecker != null)
+            if (!error)
             {
-                periodicChecker.Dispose();
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+                motors[MotorId.LZ_Z].moveToPosition(lastPositionBeforeTiltLZ);
+                motors[MotorId.PZ_Z].moveToPosition(lastPositionBeforeTiltPZ);
             }
-            motors[MotorId.LZ_Z].moveToPosition(lastPositionBeforeTiltLZ);
-            motors[MotorId.PZ_Z].moveToPosition(lastPositionBeforeTiltPZ);
         }
 
         /// <summary>
@@ -513,12 +593,15 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void stopTiltLeft()
         {
-            if (periodicChecker != null)
+            if (!error)
             {
-                periodicChecker.Dispose();
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+                motors[MotorId.LZ_Z].moveToPosition(lastPositionBeforeTiltLZ);
+                motors[MotorId.LP_Z].moveToPosition(lastPositionBeforeTiltLP);
             }
-            motors[MotorId.LZ_Z].moveToPosition(lastPositionBeforeTiltLZ);
-            motors[MotorId.LP_Z].moveToPosition(lastPositionBeforeTiltLP);
         }
 
         /// <summary>
@@ -526,12 +609,15 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void stopTiltRight()
         {
-            if (periodicChecker != null)
+            if (!error)
             {
-                periodicChecker.Dispose();
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+                motors[MotorId.PP_Z].moveToPosition(lastPositionBeforeTiltPP);
+                motors[MotorId.PZ_Z].moveToPosition(lastPositionBeforeTiltPZ);
             }
-            motors[MotorId.PP_Z].moveToPosition(lastPositionBeforeTiltPP);
-            motors[MotorId.PZ_Z].moveToPosition(lastPositionBeforeTiltPZ);
         }
 
         /// <summary>
@@ -539,24 +625,27 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void stopMoveUp()
         {
-            if (periodicChecker != null)
+            if (!error)
             {
-                periodicChecker.Dispose();
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+                motors[MotorId.LP_Z].halt();
+                motors[MotorId.PP_Z].halt();
+                motors[MotorId.LZ_Z].halt();
+                motors[MotorId.PZ_Z].halt();
+
+                motors[MotorId.PP_P].halt();
+                motors[MotorId.LP_P].halt();
+                motors[MotorId.LZ_P].halt();
+                motors[MotorId.PZ_P].halt();
+
+                motors[MotorId.PP_P].enable();
+                motors[MotorId.LP_P].enable();
+                motors[MotorId.LZ_P].enable();
+                motors[MotorId.PZ_P].enable();
             }
-            motors[MotorId.LP_Z].halt();
-            motors[MotorId.PP_Z].halt();
-            motors[MotorId.LZ_Z].halt();
-            motors[MotorId.PZ_Z].halt();
-
-            motors[MotorId.PP_P].halt();
-            motors[MotorId.LP_P].halt();
-            motors[MotorId.LZ_P].halt();
-            motors[MotorId.PZ_P].halt();
-
-            motors[MotorId.PP_P].enable();
-            motors[MotorId.LP_P].enable();
-            motors[MotorId.LZ_P].enable();
-            motors[MotorId.PZ_P].enable();
         }
 
         /// <summary>
@@ -564,24 +653,27 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void stopMoveDown()
         {
-            if (periodicChecker != null)
+            if (!error)
             {
-                periodicChecker.Dispose();
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+                motors[MotorId.LP_Z].halt();
+                motors[MotorId.PP_Z].halt();
+                motors[MotorId.LZ_Z].halt();
+                motors[MotorId.PZ_Z].halt();
+
+                motors[MotorId.PP_P].halt();
+                motors[MotorId.LP_P].halt();
+                motors[MotorId.LZ_P].halt();
+                motors[MotorId.PZ_P].halt();
+
+                motors[MotorId.PP_P].enable();
+                motors[MotorId.LP_P].enable();
+                motors[MotorId.LZ_P].enable();
+                motors[MotorId.PZ_P].enable();
             }
-            motors[MotorId.LP_Z].halt();
-            motors[MotorId.PP_Z].halt();
-            motors[MotorId.LZ_Z].halt();
-            motors[MotorId.PZ_Z].halt();
-
-            motors[MotorId.PP_P].halt();
-            motors[MotorId.LP_P].halt();
-            motors[MotorId.LZ_P].halt();
-            motors[MotorId.PZ_P].halt();
-
-            motors[MotorId.PP_P].enable();
-            motors[MotorId.LP_P].enable();
-            motors[MotorId.LZ_P].enable();
-            motors[MotorId.PZ_P].enable();
         }
 
         /// <summary>
@@ -589,14 +681,17 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void stopWiden()
         {
-            if (periodicChecker != null)
+            if (!error)
             {
-                periodicChecker.Dispose();
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+                motors[MotorId.LP_ZK].halt();
+                motors[MotorId.PP_ZK].halt();
+                motors[MotorId.LZ_ZK].halt();
+                motors[MotorId.PZ_ZK].halt();
             }
-            motors[MotorId.LP_ZK].halt();
-            motors[MotorId.PP_ZK].halt();
-            motors[MotorId.LZ_ZK].halt();
-            motors[MotorId.PZ_ZK].halt();
         }
 
         /// <summary>
@@ -604,14 +699,17 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void stopNarrow()
         {
-            if (periodicChecker != null)
+            if (!error)
             {
-                periodicChecker.Dispose();
+                if (periodicChecker != null)
+                {
+                    periodicChecker.Dispose();
+                }
+                motors[MotorId.LP_ZK].halt();
+                motors[MotorId.PP_ZK].halt();
+                motors[MotorId.LZ_ZK].halt();
+                motors[MotorId.PZ_ZK].halt();
             }
-            motors[MotorId.LP_ZK].halt();
-            motors[MotorId.PP_ZK].halt();
-            motors[MotorId.LZ_ZK].halt();
-            motors[MotorId.PZ_ZK].halt();
         }
 
         /// <summary>
@@ -619,7 +717,10 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void stopRotate()
         {
-            haltAll();
+            if (!error)
+            {
+                haltAll();
+            }
         }
 
         /// <summary>
@@ -627,22 +728,25 @@ namespace Robot.Robot.Implementations.Epos
         /// </summary>
         public void refreshMototrsParameters()
         {
-            motors[MotorId.PP_P].setParameters((uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
-            motors[MotorId.LP_P].setParameters((uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
-            motors[MotorId.LZ_P].setParameters((uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
-            motors[MotorId.PZ_P].setParameters((uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
-            motors[MotorId.PP_R].setParameters((uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1);
-            motors[MotorId.LP_R].setParameters((uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1);
-            motors[MotorId.LZ_R].setParameters((uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1);
-            motors[MotorId.PZ_R].setParameters((uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1);
-            motors[MotorId.PP_Z].setParameters((uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1);
-            motors[MotorId.LP_Z].setParameters((uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1);
-            motors[MotorId.LZ_Z].setParameters((uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1);
-            motors[MotorId.PZ_Z].setParameters((uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1);
-            motors[MotorId.PP_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
-            motors[MotorId.LP_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
-            motors[MotorId.LZ_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
-            motors[MotorId.PZ_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
+            if (!error)
+            {
+                motors[MotorId.PP_P].setParameters((uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
+                motors[MotorId.LP_P].setParameters((uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
+                motors[MotorId.LZ_P].setParameters((uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
+                motors[MotorId.PZ_P].setParameters((uint)Properties.Settings.Default["P_positionVelocity"], (uint)Properties.Settings.Default["P_positionAceleration"], (uint)Properties.Settings.Default["P_positionDeceleration"], (uint)Properties.Settings.Default["P_maxVelocity"], (uint)Properties.Settings.Default["P_aceleration"], (uint)Properties.Settings.Default["P_deceleration"]);
+                motors[MotorId.PP_R].setParameters((uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1);
+                motors[MotorId.LP_R].setParameters((uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1);
+                motors[MotorId.LZ_R].setParameters((uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1);
+                motors[MotorId.PZ_R].setParameters((uint)Properties.Settings.Default["R_positionVelocity"], (uint)Properties.Settings.Default["R_positionAceleration"], (uint)Properties.Settings.Default["R_positionDeceleration"], 1, 1, 1);
+                motors[MotorId.PP_Z].setParameters((uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1);
+                motors[MotorId.LP_Z].setParameters((uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1);
+                motors[MotorId.LZ_Z].setParameters((uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1);
+                motors[MotorId.PZ_Z].setParameters((uint)Properties.Settings.Default["Z_positionVelocity"], (uint)Properties.Settings.Default["Z_positionAceleration"], (uint)Properties.Settings.Default["Z_positionDeceleration"], 1, 1, 1);
+                motors[MotorId.PP_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
+                motors[MotorId.LP_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
+                motors[MotorId.LZ_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
+                motors[MotorId.PZ_ZK].setParameters((uint)Properties.Settings.Default["ZK_positionVelocity"], (uint)Properties.Settings.Default["ZK_positionAceleration"], (uint)Properties.Settings.Default["ZK_positionDeceleration"], 1, 1, 1);
+            }
         }
 
         /// <summary>
